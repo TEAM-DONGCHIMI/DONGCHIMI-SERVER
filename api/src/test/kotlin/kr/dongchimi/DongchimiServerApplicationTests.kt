@@ -9,5 +9,4 @@ class DongchimiServerApplicationTests {
     @Test
     fun contextLoads() {
     }
-
 }

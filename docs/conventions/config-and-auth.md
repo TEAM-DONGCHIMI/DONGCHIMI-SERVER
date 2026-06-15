@@ -3,6 +3,9 @@
 > 이 문서는 `@ConfigurationProperties` 설정 바인딩 규칙과, JWT 기반 인증에서 사용하는
 > `PrincipalProvider`의 동작 흐름·사용법을 다룬다.
 > 설정값 추가, 인증이 필요한 API 작업 시 참조한다.
+>
+> **모듈 위치**: 인증/인가 관련 코드는 `gateway-auth` 모듈에 위치한다.
+> Spring Security 및 OAuth2 의존성은 `gateway-auth`에만 선언하고 `api`에는 직접 추가하지 않는다.
 
 ---
 
@@ -118,10 +121,14 @@ fun logout(provider: PrincipalProvider, httpRequest: HttpServletRequest): Common
 
 ### 2-6. 관련 파일
 
-| 파일 | 역할 |
-| --- | --- |
-| `security/provider/PrincipalProvider.kt` | userId를 담는 data class |
-| `security/provider/PrincipalProviderArgumentResolver.kt` | SecurityContext에서 꺼내 파라미터에 주입 |
-| `security/UserAuthentication.kt` | `UsernamePasswordAuthenticationToken` 래퍼 |
-| `security/jwt/JwtAuthFilter.kt` | 토큰 검증 후 SecurityContext에 저장 |
-| `common/config/WebMvcConfig.kt` | ArgumentResolver 등록 |
+아래 파일들은 모두 `gateway-auth` 모듈(`gateway-auth/src/main/kotlin/kr/dongchimi/`) 하위에 위치한다.
+`ArgumentResolver` 등록처럼 MVC 설정이 필요한 파일만 `api` 모듈에 둔다.
+
+| 모듈 | 파일 | 역할 |
+| --- | --- | --- |
+| `gateway-auth` | `security/provider/PrincipalProvider.kt` | userId를 담는 data class |
+| `gateway-auth` | `security/provider/PrincipalProviderArgumentResolver.kt` | SecurityContext에서 꺼내 파라미터에 주입 |
+| `gateway-auth` | `security/UserAuthentication.kt` | `UsernamePasswordAuthenticationToken` 래퍼 |
+| `gateway-auth` | `security/jwt/JwtAuthFilter.kt` | 토큰 검증 후 SecurityContext에 저장 |
+| `gateway-auth` | `security/config/SecurityConfig.kt` | Security FilterChain, 경로 인가 규칙 설정 |
+| `api` | `common/config/WebMvcConfig.kt` | ArgumentResolver 등록 |

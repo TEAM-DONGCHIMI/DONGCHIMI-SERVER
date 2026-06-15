@@ -11,6 +11,7 @@
 root
 ├── api/              # 실행 가능한 애플리케이션 모듈 (Spring Boot 진입점)
 ├── core/             # 도메인 및 비즈니스 로직 모듈
+├── gateway-auth/     # 인증/인가 횡단관심사 모듈 (Spring Security, OAuth2)
 ├── infrastructure/   # 기술 구현 모듈
 │   └── db/           # DB 관련 모듈 (JPA Entity, Repository 구현체 등)
 └── common/           # 공통 유틸리티 모듈
@@ -20,12 +21,15 @@ root
 
 ```
 api → core
+api → gateway-auth
 api → infrastructure:db
+gateway-auth → core
 infrastructure:db → core
 core → common
 ```
 
-- `api` 모듈은 `core`, `infrastructure:db` 모듈에 의존한다
+- `api` 모듈은 `core`, `gateway-auth`, `infrastructure:db` 모듈에 의존한다
+- `gateway-auth` 모듈은 `core` 모듈에 의존한다
 - `infrastructure:db` 모듈은 `core` 모듈에 의존한다
 - `core` 모듈은 다른 모듈에 의존하지 않는다 (단, `common` 제외)
 - `common` 모듈은 어떤 모듈에도 의존하지 않는다
@@ -71,9 +75,16 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")  // ✅ JPA는 infrastructure:db 내부에만
 }
 
+// gateway-auth 모듈 build.gradle.kts
+dependencies {
+    implementation(project(":core"))  // ✅ core 모듈 의존
+    implementation("org.springframework.boot:spring-boot-starter-security")  // ✅ Security는 gateway-auth 내부에만
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
+}
+
 // core 모듈 build.gradle.kts
 dependencies {
-    // JPA 의존성 없음 ✅
+    // Security / JPA 의존성 없음 ✅
 }
 ```
 
@@ -82,6 +93,7 @@ dependencies {
 | 모듈 | 허용 의존성 |
 | --- | --- |
 | `core` | 순수 Kotlin / 비즈니스 로직 라이브러리만 |
-| `infrastructure:db` | `core` + 기술 구현 라이브러리 (JPA, Redis, HTTP Client 등) |
-| `api` | `core` + `infrastructure:db` + Spring Boot 실행 관련 |
+| `gateway-auth` | `core` + Spring Security / OAuth2 관련 라이브러리 |
+| `infrastructure:db` | `core` + 기술 구현 라이브러리 (JPA, H2 Console, Redis, HTTP Client 등) |
+| `api` | `core` + `gateway-auth` + `infrastructure:db` + Spring MVC / Actuator 실행 관련 |
 | `common` | 순수 Kotlin / 유틸리티만 |
