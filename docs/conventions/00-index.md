@@ -10,6 +10,7 @@
 | [`error-handling.md`](./error-handling.md) | `ErrorCode`, `CustomException` 계층, `GlobalExceptionHandler`, `@ApiErrorCode` 기반 Swagger 에러 문서화 | 새 에러 코드 추가, 예외 처리 로직 작업 |
 | [`config-and-auth.md`](./config-and-auth.md) | `@ConfigurationProperties` 설정 바인딩, `PrincipalProvider` 인증 흐름 및 사용법 | 설정값 추가, 인증이 필요한 API 작업 |
 | [`flyway-migration.md`](./flyway-migration.md) | Flyway 마이그레이션 파일 위치/네이밍, 테이블·컬럼·인덱스 작성 규칙, JPA `ddl-auto` 설정 | 테이블/컬럼 추가·변경, 새 도메인 스키마 작업 |
+| [`git-convention.md`](./git-convention.md) | 커밋 메시지 형식/type 종류, 브랜치 전략 및 네이밍, PR/이슈 작성 규칙 | 커밋, 브랜치 생성, PR 작성 시 |
 
 ## 빠른 참조
 
