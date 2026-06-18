@@ -4,8 +4,8 @@
 > `PrincipalProvider`의 동작 흐름·사용법을 다룬다.
 > 설정값 추가, 인증이 필요한 API 작업 시 참조한다.
 >
-> **모듈 위치**: 인증/인가 관련 코드는 `gateway-auth` 모듈에 위치한다.
-> Spring Security 및 OAuth2 의존성은 `gateway-auth`에만 선언하고 `api`에는 직접 추가하지 않는다.
+> **모듈 위치**: `PrincipalProvider` 인터페이스는 `core`에 정의하고, 구현체는 `gateway-auth`에 둔다.
+> `api`는 `gateway-auth`를 `runtimeOnly`로만 선언해 컴파일 타임 의존을 차단한다.
 
 ---
 
@@ -29,26 +29,40 @@ data class JwtProperties(
 
 ### 2-1. 개요
 
-`PrincipalProvider`는 JWT Access Token에서 추출한 `userId`를 Controller 메서드 파라미터로 주입받기 위한 객체이다.
-Spring의 `HandlerMethodArgumentResolver`를 통해 자동으로 주입되므로, 어노테이션 없이 파라미터 타입만으로 동작한다.
+`PrincipalProvider`는 `core`에 정의된 인터페이스로, 인증된 사용자 정보를 Controller 메서드 파라미터로 주입받기 위해 사용한다.
+`api`는 인터페이스만 참조하고(`core` 의존), 실제 구현체(`SecurityPrincipalProvider`)는 `gateway-auth`에 위치한다.
+`api`가 `gateway-auth`를 `runtimeOnly`로 선언하므로, 컴파일 타임에 구현체에 직접 의존하지 않는다.
 
-### 2-2. 동작 흐름
+### 2-2. 모듈별 역할
+
+| 모듈 | 파일 | 역할 |
+| --- | --- | --- |
+| `core` | `auth/PrincipalProvider.kt` | 인터페이스 정의 (`userId`, `roles`, `email`) |
+| `gateway-auth` | `auth/SecurityPrincipalProvider.kt` | `SecurityContextHolder` 기반 구현체 |
+| `gateway-auth` | `security/UserAuthentication.kt` | `UsernamePasswordAuthenticationToken` 래퍼 |
+| `gateway-auth` | `security/jwt/JwtAuthFilter.kt` | 토큰 검증 후 SecurityContext에 저장 |
+| `gateway-auth` | `security/config/SecurityConfig.kt` | Security FilterChain, 경로 인가 규칙 설정 |
+| `api` | `common/resolver/PrincipalProviderArgumentResolver.kt` | `PrincipalProvider` 빈을 파라미터에 주입 |
+| `api` | `common/config/WebMvcConfig.kt` | ArgumentResolver 등록 |
+
+### 2-3. 동작 흐름
 
 ```
 HTTP Request (Authorization: Bearer <token>)
     ↓
-JwtAuthFilter
+JwtAuthFilter (gateway-auth)
     - 토큰 추출 및 검증
-    - userId 파싱 → PrincipalProvider.of(userId) 생성
     - SecurityContextHolder에 UserAuthentication 저장
     ↓
-PrincipalProviderArgumentResolver
-    - SecurityContextHolder에서 PrincipalProvider를 꺼내서 파라미터에 주입
+PrincipalProviderArgumentResolver (api)
+    - PrincipalProvider 빈(= SecurityPrincipalProvider)을 파라미터에 주입
     ↓
-Controller 메서드 (provider: PrincipalProvider)
+Controller 메서드 (principal: PrincipalProvider)
+    - principal.userId / principal.email 프로퍼티 접근
+    → SecurityContextHolder에서 매번 최신 값을 읽음
 ```
 
-### 2-3. 사용법
+### 2-4. 사용법
 
 **1. Controller — 파라미터로 선언**
 
@@ -57,10 +71,10 @@ Controller 메서드 (provider: PrincipalProvider)
 ```kotlin
 @PostMapping
 fun createPost(
-    provider: PrincipalProvider,
+    principal: PrincipalProvider,
     @Valid @RequestBody request: CreatePostRequest,
 ): CommonResponse<Void> {
-    postService.createPost(provider.userId(), request.toCommand())
+    postService.createPost(principal.userId, request.toCommand())
     return CommonResponse.success(PostSuccessCode.POST_CREATED)
 }
 ```
@@ -72,39 +86,32 @@ Swagger UI에 노출되지 않도록 반드시 숨김 처리한다.
 ```kotlin
 @Operation(summary = "게시글 작성", description = "새로운 게시글을 생성합니다.")
 fun createPost(
-    @Parameter(hidden = true) provider: PrincipalProvider,
+    @Parameter(hidden = true) principal: PrincipalProvider,
     @RequestBody request: CreatePostRequest,
 ): CommonResponse<Void>
 ```
 
 **3. Service — `userId`를 `Long`으로 직접 받는다**
 
-Controller에서 `provider.userId()`를 호출하여 추출한 후 Service에 전달한다.
+Controller에서 `principal.userId`를 추출한 후 Service에 전달한다. Service는 `PrincipalProvider`에 의존하지 않는다.
 
 ```kotlin
 // Controller
-@PostMapping
-fun createPost(
-    provider: PrincipalProvider,
-    @Valid @RequestBody request: CreatePostRequest,
-): CommonResponse<Void> {
-    postService.createPost(provider.userId(), request.toCommand())
-    return CommonResponse.success(PostSuccessCode.POST_CREATED)
-}
+postService.createPost(principal.userId, request.toCommand())
 
-// Service — PrincipalProvider 직접 의존 없이 Long userId를 받는다
+// Service
 fun createPost(userId: Long, command: CreatePostCommand) { ... }
 ```
 
-### 2-4. 규칙 요약
+### 2-5. 규칙 요약
 
 | 위치 | 규칙 |
 | --- | --- |
-| Controller | `provider: PrincipalProvider` 파라미터 선언, 어노테이션 없음 |
+| Controller | `principal: PrincipalProvider` 파라미터 선언, 어노테이션 없음 |
 | `*Api` 인터페이스 | `@Parameter(hidden = true)` 필수 |
-| Service | `Long userId`를 받음 (provider 객체 직접 의존 X) |
+| Service | `Long userId`를 받음 (`PrincipalProvider` 직접 의존 X) |
 
-### 2-5. 인증이 필요 없는 API
+### 2-6. 인증이 필요 없는 API
 
 `SecurityConfig`의 `authorizeHttpRequests`에서 permit된 경로는 토큰 없이 호출된다.
 이 경우 `SecurityContextHolder`에 인증 정보가 없으므로 **`PrincipalProvider` 파라미터를 선언하지 않는다.**
@@ -116,19 +123,20 @@ fun login(@RequestBody request: LoginRequest, response: HttpServletResponse): Co
 
 // 인증 필요 — PrincipalProvider 파라미터 있음
 @PostMapping("/logout")
-fun logout(provider: PrincipalProvider, httpRequest: HttpServletRequest): CommonResponse<Void> { ... }
+fun logout(principal: PrincipalProvider, httpRequest: HttpServletRequest): CommonResponse<Void> { ... }
 ```
 
-### 2-6. 관련 파일
+### 2-7. 테스트 환경 대응
 
-아래 파일들은 모두 `gateway-auth` 모듈(`gateway-auth/src/main/kotlin/kr/dongchimi/`) 하위에 위치한다.
-`ArgumentResolver` 등록처럼 MVC 설정이 필요한 파일만 `api` 모듈에 둔다.
+`test` 프로파일에서 `SecurityPrincipalProvider` 대신 고정값을 반환하는 스텁을 등록한다.
 
-| 모듈 | 파일 | 역할 |
-| --- | --- | --- |
-| `gateway-auth` | `security/provider/PrincipalProvider.kt` | userId를 담는 data class |
-| `gateway-auth` | `security/provider/PrincipalProviderArgumentResolver.kt` | SecurityContext에서 꺼내 파라미터에 주입 |
-| `gateway-auth` | `security/UserAuthentication.kt` | `UsernamePasswordAuthenticationToken` 래퍼 |
-| `gateway-auth` | `security/jwt/JwtAuthFilter.kt` | 토큰 검증 후 SecurityContext에 저장 |
-| `gateway-auth` | `security/config/SecurityConfig.kt` | Security FilterChain, 경로 인가 규칙 설정 |
-| `api` | `common/config/WebMvcConfig.kt` | ArgumentResolver 등록 |
+```kotlin
+@Profile("test")
+@Primary
+@Component
+class StubPrincipalProvider : PrincipalProvider {
+    override val userId: Long = 1L
+    override val roles: Set<String> = setOf("USER")
+    override val email: String = "test@example.com"
+}
+```
