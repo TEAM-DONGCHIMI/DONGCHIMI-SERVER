@@ -6,4 +6,5 @@ include(
     "gateway-auth",
     "infrastructure:db",
     "api",
+    "bootstrap",
 )

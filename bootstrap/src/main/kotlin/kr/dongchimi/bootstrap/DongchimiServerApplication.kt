@@ -1,4 +1,4 @@
-package kr.dongchimi
+package kr.dongchimi.bootstrap
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
