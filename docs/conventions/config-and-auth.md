@@ -2,7 +2,33 @@
 
 ---
 
-## 1. 설정 바인딩
+## 1. 모듈별 yml 관리
+
+각 모듈은 자신의 설정값을 `src/main/resources/application-{모듈명}.yml`에 정의한다.  
+`bootstrap` 모듈의 `application.yml`에서 `spring.config.import`로 해당 파일을 가져온다.
+
+```
+bootstrap/src/main/resources/application.yml
+gateway-auth/src/main/resources/application-gateway-auth.yml
+api/src/main/resources/application-api.yml
+```
+
+```yaml
+# bootstrap/application.yml
+spring:
+  config:
+    import:
+      - classpath:application-gateway-auth.yml
+      - classpath:application-api.yml
+```
+
+> `bootstrap` 모듈에 설정을 직접 작성하지 않는다. 설정의 소유권은 해당 모듈에 있다.
+
+> 각 모듈의 yml이 classpath에 올라오려면 `bootstrap`이 해당 모듈을 `implementation`으로 **직접** 의존해야 한다. `runtimeOnly`나 전이 의존성만으로는 IntelliJ에서 `processResources`가 실행되지 않아 파일을 찾지 못한다.
+
+---
+
+## 2. 설정 바인딩
 
 - `@ConfigurationProperties`를 사용한다. `@Value`는 사용하지 않는다.
 - `data class`로 선언한다.
@@ -18,7 +44,7 @@ data class JwtProperties(
 
 ---
 
-## 2. 인증 흐름
+## 3. 인증 흐름
 
 ```
 HTTP Request (Authorization: Bearer <token>)
@@ -48,7 +74,7 @@ Controller (principal: ApiUser)
 
 ---
 
-## 3. 사용 규칙
+## 4. 사용 규칙
 
 ### Controller
 
