@@ -1,5 +1,6 @@
 package kr.dongchimi.gateway.auth.config
 
+import kr.dongchimi.gateway.auth.PublicEndpoints
 import kr.dongchimi.gateway.auth.jwt.JwtAuthFilter
 import kr.dongchimi.gateway.auth.jwt.JwtProvider
 import org.springframework.context.annotation.Bean
@@ -33,6 +34,7 @@ class SecurityConfig(
                 sessionCreationPolicy = SessionCreationPolicy.STATELESS
             }
             authorizeHttpRequests {
+                PublicEndpoints.SWAGGER.forEach { authorize(it, permitAll) }
                 authorize(anyRequest, authenticated)
             }
             addFilterBefore<UsernamePasswordAuthenticationFilter>(JwtAuthFilter(jwtProvider))
