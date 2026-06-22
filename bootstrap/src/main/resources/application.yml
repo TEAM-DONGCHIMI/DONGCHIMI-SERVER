@@ -3,4 +3,4 @@ spring:
     name: dongchimi-server
   config:
     import:
-      - classpath:gateway-auth.yml
+      - classpath:application-gateway-auth.yml
