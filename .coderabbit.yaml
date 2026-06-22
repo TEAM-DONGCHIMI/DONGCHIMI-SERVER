@@ -1,0 +1,231 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# 참고: https://docs.coderabbit.ai/getting-started/yaml-configuration
+
+language: "ko-KR"
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_instructions: |
+    변경 사항을 한국어로 간결하게 요약한다.
+    어떤 도메인/모듈이 영향을 받는지, 어떤 레이어가 변경되었는지를 중심으로 서술한다.
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  changed_files_summary: true
+  sequence_diagrams: true
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+    ignore_title_keywords:
+      - "WIP"
+      - "chore"
+      - "docs"
+
+  # ──────────────────────────────────────────────
+  # 전역 리뷰 지침
+  # ──────────────────────────────────────────────
+  instructions: |
+    이 프로젝트는 Kotlin + Spring Boot 멀티모듈 프로젝트다.
+    모든 리뷰 코멘트는 한국어로 작성한다.
+
+    ## 모듈 구조
+    - bootstrap / api / core / gateway-auth / infrastructure:db / common 6개 모듈로 구성된다.
+    - 의존 방향: bootstrap → api → core → common, gateway-auth → core, infrastructure:db → core
+    - api 모듈은 gateway-auth를 runtimeOnly로만 선언해야 한다.
+    - core 모듈에는 Security/JPA 의존성이 없어야 한다.
+    - 모듈 간 의존성은 implementation을 사용하고 api 전파를 피한다.
+
+    ## 레이어 규칙
+    - Presentation → Business → Implement → Data Access 단방향 참조만 허용한다.
+    - Business Layer(Service)가 Repository를 직접 참조하면 지적한다.
+    - Implement Layer 간 상호 참조는 허용한다.
+    - 레이어를 건너뛰는 참조(예: Service가 JpaRepository 직접 참조)는 반드시 지적한다.
+
+    ## 네이밍 컨벤션
+    - Controller, Request, Response, Service, Reader, Appender, Remover, Processor, Validator, Manager,
+      Repository, RepositoryImpl, JpaRepository, Client 네이밍 규칙을 준수하는지 확인한다.
+    - 비핵심 도메인은 Manager 하나로 통합 가능하다.
+    - JPA Entity는 infrastructure:db 모듈에만 위치해야 한다.
+    - 도메인 클래스(data class)에 JPA 어노테이션이 없는지 확인한다.
+
+    ## 코드 작성 패턴
+    - Request DTO를 Service에 그대로 넘기지 않고 VO(Command 등)로 변환해야 한다.
+    - VO 네이밍은 {Domain}{Action} 형식이어야 한다.
+    - JPA Entity에는 도메인 생성자와 toDomain() 메서드가 있어야 한다.
+    - Repository 인터페이스는 core(domain) 모듈, 구현체는 infrastructure:db 모듈에 위치해야 한다.
+    - Implement Layer는 domain 모듈의 Repository 인터페이스에만 의존해야 한다. JpaRepository 직접 의존 금지.
+
+    ## 설정 및 인증
+    - Controller에서 인증이 필요한 API는 ApiUser 파라미터를 사용해야 한다.
+    - Service에는 ApiUser를 넘기지 않고 principal.userId(Long)를 넘긴다.
+    - Swagger 인터페이스에서 ApiUser에 @Parameter(hidden = true)를 붙였는지 확인한다.
+
+    ## 예외 처리
+    - 도메인별 ErrorCode enum을 사용하고, BusinessException 또는 AuthException으로 throw한다.
+    - RuntimeException이나 일반 Exception을 직접 throw하는 코드를 지적한다.
+
+    ## Validation
+    - Request DTO 필드에 Jakarta Validation 어노테이션을 사용하고, 메시지는 한글로 작성한다.
+    - Controller 메서드에 @Valid가 선언되어 있는지 확인한다.
+
+    ## Git 컨벤션 (PR 제목·커밋 메시지)
+    - PR 제목은 [Feat/#이슈번호], [Fix/#이슈번호] 등 형식이어야 한다.
+    - 커밋 메시지 type은 feat, fix, refactor, docs, test, chore, init 중 하나여야 한다.
+    - 커밋 제목은 한글로 작성하고 마침표가 없어야 한다.
+
+  # ──────────────────────────────────────────────
+  # 파일/경로별 추가 지침
+  # ──────────────────────────────────────────────
+  path_instructions:
+    - path: "**/controller/**/*.kt"
+      instructions: |
+        - Request DTO를 Service에 직접 넘기지 않고 toCommand() 등 변환 메서드를 사용하는지 확인한다.
+        - 인증이 필요한 API는 ApiUser 파라미터를 사용하고, Swagger 인터페이스에 @Parameter(hidden = true)가 있는지 확인한다.
+        - @Valid 어노테이션이 @RequestBody에 붙어 있는지 확인한다.
+
+    - path: "**/application/**/*.kt"
+      instructions: |
+        - Service 클래스: Repository를 직접 의존하지 않고 Implement Layer(Reader/Appender/Manager 등)를 통해서만 접근하는지 확인한다.
+        - Service 클래스: ApiUser 타입을 파라미터로 받지 않는지 확인한다. userId(Long)만 받아야 한다.
+        - Service 클래스: @Transactional 범위가 적절한지 검토한다.
+        - Reader/Appender/Remover 등 Implement Layer 클래스: JpaRepository가 아닌 domain 모듈의 Repository 인터페이스에만 의존하는지 확인한다.
+        - Reader/Appender/Remover 등 Implement Layer 클래스: 단일 책임 원칙을 준수하는지 확인한다.
+
+    - path: "infrastructure/db/src/**/*.kt"
+      instructions: |
+        - JPA Entity(JpaEntity)에 도메인 생성자와 toDomain() 메서드가 있는지 확인한다.
+        - JpaEntity는 core 모듈의 도메인 클래스에 JPA 어노테이션이 없는 형태로 분리되어 있는지 확인한다.
+        - Repository 구현체(RepositoryImpl)가 domain 모듈의 Repository 인터페이스를 구현하는지 확인한다.
+
+    - path: "infrastructure/db/src/main/resources/db/migration/**/*.sql"
+      instructions: |
+        - 파일명이 V{숫자}__{설명}.sql 형식인지 확인한다.
+        - 설명은 영문 snake_case이고 동사로 시작하는지 확인한다 (create_, add_, drop_, alter_, migrate_).
+        - 테이블명은 복수형 snake_case인지 확인한다.
+        - id, created_at, updated_at 기본 컬럼이 포함되어 있는지 확인한다.
+        - NOT NULL 컬럼 추가 시 DEFAULT 값이 지정되어 있는지 확인한다.
+        - 인덱스명이 idx_{table}_{column} 형식인지 확인한다.
+        - 이미 적용된 마이그레이션 파일을 수정하고 있지 않은지 확인한다.
+
+    - path: "core/src/**/*.kt"
+      instructions: |
+        - JPA, Spring Security 등 기술 구현 의존성이 포함되어 있지 않은지 확인한다.
+        - 도메인 클래스는 data class로 선언되어 있는지 확인한다.
+        - ErrorCode enum이 올바른 httpStatus와 한글 메시지를 갖는지 확인한다.
+
+    - path: "gateway-auth/src/**/*.kt"
+      instructions: |
+        - SecurityConfig에 새 permitAll 경로를 추가할 때 의도가 맞는지 검토한다.
+        - JWT 관련 설정은 @ConfigurationProperties를 사용하는지 확인한다.
+
+    - path: "**/build.gradle.kts"
+      instructions: |
+        - 모듈 간 의존성은 implementation을 사용하고 api 키워드로 전파하지 않는지 확인한다.
+        - api 모듈의 gateway-auth 의존성이 runtimeOnly인지 확인한다.
+        - core 모듈에 Security/JPA 의존성이 없는지 확인한다.
+
+  # ──────────────────────────────────────────────
+  # 리뷰 제외 파일
+  # ──────────────────────────────────────────────
+  path_filters:
+    - "!**/build/**"
+    - "!**/.gradle/**"
+    - "!**/generated/**"
+    - "!**/*.lock"
+    - "!**/gradlew"
+    - "!**/gradlew.bat"
+    - "!**/.idea/**"
+    - "!**/*.iml"
+
+  # ──────────────────────────────────────────────
+  # 머지 전 검사
+  # ──────────────────────────────────────────────
+  pre_merge_checks:
+    title:
+      mode: "warning"
+      requirements: |
+        PR 제목은 [Feat/#이슈번호] 또는 [Fix/#이슈번호] 형식이어야 한다.
+        Type 종류: Feat, Fix, Refactor, Docs, Test, Chore, Init
+        예: [Feat/#12] 유저 로그인 API 추가
+    description:
+      mode: "warning"
+    custom_checks:
+      - name: "마이그레이션-엔티티 쌍 확인"
+        mode: "warning"
+        instructions: |
+          JPA Entity(JpaEntity) 파일이 추가되거나 필드가 변경된 경우,
+          대응하는 Flyway 마이그레이션 SQL 파일도 함께 변경되었는지 확인한다.
+          Entity 변경은 있는데 마이그레이션 파일이 없으면 경고를 남긴다.
+      - name: "레이어 의존성 방향 확인"
+        mode: "warning"
+        instructions: |
+          Service 클래스가 Repository 인터페이스나 JpaRepository를 직접 주입받고 있으면 경고를 남긴다.
+          Implement Layer 클래스(Reader, Appender, Remover, Validator, Processor, Manager)를 통해서만 접근해야 한다.
+
+  # ──────────────────────────────────────────────
+  # Finishing Touches
+  # ──────────────────────────────────────────────
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: true
+
+  # ──────────────────────────────────────────────
+  # Static Analysis 도구 설정
+  # ──────────────────────────────────────────────
+  tools:
+    detekt:
+      enabled: true
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: true
+    yamllint:
+      enabled: true
+    actionlint:
+      enabled: true
+    # Kotlin 프로젝트와 무관한 도구는 비활성화
+    ruff:
+      enabled: false
+    phpstan:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpcs:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    rubocop:
+      enabled: false
+    clippy:
+      enabled: false
+    swiftlint:
+      enabled: false
+
+# ──────────────────────────────────────────────
+# 채팅 설정
+# ──────────────────────────────────────────────
+chat:
+  auto_reply: true
+
+# ──────────────────────────────────────────────
+# 지식베이스 설정
+# ──────────────────────────────────────────────
+knowledge_base:
+  web_search:
+    enabled: true
+  learnings:
+    scope: "local"
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "docs/conventions/architecture.md"
+      - "docs/conventions/coding-style.md"
+      - "docs/conventions/error-handling.md"
+      - "docs/conventions/config-and-auth.md"
+      - "docs/conventions/flyway-migration.md"
+      - "docs/conventions/git-convention.md"
