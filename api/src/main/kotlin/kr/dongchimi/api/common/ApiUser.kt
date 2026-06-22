@@ -1,3 +1,6 @@
 package kr.dongchimi.api.common
 
-data class Apiuser()
+data class ApiUser(
+    val userId: Long,
+    val roles: Set<String>,
+)
