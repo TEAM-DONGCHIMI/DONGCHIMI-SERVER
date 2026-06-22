@@ -4,3 +4,4 @@ spring:
   config:
     import:
       - classpath:application-gateway-auth.yml
+      - classpath:application-api.yml
