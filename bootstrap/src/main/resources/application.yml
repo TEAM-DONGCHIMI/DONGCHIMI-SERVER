@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: dongchimi-server
+  config:
+    import:
+      - classpath:gateway-auth.yml

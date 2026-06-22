@@ -1,4 +1,4 @@
-package kr.dongchimi.bootstrap
+package kr.dongchimi.gateway.auth.bootstrap
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
