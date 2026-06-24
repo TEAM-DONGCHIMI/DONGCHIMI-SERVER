@@ -103,10 +103,24 @@ class UserController(
 - `domain` 모듈이 아닌 `infrastructure:db` 모듈에 선언한다
 - 도메인 클래스를 인자로 받는 생성자를 제공한다
 - `toDomain()` 메서드를 제공한다
+- 용도에 맞는 Base Entity를 상속한다
+
+**Base Entity 선택 기준**
+
+| 클래스 | 제공 필드 | 사용 시점 |
+| --- | --- | --- |
+| `BaseCreatedTimeEntity` | `createdAt` | 생성 시각만 필요한 경우 |
+| `BaseTimeEntity` | `createdAt`, `updatedAt` | 일반 엔티티 (기본값) |
+| `BaseSoftDeleteEntity` | `createdAt`, `updatedAt`, `deletedAt` | 소프트 삭제가 필요한 경우 |
+
+- 세 클래스 모두 `kr.dongchimi.infrastructure.db.common` 패키지에 위치한다
+- `BaseSoftDeleteEntity`는 `BaseTimeEntity`를 상속한다
+- 소프트 삭제 시 `@Transactional` 범위 안에서 `entity.delete()`를 호출하면 dirty checking으로 자동 반영된다
+- 삭제된 데이터 제외 조회(`where deletedAt is null`)는 각 JpaRepository에서 직접 처리한다
 
 ```kotlin
 // infrastructure:db 모듈
-@Entity(name = "User
+@Entity
 @Table(name = "users")
 class UserJpaEntity(
     @Id
@@ -116,7 +130,7 @@ class UserJpaEntity(
     val name: String,
 
     val email: String,
-) {
+) : BaseTimeEntity() {
     constructor(user: User) : this(
         id = user.id,
         name = user.name,
