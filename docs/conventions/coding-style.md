@@ -60,6 +60,7 @@ data class User(
 
 - Request/Response DTO는 `data class`로 선언한다
 - 정적 팩토리 메서드 패턴을 사용하지 않고 생성자로 직접 생성한다
+  - **예외**: `ApiResponse`와 같은 공통 응답 래퍼는 `private constructor` + 팩토리 메서드 패턴을 허용한다. 생성 시 `success` 여부를 강제하거나 의도를 명확히 드러내야 하는 경우에 한한다.
 - Controller에서 Service로 비즈니스 로직을 위임할 때 Request DTO를 그대로 넘기지 않는다
 - Request DTO를 의미 단위의 VO(Value Object)로 변환하여 Service에 전달한다
 - VO는 `data class`로 선언하며 `{Domain}{Action}` 형식으로 네이밍한다
@@ -98,7 +99,41 @@ class UserController(
 }
 ```
 
-### 2-3. JPA Entity
+**공통 응답 래퍼 예시 (`ApiResponse`)**
+
+```kotlin
+// api 모듈 — 공통 응답 래퍼
+data class ApiResponse<T> private constructor(
+    val success: Boolean,
+    val code: String = "SUCCESS",
+    val message: String,
+    val data: T? = null,
+) {
+    companion object {
+        fun <T> success(data: T? = null): ApiResponse<T> =
+            ApiResponse(true, message = "요청에 성공했습니다.", data = data)
+
+        fun <T> error(code: String, message: String): ApiResponse<T> =
+            ApiResponse(false, code, message)
+    }
+}
+```
+
+### 2-3. 레이어 간 변환 (매퍼)
+
+- `core → api` 방향의 변환(도메인/코어 객체 → Response DTO)은 별도 매퍼 `object`에 확장 함수로 정의한다
+- `core` 모듈이 `api` 타입에 의존하지 않도록 매퍼는 `api` 모듈에 위치한다
+- `api → core` 방향의 변환(Request DTO → VO/Command)은 Request DTO 클래스 내부에 `toCommand()`를 정의한다
+
+```kotlin
+// api 모듈 — core → api 변환 매퍼
+object PageResponseMapper {
+    fun <T> PageResult<T>.toPageResponse(): PageResponse<T> =
+        PageResponse(content, hasNext)
+}
+```
+
+### 2-4. JPA Entity
 
 - `domain` 모듈이 아닌 `infrastructure:db` 모듈에 선언한다
 - 도메인 클래스를 인자로 받는 생성자를 제공한다
@@ -131,7 +166,7 @@ class UserJpaEntity(
 }
 ```
 
-### 2-4. Repository
+### 2-5. Repository
 
 **domain 모듈 — 인터페이스만 선언**
 
@@ -167,7 +202,7 @@ class UserRepositoryImpl(
 }
 ```
 
-### 2-5. Implement Layer 클래스
+### 2-6. Implement Layer 클래스
 
 - 단일 책임을 갖는다
 - `UserRepository` 인터페이스(domain 모듈)에만 의존한다 — JPA 구현체에 직접 의존하지 않는다
@@ -218,7 +253,7 @@ class TagManager(
 }
 ```
 
-### 2-6. Business Layer (Service)
+### 2-7. Business Layer (Service)
 
 - `Repository`를 직접 참조하지 않는다
 - Implement Layer의 클래스들을 조합하여 비즈니스 흐름을 표현한다

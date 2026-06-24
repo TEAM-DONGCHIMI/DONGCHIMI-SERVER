@@ -17,5 +17,5 @@
 - "User 같은 새 도메인 추가하고 싶어" → `architecture.md` (모듈/레이어 위치 확인) → `coding-style.md` (클래스 작성) → `flyway-migration.md` (테이블 생성)
 - "에러 코드 하나 추가해야 해" → `error-handling.md`
 - "로그인한 유저 정보로 API 만들어줘" → `config-and-auth.md`
-- "이 도메인은 단순해서 Manager로 묶고 싶어" → `coding-style.md` 2-5절
+- "이 도메인은 단순해서 Manager로 묶고 싶어" → `coding-style.md` 2-6절
 - "테이블에 컬럼 하나 추가해야 해" → `flyway-migration.md` 3-3절
