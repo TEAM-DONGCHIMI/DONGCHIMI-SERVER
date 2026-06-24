@@ -18,7 +18,7 @@ class JwtProvider(
         Keys.hmacShaKeyFor(jwtProperties.secretKey.toByteArray(Charsets.UTF_8))
     }
 
-    fun generateToken(userId: Long, email: String, roles: Set<String>): String {
+    fun generateToken(userId: Long, roles: Set<String>): String {
         val now = Date()
 
         return Jwts.builder()
@@ -26,7 +26,6 @@ class JwtProvider(
             .issuer(jwtProperties.issuer)
             .issuedAt(now)
             .expiration(Date(now.time + jwtProperties.accessTokenExpiry))
-            .claim(CLAIM_EMAIL, email)
             .claim(CLAIM_ROLES, roles)
             .signWith(key)
             .compact()
@@ -49,7 +48,6 @@ class JwtProvider(
             .payload
 
     companion object {
-        private const val CLAIM_EMAIL = "email"
         private const val CLAIM_ROLES = "roles"
     }
 }
