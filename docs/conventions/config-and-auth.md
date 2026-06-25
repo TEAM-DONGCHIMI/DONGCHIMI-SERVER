@@ -28,7 +28,30 @@ spring:
 
 ---
 
-## 2. 설정 바인딩
+## 2. 환경변수 관리
+
+yml에서 `${ENV_VAR}` 형태로 환경변수를 참조할 때는 반드시 루트의 `.env.example`에도 항목을 추가한다.
+
+```yaml
+# application-gateway-auth.yml 예시
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-expiry: ${JWT_ACCESS_TOKEN_EXPIRY:3600000}  # 기본값이 있으면 함께 기재
+```
+
+```dotenv
+# .env.example — 위 yml과 항상 동기화
+JWT_SECRET_KEY=your-secret-key-here
+JWT_ACCESS_TOKEN_EXPIRY=3600000
+```
+
+- 기본값(`${VAR:default}`)이 있는 경우 `.env.example`에도 동일한 값을 예시로 기재한다.
+- 필수값(`${VAR}`)은 실제 값 대신 의도를 나타내는 플레이스홀더를 작성한다. (예: `your-secret-key-here`)
+- `.env.example`은 `.gitignore`에 포함하지 않는다. 실제 값이 담긴 `.env`는 커밋하지 않는다.
+
+---
+
+## 3. 설정 바인딩
 
 - `@ConfigurationProperties`를 사용한다. `@Value`는 사용하지 않는다.
 - `data class`로 선언한다.
@@ -44,7 +67,7 @@ data class JwtProperties(
 
 ---
 
-## 3. 인증 흐름
+## 4. 인증 흐름
 
 ```
 HTTP Request (Authorization: Bearer <token>)
@@ -74,7 +97,7 @@ Controller (principal: ApiUser)
 
 ---
 
-## 4. 사용 규칙
+## 5. 사용 규칙
 
 ### Controller
 
