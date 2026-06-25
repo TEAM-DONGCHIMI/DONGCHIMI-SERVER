@@ -1,5 +1,8 @@
 package kr.dongchimi.api.common.dto
 
+import kr.dongchimi.core.common.exception.CoreException
+import kr.dongchimi.core.common.exception.ErrorCode
+
 data class ApiResponse<T> private constructor(
     val success: Boolean,
     val code: String = "SUCCESS",
@@ -14,8 +17,14 @@ data class ApiResponse<T> private constructor(
             return ApiResponse(true, message = SUCCESS_MESSAGE, data = data)
         }
 
-        fun <T> error(code: String, message: String): ApiResponse<T> {
-            return ApiResponse(false, code, message)
+        fun <T> error(exception: CoreException): ApiResponse<T> {
+            val errorCode = exception.errorCode
+
+            return ApiResponse(false, errorCode.name, exception.message ?: errorCode.message)
+        }
+
+        fun <T> error(errorCode: ErrorCode): ApiResponse<T> {
+            return ApiResponse(false, errorCode.name, errorCode.message)
         }
     }
 }
