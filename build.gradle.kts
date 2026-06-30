@@ -4,6 +4,7 @@ plugins {
     id("org.springframework.boot") version "4.1.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
     kotlin("plugin.jpa") version "2.3.21" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.2" apply false
 }
 
 allprojects {
@@ -19,6 +20,11 @@ allprojects {
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        version.set("1.5.0")
+    }
 
     configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
         imports {
