@@ -7,6 +7,10 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "12.1.2" apply false
 }
 
+tasks.register<Exec>("installGitHooks") {
+    commandLine("git", "config", "core.hooksPath", ".githooks")
+}
+
 allprojects {
     group = "kr.dongchimi"
     version = "0.0.1"
@@ -36,6 +40,10 @@ subprojects {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
         }
+    }
+
+    tasks.matching { it.name == "compileKotlin" }.configureEach {
+        dependsOn(rootProject.tasks["installGitHooks"])
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
