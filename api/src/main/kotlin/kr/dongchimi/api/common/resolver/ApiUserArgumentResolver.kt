@@ -13,19 +13,16 @@ import org.springframework.web.method.support.ModelAndViewContainer
 class ApiUserArgumentResolver(
     private val principalProvider: PrincipalProvider,
 ) : HandlerMethodArgumentResolver {
-
-    override fun supportsParameter(parameter: MethodParameter): Boolean =
-        parameter.parameterType == ApiUser::class.java
+    override fun supportsParameter(parameter: MethodParameter): Boolean = parameter.parameterType == ApiUser::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?,
-    ): ApiUser {
-        return ApiUser(
+    ): ApiUser =
+        ApiUser(
             principalProvider.userId,
-            principalProvider.roles
+            principalProvider.roles,
         )
-    }
 }

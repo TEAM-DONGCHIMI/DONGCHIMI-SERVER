@@ -9,7 +9,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 class WebMvcConfig(
     private val apiUserArgumentResolver: ApiUserArgumentResolver,
 ) : WebMvcConfigurer {
-
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
         resolvers.add(apiUserArgumentResolver)
     }

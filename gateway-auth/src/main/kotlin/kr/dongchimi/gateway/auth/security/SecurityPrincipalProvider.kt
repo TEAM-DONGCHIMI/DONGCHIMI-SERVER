@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component
 
 @Component
 class SecurityPrincipalProvider : PrincipalProvider {
-
     override val userId: Long
         get() = authentication.userId
 
