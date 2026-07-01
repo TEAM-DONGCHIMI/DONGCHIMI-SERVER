@@ -107,6 +107,6 @@ dependencies {
 | `api` | `core` + `gateway:logging` + `gateway:auth`(runtimeOnly) + Spring MVC 관련 라이브러리 |
 | `core` | 순수 Kotlin / 비즈니스 로직 라이브러리만 |
 | `gateway:auth` | `core` + Spring Security / OAuth2 관련 라이브러리 |
-| `gateway:logging` | `core` + Servlet API + kotlin-logging |
+| `gateway:logging` | `core` + `spring-web` + `spring-context` + `slf4j-api` + kotlin-logging + Servlet API |
 | `infrastructure:db` | `core` + 기술 구현 라이브러리 (JPA, H2 Console, Redis, HTTP Client 등) |
 | `common` | 순수 Kotlin / 유틸리티만 |
