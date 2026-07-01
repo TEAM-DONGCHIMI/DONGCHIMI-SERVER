@@ -1,4 +1,4 @@
-package kr.dongchimi.api.common.filter
+package kr.dongchimi.gateway.logging
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -11,7 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 import java.util.UUID
 
 @Component
-@Order(0) //Spring Security의 필터 체인 Order가 -100이라 무조건 그것보다 뒤에 실행되도록 해야 함
+@Order(0)
 class MdcFilter(
     private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {

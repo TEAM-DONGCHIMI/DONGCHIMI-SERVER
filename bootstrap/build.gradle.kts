@@ -5,7 +5,8 @@ plugins {
 
 dependencies {
     implementation(project(":api"))
-    implementation(project(":gateway-auth"))
+    implementation(project(":gateway:auth"))
+    implementation(project(":gateway:logging"))
     implementation(project(":infrastructure:db"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
