@@ -33,7 +33,7 @@ spring:
 yml에서 `${ENV_VAR}` 형태로 환경변수를 참조할 때는 반드시 루트의 `.env.example`에도 항목을 추가한다.
 
 ```yaml
-# application-gateway:auth.yml 예시
+# application-gateway-auth.yml 예시
 jwt:
   secret-key: ${JWT_SECRET_KEY}
   access-token-expiry: ${JWT_ACCESS_TOKEN_EXPIRY:3600000}  # 기본값이 있으면 함께 기재
