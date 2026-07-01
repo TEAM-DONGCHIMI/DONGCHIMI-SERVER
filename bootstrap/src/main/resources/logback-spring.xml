@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="dongchimi-server"/>
-    <springProperty scope="context" name="appEnv" source="spring.profiles.active" defaultValue="unknown"/>
-
     <!-- local: 사람이 읽기 좋은 콘솔 출력 -->
     <springProfile name="local">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -20,9 +17,7 @@
     <!-- local 외 환경: JSON 구조화 로깅 + 비동기 처리 -->
     <springProfile name="!local">
         <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-                <customFields>{"service":"${appName}","env":"${appEnv}"}</customFields>
-            </encoder>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
         </appender>
 
         <!--
