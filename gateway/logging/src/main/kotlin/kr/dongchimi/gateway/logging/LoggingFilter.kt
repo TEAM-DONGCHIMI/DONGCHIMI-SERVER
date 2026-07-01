@@ -23,9 +23,7 @@ class LoggingFilter : OncePerRequestFilter() {
         filterChain.doFilter(request, response)
         val duration = System.currentTimeMillis() - startTime
 
-        if (response.status < 400) {
-            logger.info { "${request.method} ${request.requestURI} ${response.status} (${duration}ms)" }
-        }
+        logger.info { "${request.method} ${request.requestURI} ${response.status} (${duration}ms)" }
     }
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean =
