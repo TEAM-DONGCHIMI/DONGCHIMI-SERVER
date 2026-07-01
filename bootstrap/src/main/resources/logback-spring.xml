@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="dongchimi-server"/>
+    <springProperty scope="context" name="appEnv" source="spring.profiles.active" defaultValue="unknown"/>
+
     <!-- local: 사람이 읽기 좋은 콘솔 출력 -->
     <springProfile name="local">
         <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
@@ -17,12 +20,16 @@
     <!-- local 외 환경: JSON 구조화 로깅 + 비동기 처리 -->
     <springProfile name="!local">
         <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"service":"${appName}","env":"${appEnv}"}</customFields>
+            </encoder>
         </appender>
 
         <!--
-            neverBlock=true: 큐가 꽉 차도 요청 스레드를 블로킹하지 않음
-            로그 유실 가능성보다 API 응답 지연이 더 치명적이므로 선택
+            discardingThreshold=0: 기본값(20)은 큐 잔여 용량이 20% 미만이면 TRACE/DEBUG/INFO를 조기 폐기함.
+                                   0으로 설정해 조기 폐기를 비활성화 — 큐가 꽉 찰 때까지 최대한 보존.
+            neverBlock=true: 큐가 꽉 차면 요청 스레드를 블로킹하는 대신 해당 로그를 폐기.
+                             로그 유실 가능성보다 API 응답 지연이 더 치명적이므로 선택.
         -->
         <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
             <appender-ref ref="JSON_CONSOLE"/>
