@@ -11,8 +11,10 @@
 
 ```
 gateway/logging/
-├── MdcFilter.kt      — 모든 요청에 requestId, userId를 MDC에 세팅
-└── LoggingFilter.kt  — 성공 요청(2xx, 3xx)에 대한 access log 출력
+├── MdcFilter.kt             — 모든 요청에 requestId, userId를 MDC에 세팅
+├── LoggingFilter.kt         — 모든 요청에 대한 access log 출력
+└── config/
+    └── LoggingProperties.kt — 로깅 제외 경로 설정 바인딩
 ```
 
 ---
@@ -47,12 +49,12 @@ DispatcherServlet
 
 | 상황 | 담당 | 레벨 |
 | --- | --- | --- |
-| 성공 요청 (2xx, 3xx) | `LoggingFilter` | `INFO` |
+| 모든 요청 (상태 코드 무관) | `LoggingFilter` | `INFO` |
 | 비즈니스 예외 (4xx) | `GlobalExceptionHandler` | `WARN` |
 | 서버 예외 (5xx) | `GlobalExceptionHandler` | `ERROR` |
 
-`LoggingFilter`는 `status >= 400`인 경우 로그를 찍지 않는다.
-에러 로그는 `GlobalExceptionHandler`에서 requestId, userId, errorCode와 함께 출력한다.
+`LoggingFilter`는 상태 코드와 관계없이 모든 요청을 access log로 기록한다.
+에러 로그는 `GlobalExceptionHandler`에서 requestId, userId, errorCode와 함께 별도로 출력한다.
 
 ---
 
@@ -94,5 +96,18 @@ DispatcherServlet
 
 ## 7. 로깅 제외 경로
 
-`LoggingFilter`는 `/actuator` 하위 경로를 로깅하지 않는다.
-헬스체크 등 주기적 호출로 인한 노이즈를 방지하기 위함이다.
+`LoggingFilter`는 `gateway.logging.exclude-paths`에 등록된 경로를 로깅하지 않는다.
+Ant 패턴을 지원하며, `application-gateway-logging.yml`에서 설정한다.
+
+```yaml
+gateway:
+  logging:
+    exclude-paths:
+      - /actuator/**
+      - /swagger-ui/**
+      - /swagger-ui.html
+      - /v3/api-docs/**
+```
+
+헬스체크, Swagger 등 주기적·내부 호출로 인한 노이즈를 방지하기 위함이다.
+경로를 추가하려면 위 yml에 항목을 추가한다.
