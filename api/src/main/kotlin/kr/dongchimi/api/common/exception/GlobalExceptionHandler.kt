@@ -2,8 +2,8 @@ package kr.dongchimi.api.common.exception
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kr.dongchimi.api.common.dto.ApiResponse
-import kr.dongchimi.api.common.filter.MdcFilter.Companion.REQUEST_ID
-import kr.dongchimi.api.common.filter.MdcFilter.Companion.USER_ID
+import kr.dongchimi.gateway.logging.MdcFilter.Companion.REQUEST_ID
+import kr.dongchimi.gateway.logging.MdcFilter.Companion.USER_ID
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.common.exception.CoreException
 import org.slf4j.MDC

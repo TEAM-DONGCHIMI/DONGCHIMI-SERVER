@@ -5,7 +5,8 @@ plugins {
 dependencies {
     implementation(project(":common"))
     implementation(project(":core"))
-    runtimeOnly(project(":gateway-auth"))
+    runtimeOnly(project(":gateway:auth"))
+    implementation(project(":gateway:logging"))
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")

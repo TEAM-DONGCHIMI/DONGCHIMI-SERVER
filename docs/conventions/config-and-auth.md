@@ -9,7 +9,7 @@
 
 ```
 bootstrap/src/main/resources/application.yml
-gateway-auth/src/main/resources/application-gateway-auth.yml
+gateway/auth/src/main/resources/application-gateway-auth.yml
 api/src/main/resources/application-api.yml
 ```
 
@@ -84,13 +84,13 @@ Controller (principal: ApiUser)
 | 모듈 | 파일 | 역할 |
 | --- | --- | --- |
 | `core` | `auth/PrincipalProvider.kt` | 인터페이스 (`userId`, `roles`) |
-| `gateway-auth` | `security/SecurityPrincipalProvider.kt` | `SecurityContextHolder` 기반 구현체 |
-| `gateway-auth` | `security/UserAuthentication.kt` | `UsernamePasswordAuthenticationToken` 래퍼 |
-| `gateway-auth` | `jwt/JwtProvider.kt` | JWT 생성·파싱 |
-| `gateway-auth` | `jwt/JwtAuthFilter.kt` | 토큰 검증 후 SecurityContext 저장 |
-| `gateway-auth` | `config/SecurityConfig.kt` | FilterChain, 인가 규칙 |
-| `gateway-auth` | `config/JwtProperties.kt` | JWT 설정 바인딩 |
-| `gateway-auth` | `config/CorsProperties.kt` | CORS 설정 바인딩 |
+| `gateway:auth` | `security/SecurityPrincipalProvider.kt` | `SecurityContextHolder` 기반 구현체 |
+| `gateway:auth` | `security/UserAuthentication.kt` | `UsernamePasswordAuthenticationToken` 래퍼 |
+| `gateway:auth` | `jwt/JwtProvider.kt` | JWT 생성·파싱 |
+| `gateway:auth` | `jwt/JwtAuthFilter.kt` | 토큰 검증 후 SecurityContext 저장 |
+| `gateway:auth` | `config/SecurityConfig.kt` | FilterChain, 인가 규칙 |
+| `gateway:auth` | `config/JwtProperties.kt` | JWT 설정 바인딩 |
+| `gateway:auth` | `config/CorsProperties.kt` | CORS 설정 바인딩 |
 | `api` | `common/ApiUser.kt` | 인증 사용자 스냅샷 DTO (`userId`, `roles`) |
 | `api` | `common/resolver/ApiUserArgumentResolver.kt` | `ApiUser` 파라미터 주입 |
 | `api` | `common/config/WebMvcConfig.kt` | ArgumentResolver 등록 |
