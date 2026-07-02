@@ -6,7 +6,6 @@ import java.time.LocalDateTime
 
 @MappedSuperclass
 abstract class BaseSoftDeleteEntity : BaseTimeEntity() {
-
     @Column
     var deletedAt: LocalDateTime? = null
         protected set

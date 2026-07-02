@@ -21,7 +21,6 @@ class SecurityConfig(
     private val jwtProvider: JwtProvider,
     private val corsProperties: CorsProperties,
 ) {
-
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
@@ -45,12 +44,13 @@ class SecurityConfig(
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
-        val config = CorsConfiguration().apply {
-            allowedOrigins = corsProperties.allowedOrigins
-            allowedMethods = corsProperties.allowedMethods
-            allowedHeaders = corsProperties.allowedHeaders
-            allowCredentials = true
-        }
+        val config =
+            CorsConfiguration().apply {
+                allowedOrigins = corsProperties.allowedOrigins
+                allowedMethods = corsProperties.allowedMethods
+                allowedHeaders = corsProperties.allowedHeaders
+                allowCredentials = true
+            }
 
         return UrlBasedCorsConfigurationSource().apply {
             registerCorsConfiguration("/**", config)

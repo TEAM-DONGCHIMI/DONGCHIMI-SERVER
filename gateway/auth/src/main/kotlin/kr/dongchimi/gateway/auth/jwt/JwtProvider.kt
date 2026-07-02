@@ -3,8 +3,8 @@ package kr.dongchimi.gateway.auth.jwt
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import kr.dongchimi.gateway.auth.security.UserAuthentication
 import kr.dongchimi.gateway.auth.config.JwtProperties
+import kr.dongchimi.gateway.auth.security.UserAuthentication
 import org.springframework.stereotype.Component
 import java.util.Date
 import javax.crypto.SecretKey
@@ -13,15 +13,18 @@ import javax.crypto.SecretKey
 class JwtProvider(
     private val jwtProperties: JwtProperties,
 ) {
-
     private val key: SecretKey by lazy {
         Keys.hmacShaKeyFor(jwtProperties.secretKey.toByteArray(Charsets.UTF_8))
     }
 
-    fun generateToken(userId: Long, roles: Set<String>): String {
+    fun generateToken(
+        userId: Long,
+        roles: Set<String>,
+    ): String {
         val now = Date()
 
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .subject(userId.toString())
             .issuer(jwtProperties.issuer)
             .issuedAt(now)
@@ -41,7 +44,8 @@ class JwtProvider(
     }
 
     private fun parseClaims(token: String): Claims =
-        Jwts.parser()
+        Jwts
+            .parser()
             .verifyWith(key)
             .build()
             .parseSignedClaims(token)

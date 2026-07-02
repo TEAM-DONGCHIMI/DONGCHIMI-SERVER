@@ -9,7 +9,6 @@ import org.springframework.web.filter.OncePerRequestFilter
 class JwtAuthFilter(
     private val jwtProvider: JwtProvider,
 ) : OncePerRequestFilter() {
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -21,7 +20,7 @@ class JwtAuthFilter(
                     SecurityContextHolder.getContext().authentication = authentication
                 }
         }
-        //NOTE: 추후 예외 처리 세팅 후 예외처리 구현
+        // NOTE: 추후 예외 처리 세팅 후 예외처리 구현
         filterChain.doFilter(request, response)
     }
 

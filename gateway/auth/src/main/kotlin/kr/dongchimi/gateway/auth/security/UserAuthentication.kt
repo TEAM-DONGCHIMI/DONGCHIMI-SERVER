@@ -7,7 +7,7 @@ class UserAuthentication(
     val userId: Long,
     roles: Set<String>,
 ) : UsernamePasswordAuthenticationToken(
-    userId,
-    null,
-    roles.map { SimpleGrantedAuthority(it) },
-)
+        userId,
+        null,
+        roles.map { SimpleGrantedAuthority(it) },
+    )
