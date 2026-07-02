@@ -7,5 +7,4 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @Configuration
 @EntityScan(basePackages = ["kr.dongchimi.db"])
 @EnableJpaRepositories(basePackages = ["kr.dongchimi.db"])
-class JpaConfig {
-}
+class JpaConfig
