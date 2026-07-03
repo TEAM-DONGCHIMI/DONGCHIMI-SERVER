@@ -2,10 +2,10 @@ package kr.dongchimi.api.common.exception
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kr.dongchimi.api.common.dto.ApiResponse
-import kr.dongchimi.gateway.logging.MdcFilter.Companion.REQUEST_ID
-import kr.dongchimi.gateway.logging.MdcFilter.Companion.USER_ID
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.common.exception.CoreException
+import kr.dongchimi.gateway.logging.MdcFilter.Companion.REQUEST_ID
+import kr.dongchimi.gateway.logging.MdcFilter.Companion.USER_ID
 import org.slf4j.MDC
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -16,7 +16,6 @@ private val logger = KotlinLogging.logger {}
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     @ExceptionHandler(CoreException::class)
     fun handleCoreException(exception: CoreException): ResponseEntity<ApiResponse<Any>> {
         logger.warn {
@@ -34,7 +33,7 @@ class GlobalExceptionHandler {
             "[requestId=${MDC.get(REQUEST_ID)}, userId=${MDC.get(USER_ID)}] ${exception.message}"
         }
 
-        //외부 에러 알림 (Discord, Sentry 연동)
+        // 외부 에러 알림 (Discord, Sentry 연동)
 
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
