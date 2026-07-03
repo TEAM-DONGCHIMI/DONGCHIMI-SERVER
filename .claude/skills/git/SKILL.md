@@ -28,6 +28,7 @@ Read: docs/conventions/git-convention.md
 
 ### 이슈 생성
 
+- 이슈 이름에 `type`이 들어가지 않도록 한다.
 - `.github/ISSUE_TEMPLATE/-issue-template.md` 형식을 따른다
 - 구현 내용을 체크리스트로 작성한다
 
