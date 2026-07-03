@@ -52,6 +52,7 @@ V6__add_index_to_post_author_id.sql
 
 - 테이블명은 복수형 snake_case를 사용한다 (`users`, `posts`)
 - 기본 컬럼(`id`, `created_at`, `updated_at`)을 포함한다
+- 다른 테이블을 참조하는 컬럼(`author_id` 등)에도 `REFERENCES`/`FOREIGN KEY` 제약조건은 추가하지 않는다 — 참조 무결성은 애플리케이션 레벨에서 관리하고, DB는 컬럼과 인덱스만 둔다(`coding-style.md` 2-4절 참고)
 
 ```sql
 -- V5__create_post_table.sql

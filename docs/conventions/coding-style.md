@@ -21,7 +21,7 @@
 | Implement | 가공 처리 | `{Domain}Processor` |
 | Implement | 검증 | `{Domain}Validator` |
 | Implement | CRUD 통합 (비핵심 도메인) | `{Domain}Manager` |
-| Data Access | 도메인 Repository 인터페이스 (domain 모듈) | `{Domain}Repository` |
+| Data Access | 도메인 Repository 인터페이스 (core 모듈) | `{Domain}Repository` |
 | Data Access | Repository 구현체 (infrastructure:db 모듈) | `{Domain}RepositoryImpl` |
 | Data Access | JPA Repository (infrastructure:db 모듈) | `{Domain}JpaRepository` |
 | Data Access | 외부 API 클라이언트 인터페이스 | `{Domain}Client` |
@@ -33,7 +33,7 @@ UserController
 UserCreateRequest / UserCreateResponse
 UserService
 UserReader / UserAppender / UserRemover / UserValidator
-UserRepository             ← domain 모듈, interface
+UserRepository             ← core 모듈, interface
 UserRepositoryImpl         ← infrastructure:db 모듈, 구현체
 UserJpaRepository          ← infrastructure:db 모듈, JpaRepository
 ```
@@ -46,13 +46,28 @@ UserJpaRepository          ← infrastructure:db 모듈, JpaRepository
 
 - `data class`로 선언한다
 - JPA 어노테이션을 포함하지 않는다
+- 의미적으로 묶이는 필드가 여러 개면 평평하게 나열하지 않고 VO로 그룹화한다(예: 가격/할인율은 `Price`, 시작일/종료일은 `DiscountPeriod`). VO도 `data class`로 선언하며 같은 도메인 패키지에 둔다
 
 ```kotlin
-// domain 모듈
+// core 모듈
 data class User(
     val id: Long,
     val name: String,
     val email: String,
+)
+
+// 연관 필드를 VO로 묶은 예시
+data class Price(
+    val originalPrice: BigDecimal,
+    val discountedPrice: BigDecimal,
+) {
+    fun discountRate(): Int = ((originalPrice.compareTo(discountedPrice) / originalPrice.toDouble()) * 100).toInt()
+}
+
+data class Product(
+    val id: Long,
+    val price: Price,
+    // ...
 )
 ```
 
@@ -135,7 +150,7 @@ object PageResponseMapper {
 
 ### 2-4. JPA Entity
 
-- `domain` 모듈이 아닌 `infrastructure:db` 모듈에 선언한다
+- `core` 모듈이 아닌 `infrastructure:db` 모듈에 선언한다
 - 도메인 클래스를 인자로 받는 생성자를 제공한다
 - `toDomain()` 메서드를 제공한다
 - 용도에 맞는 Base Entity를 상속한다
@@ -148,7 +163,7 @@ object PageResponseMapper {
 | `BaseTimeEntity` | `createdAt`, `updatedAt` | 일반 엔티티 (기본값) |
 | `BaseSoftDeleteEntity` | `createdAt`, `updatedAt`, `deletedAt` | 소프트 삭제가 필요한 경우 |
 
-- 세 클래스 모두 `kr.dongchimi.infrastructure.db.common` 패키지에 위치한다
+- 세 클래스 모두 `kr.dongchimi.db.common` 패키지에 위치한다
 - `BaseSoftDeleteEntity`는 `BaseTimeEntity`를 상속한다
 - 소프트 삭제 시 `@Transactional` 범위 안에서 `entity.delete()`를 호출하면 dirty checking으로 자동 반영된다
 - 삭제된 데이터 제외 조회(`where deletedAt is null`)는 각 JpaRepository에서 직접 처리한다
@@ -180,12 +195,44 @@ class UserJpaEntity(
 }
 ```
 
-### 2-5. Repository
+**다른 aggregate를 참조하는 컬럼**
 
-**domain 모듈 — 인터페이스만 선언**
+- 다른 도메인(aggregate)을 참조하는 컬럼은 `@ManyToOne`/`@OneToOne`/`@JoinColumn` 같은 JPA 연관관계 어노테이션을 쓰지 않고 단순 `Long` 필드(예: `ownerId`, `marketId`)로 선언한다
+- DB에도 FK 제약조건을 걸지 않는다(Flyway 마이그레이션에도 `REFERENCES`를 추가하지 않음) — aggregate 간 결합도를 낮추고 불필요한 지연 로딩/N+1을 방지하기 위함
+
+**JSONB 컬럼**
+
+- Hibernate 7 내장 `@JdbcTypeCode(SqlTypes.JSON)` + `@Column(columnDefinition = "jsonb")`를 필드 타입에 직접 붙이면, 클래스패스의 Jackson을 통해 `String`이 아닌 `data class`로도 자동 직렬화/역직렬화된다
 
 ```kotlin
-// domain 모듈
+@JdbcTypeCode(SqlTypes.JSON)
+@Column(columnDefinition = "jsonb")
+val businessHours: BusinessHours? = null,
+```
+
+**부모와 PK를 공유하는 1:1 보조 테이블 (메타데이터 등)**
+
+- `market_metadata`처럼 부모 테이블과 PK를 공유하는 보조 테이블은 `@GeneratedValue` 없이 부모와 동일한 값을 그대로 `@Id`에 사용한다
+
+```kotlin
+@Entity
+@Table(name = "product_metadata")
+class ProductMetadataJpaEntity(
+    @Id
+    @Column(name = "product_id")
+    val id: Long,
+
+    @Column(nullable = false)
+    val viewCount: Int,
+)
+```
+
+### 2-5. Repository
+
+**core 모듈 — 인터페이스만 선언**
+
+```kotlin
+// core 모듈
 interface UserRepository {
     fun findById(id: Long): User?
     fun save(user: User): User
@@ -219,7 +266,7 @@ class UserRepositoryImpl(
 ### 2-6. Implement Layer 클래스
 
 - 단일 책임을 갖는다
-- `UserRepository` 인터페이스(domain 모듈)에만 의존한다 — JPA 구현체에 직접 의존하지 않는다
+- `UserRepository` 인터페이스(core 모듈)에만 의존한다 — JPA 구현체에 직접 의존하지 않는다
 - Implement Layer가 존재해야 한다는 원칙만 지키면 되고, 세부 분리 방식은 도메인 특성에 따라 느슨하게 적용한다
 
 **핵심 도메인 — Reader/Appender/Remover/Validator 등으로 세분화**
@@ -227,7 +274,7 @@ class UserRepositoryImpl(
 CRUD 각각의 책임이 명확히 분리되어야 하는 핵심 도메인은 역할별로 클래스를 나눈다.
 
 ```kotlin
-// domain 모듈
+// core 모듈
 @Component
 class UserReader(
     private val userRepository: UserRepository,
@@ -250,7 +297,7 @@ class UserAppender(
 CRUD 책임을 세분화할 필요가 없는 단순/비핵심 도메인은 `{Domain}Manager` 하나로 묶어서 처리할 수 있다. 이 경우에도 Service가 Repository를 직접 참조하지 않고 Implement Layer(Manager)를 통해서만 접근한다는 규칙은 유지한다.
 
 ```kotlin
-// domain 모듈
+// core 모듈
 @Component
 class TagManager(
     private val tagRepository: TagRepository,
