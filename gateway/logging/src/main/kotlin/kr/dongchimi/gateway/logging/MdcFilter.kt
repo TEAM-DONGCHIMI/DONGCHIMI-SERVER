@@ -15,7 +15,6 @@ import java.util.UUID
 class MdcFilter(
     private val principalProvider: PrincipalProvider,
 ) : OncePerRequestFilter() {
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
