@@ -76,14 +76,15 @@ class MarketJpaEntity(
             thumbnailUrl = thumbnailUrl,
             location = LocationPoint(longitude = location.x, latitude = location.y),
             businessHours = businessHours,
-            phoneNumber = MarketPhoneNumber(
-                marketPhone1,
-                marketPhone2,
-                marketPhonePrimary,
-                ownerPhone,
-                ownerPhone2,
-                ownerPhonePrimary
-            ),
+            phoneNumber =
+                MarketPhoneNumber(
+                    marketPhone1,
+                    marketPhone2,
+                    marketPhonePrimary,
+                    ownerPhone,
+                    ownerPhone2,
+                    ownerPhonePrimary,
+                ),
             brn = brn,
         )
 }
