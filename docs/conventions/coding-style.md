@@ -346,25 +346,33 @@ class UserService(
 
 ## 3. Validation (유효성 검증)
 
-- Request DTO 필드에 Jakarta Validation 어노테이션을 사용한다 (`@NotBlank`, `@NotNull`, `@Size` 등)
+- Jakarta Validation 어노테이션(`@NotBlank`, `@Valid` 등)과 `spring-boot-starter-validation`을 사용하지 않는다. `api:*` 모듈의 `spring-boot-starter-webmvc`에서 `spring-boot-validation`(hibernate-validator)을 명시적으로 제외한다(`dongchimi.api-module-conventions.gradle.kts`, `api/core-api/build.gradle.kts`).
+- 대신 `api:core-api`의 `validate(condition, errorMessage)` 헬퍼(`error-handling.md` 3절)를 Request DTO의 `toCommand()` 안에서 호출해 검증한다
 - 검증 메시지는 한글로 작성한다
 
 ```kotlin
 data class UserCreateRequest(
-    @field:NotBlank(message = "이름은 필수로 입력해 주세요.")
     val name: String,
-
-    @field:NotBlank(message = "이메일은 필수로 입력해 주세요.")
     val email: String,
-)
+) {
+    fun toCommand(): UserCreateCommand {
+        validate(name.isNotBlank()) { "이름은 필수로 입력해 주세요." }
+        validate(email.isNotBlank()) { "이메일은 필수로 입력해 주세요." }
+
+        return UserCreateCommand(name, email)
+    }
+}
 ```
 
-- Controller 메서드 파라미터에 `@Valid`를 선언하여 검증을 활성화한다
+- Controller는 `@Valid`를 선언하지 않는다 — `toCommand()` 호출 시점에 검증이 함께 이뤄진다
 
 ```kotlin
 @PostMapping("/users")
-fun createUser(@Valid @RequestBody request: UserCreateRequest): UserCreateResponse { ... }
+fun createUser(@RequestBody request: UserCreateRequest): UserCreateResponse {
+    val user = userService.createUser(request.toCommand())
+    return UserCreateResponse(id = user.id, name = user.name)
+}
 ```
 
-- 검증 실패 시 `MethodArgumentNotValidException` → `GlobalExceptionHandler`에서 400 응답 처리 (자세한 내용은 `error-handling.md` 참고)
-- 에러 메시지는 첫 번째 `FieldError`의 message를 반환한다
+- 검증 실패 시 `validate()`가 `InvalidInputException`(`CoreException` 상속)을 던지고, 기존 `GlobalExceptionHandler`의 `CoreException` 핸들러가 그대로 400 응답을 처리한다(자세한 내용은 `error-handling.md` 참고)
+- `toCommand()`가 아닌 곳(예: `init` 블록)에서 검증하지 않는다 — Jackson 역직렬화 도중 던진 예외는 `HttpMessageNotReadableException` 등으로 감싸져 `GlobalExceptionHandler`의 `CoreException` 핸들러가 잡지 못하고 500으로 응답한다
