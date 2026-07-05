@@ -17,7 +17,6 @@ private val logger = KotlinLogging.logger {}
 class LoggingFilter(
     private val loggingProperties: LoggingProperties,
 ) : OncePerRequestFilter() {
-
     private val pathMatcher = AntPathMatcher()
 
     override fun doFilterInternal(

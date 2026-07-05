@@ -9,13 +9,10 @@ data class ApiResponse<T> private constructor(
     val message: String,
     val data: T? = null,
 ) {
-
     companion object {
         private const val SUCCESS_MESSAGE = "요청에 성공했습니다."
 
-        fun <T> success(data: T? = null): ApiResponse<T> {
-            return ApiResponse(true, message = SUCCESS_MESSAGE, data = data)
-        }
+        fun <T> success(data: T? = null): ApiResponse<T> = ApiResponse(true, message = SUCCESS_MESSAGE, data = data)
 
         fun <T> error(exception: CoreException): ApiResponse<T> {
             val errorCode = exception.errorCode
@@ -23,8 +20,6 @@ data class ApiResponse<T> private constructor(
             return ApiResponse(false, errorCode.name, exception.message ?: errorCode.message)
         }
 
-        fun <T> error(errorCode: ErrorCode): ApiResponse<T> {
-            return ApiResponse(false, errorCode.name, errorCode.message)
-        }
+        fun <T> error(errorCode: ErrorCode): ApiResponse<T> = ApiResponse(false, errorCode.name, errorCode.message)
     }
 }

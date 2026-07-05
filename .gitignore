@@ -38,8 +38,10 @@ out/
 
 ### Claude Code ###
 .claude/settings.local.json
+docs/plans
 
 ### Kotlin ###
 .kotlin
 
-docs/plans
+### Env ###
+.env.local
