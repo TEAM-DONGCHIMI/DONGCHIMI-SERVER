@@ -7,9 +7,10 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.dongchimi.core.admin.Admin
+import kr.dongchimi.db.common.BaseTimeEntity
 
 @Entity
-@Table(name = "admin")
+@Table(name = "admins")
 class AdminJpaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +22,7 @@ class AdminJpaEntity(
     val email: String,
     @Column(nullable = false)
     val password: String,
-) {
+) : BaseTimeEntity() {
     constructor(admin: Admin) : this(
         id = admin.id,
         name = admin.name,
