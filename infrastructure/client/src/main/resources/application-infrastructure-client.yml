@@ -1,0 +1,3 @@
+oauth:
+  kakao:
+    user-info-uri: ${KAKAO_USER_INFO_URI:https://kapi.kakao.com/v2/user/me}
