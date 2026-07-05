@@ -18,7 +18,7 @@ class AdminJpaEntity(
     val id: Long = 0,
     @Column(nullable = false)
     val name: String,
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     val email: String,
     @Column(nullable = false)
     val password: String,

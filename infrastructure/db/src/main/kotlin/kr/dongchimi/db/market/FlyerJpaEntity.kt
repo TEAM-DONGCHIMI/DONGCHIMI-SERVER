@@ -13,7 +13,7 @@ class FlyerJpaEntity(
     @Id
     @Column(name = "market_id")
     val id: Long,
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     val slug: String,
     val qrCode: String? = null,
 ) : BaseTimeEntity() {
