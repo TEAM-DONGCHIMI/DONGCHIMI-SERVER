@@ -61,7 +61,11 @@ data class Price(
     val originalPrice: BigDecimal,
     val discountedPrice: BigDecimal,
 ) {
-    fun discountRate(): Int = ((originalPrice.compareTo(discountedPrice) / originalPrice.toDouble()) * 100).toInt()
+    fun discountRate(): Int =
+        originalPrice.subtract(discountedPrice)
+            .divide(originalPrice, 4, RoundingMode.HALF_UP)
+            .multiply(BigDecimal(100))
+            .toInt()
 }
 
 data class Product(
