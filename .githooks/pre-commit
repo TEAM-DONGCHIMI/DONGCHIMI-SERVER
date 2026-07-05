@@ -1,7 +1,8 @@
 #!/bin/sh
+set -e
 
 # 1. 스테이징된 Kotlin 파일만 추출 (삭제된 파일 d 는 제외)
-STAGED_FILES="$(git --no-pager diff --name-only --no-color --cached --diff-filter=d | grep -E '\.kts?$')"
+STAGED_FILES="$(git --no-pager diff --name-only --no-color --cached --diff-filter=d | grep -E '\.kts?$' || true)"
 
 if [ -z "$STAGED_FILES" ]; then
   exit 0
@@ -15,27 +16,45 @@ echo "$STAGED_FILES"
 UNSTAGED_DIFF="$(git rev-parse --git-dir)/pre-commit-unstaged.diff"
 git diff --color=never > "$UNSTAGED_DIFF"
 if [ -s "$UNSTAGED_DIFF" ]; then
-  git apply -R "$UNSTAGED_DIFF"
+  if ! git apply -R "$UNSTAGED_DIFF"; then
+    echo "[ktlint] 언스테이지 변경 백업 제거에 실패했습니다. 커밋을 중단합니다."
+    echo "[ktlint] 백업 파일: $UNSTAGED_DIFF"
+    exit 1
+  fi
 fi
 
 # 3. 스테이징된 파일만 포맷
+set +e
 ./gradlew --quiet ktlintFormat -PinternalKtlintGitFilter="$STAGED_FILES"
 GRADLE_EXIT=$?
+set -e
 
 # 4. 포맷된 파일만 다시 add (git add -A 아님)
+ADD_FAILED=0
 echo "$STAGED_FILES" | while IFS= read -r file; do
-  [ -f "$file" ] && git add "$file"
+  [ -f "$file" ] && git add "$file" || ADD_FAILED=1
 done
+if [ "$ADD_FAILED" -ne 0 ]; then
+  echo "[ktlint] 포맷된 파일 재스테이징에 실패했습니다. 커밋을 중단합니다."
+  exit 1
+fi
 
 # 5. 백업했던 스테이징 안 된 변경사항 복원
 if [ -s "$UNSTAGED_DIFF" ]; then
-  git apply --ignore-whitespace "$UNSTAGED_DIFF"
+  if git apply --ignore-whitespace "$UNSTAGED_DIFF"; then
+    rm -f "$UNSTAGED_DIFF"
+  else
+    echo "[ktlint] 언스테이지 변경 복원에 실패했습니다. 커밋을 중단합니다."
+    echo "[ktlint] 백업 파일이 보존되어 있습니다: $UNSTAGED_DIFF"
+    echo "[ktlint] 'git apply --ignore-whitespace $UNSTAGED_DIFF' 로 수동 복원 후 백업 파일을 지우세요."
+    exit 1
+  fi
 fi
-rm -f "$UNSTAGED_DIFF"
 
 # 6. 자동 수정 불가한 lint 에러가 있으면 커밋 중단
 if [ "$GRADLE_EXIT" -ne 0 ]; then
   echo "[ktlint] 자동 수정으로 해결되지 않는 문제가 있습니다. 커밋을 중단합니다."
+  exit "$GRADLE_EXIT"
 fi
 
-exit $GRADLE_EXIT
+exit 0
