@@ -1,0 +1,35 @@
+services:
+  app:
+    image: ${IMAGE_REPO}/dongchimi:${IMAGE_TAG:-latest}   # CI가 Docker Hub에 push한 이미지, 태그는 .env에서 주입 (롤백 시 이전 SHA로 변경)
+    env_file: 
+      - path: .env
+        required: false # 서버에만 존재, git 미포함
+    expose:
+      - "8080"                                            # 내부 네트워크 전용, 호스트 미공개
+    healthcheck:                                          # DB가 아닌 app 자체 헬스체크 (actuator)
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s                                   # Flyway 마이그레이션 포함 기동 시간 여유
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data                                  # 인증서/ACME 계정 상태 영속 (필수)
+      - caddy-config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:
