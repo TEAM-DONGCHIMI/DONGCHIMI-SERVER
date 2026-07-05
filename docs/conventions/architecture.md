@@ -10,7 +10,11 @@
 ```
 root
 ├── bootstrap/        # 실행 가능한 애플리케이션 모듈 (Spring Boot 진입점, 최종 조립)
-├── api/              # Presentation 레이어 모듈 (Controller, Request, Response)
+├── api/              # Presentation 레이어 모듈 그룹 (Controller, Request, Response)
+│   ├── core-api/     # role에 무관한 공통 인프라 (ApiResponse, GlobalExceptionHandler, WebMvcConfig 등)
+│   ├── owner-api/    # OWNER role 전용 Controller
+│   ├── admin-api/    # ADMIN role 전용 Controller
+│   └── user-api/     # USER role 전용 Controller
 ├── core/             # 도메인 및 비즈니스 로직 모듈
 ├── gateway/          # 횡단관심사 모듈 그룹
 │   ├── auth/         # 인증/인가 횡단관심사 모듈 (Spring Security, OAuth2)
@@ -23,22 +27,30 @@ root
 **모듈 간 의존 방향**
 
 ```
-bootstrap → api
+bootstrap → api:core-api
+bootstrap → api:owner-api
+bootstrap → api:admin-api
+bootstrap → api:user-api
 bootstrap → gateway:auth
 bootstrap → gateway:logging
 bootstrap → infrastructure:db
-api → core
-api → gateway:logging
-api - - → gateway:auth   (runtimeOnly)
+api:owner-api → api:core-api
+api:admin-api → api:core-api
+api:user-api → api:core-api
+api:owner-api, api:admin-api, api:user-api, api:core-api → core
+api:owner-api, api:admin-api, api:user-api, api:core-api → gateway:logging
+api:owner-api, api:admin-api, api:user-api, api:core-api - - → gateway:auth   (runtimeOnly)
 gateway:auth → core
 gateway:logging → core
 infrastructure:db → core
 core → common
 ```
 
-- `bootstrap` 모듈은 `api`, `gateway:auth`, `gateway:logging`, `infrastructure:db`에 의존한다
-- `api` 모듈은 `core`에 의존하고, `gateway:auth`는 `runtimeOnly`로 선언한다 (`PrincipalProvider` 구현체를 런타임에만 주입)
-- `api` 모듈은 `gateway:logging`에 의존한다 (`GlobalExceptionHandler`에서 MDC 키 상수 참조)
+- `bootstrap` 모듈은 `api:core-api`, `api:owner-api`, `api:admin-api`, `api:user-api`, `gateway:auth`, `gateway:logging`, `infrastructure:db`에 의존한다
+- `api:owner-api`/`api:admin-api`/`api:user-api`는 각각 `api:core-api`에 의존한다 (`ApiUser` 인터페이스, `ApiResponse`, `GlobalExceptionHandler` 등 공통 인프라 재사용). role 모듈끼리는 서로 의존하지 않는다
+- `api:core-api`를 포함한 모든 `api:*` 모듈은 `core`에 의존하고, `gateway:auth`는 `runtimeOnly`로 선언한다 (`PrincipalProvider` 구현체를 런타임에만 주입)
+- `api:*` 모듈은 `gateway:logging`에 의존한다 (`GlobalExceptionHandler`에서 MDC 키 상수 참조)
+- role별 `HandlerMethodArgumentResolver`(`OwnerApiUserArgumentResolver` 등)는 각 role 모듈에 `@Component`로 선언하고, `api:core-api`의 `WebMvcConfig`가 컨텍스트에 존재하는 `HandlerMethodArgumentResolver` 빈을 전부 주입받아 등록한다 — `core-api`가 role 모듈을 직접 의존하지 않고도 role별 Resolver를 조립할 수 있다 (`bootstrap`이 4개 모듈을 모두 의존하고 `scanBasePackages = ["kr.dongchimi"]`로 전체를 스캔하기 때문)
 - `gateway:auth` 모듈은 `core` 모듈에 의존한다
 - `gateway:logging` 모듈은 `core` 모듈에 의존한다 (`PrincipalProvider`로 userId를 MDC에 주입)
 - `infrastructure:db` 모듈은 `core` 모듈에 의존한다
@@ -103,8 +115,9 @@ dependencies {
 
 | 모듈 | 허용 의존성 |
 | --- | --- |
-| `bootstrap` | `api` + `gateway:auth` + `gateway:logging` + `infrastructure:db` + Spring Boot 실행 관련 (Actuator 등) |
-| `api` | `core` + `gateway:logging` + `gateway:auth`(runtimeOnly) + Spring MVC 관련 라이브러리 |
+| `bootstrap` | `api:core-api` + `api:owner-api` + `api:admin-api` + `api:user-api` + `gateway:auth` + `gateway:logging` + `infrastructure:db` + Spring Boot 실행 관련 (Actuator 등) |
+| `api:core-api` | `common` + `core` + `gateway:logging` + `gateway:auth`(runtimeOnly) + Spring MVC 관련 라이브러리 |
+| `api:owner-api` / `api:admin-api` / `api:user-api` | `api:core-api` + `core` + `gateway:logging` + `gateway:auth`(runtimeOnly) + Spring MVC 관련 라이브러리 |
 | `core` | 순수 Kotlin / 비즈니스 로직 라이브러리만 |
 | `gateway:auth` | `core` + Spring Security / OAuth2 관련 라이브러리 |
 | `gateway:logging` | `core` + `spring-web` + `spring-context` + `slf4j-api` + kotlin-logging + Servlet API |

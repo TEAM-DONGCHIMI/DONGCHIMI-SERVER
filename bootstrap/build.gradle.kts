@@ -4,7 +4,10 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":api"))
+    implementation(project(":api:core-api"))
+    implementation(project(":api:owner-api"))
+    implementation(project(":api:admin-api"))
+    implementation(project(":api:user-api"))
     implementation(project(":gateway:auth"))
     implementation(project(":gateway:logging"))
     implementation(project(":infrastructure:db"))

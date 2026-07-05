@@ -1,5 +1,6 @@
 package kr.dongchimi.gateway.auth.config
 
+import kr.dongchimi.core.auth.Role
 import kr.dongchimi.gateway.auth.PublicEndpoints
 import kr.dongchimi.gateway.auth.jwt.JwtAuthFilter
 import kr.dongchimi.gateway.auth.jwt.JwtProvider
@@ -34,6 +35,9 @@ class SecurityConfig(
             }
             authorizeHttpRequests {
                 PublicEndpoints.SWAGGER.forEach { authorize(it, permitAll) }
+                authorize(OWNER_API_PATTERN, hasAuthority(Role.OWNER.name))
+                authorize(ADMIN_API_PATTERN, hasAuthority(Role.ADMIN.name))
+                authorize(USER_API_PATTERN, hasAuthority(Role.USER.name))
                 authorize(anyRequest, authenticated)
             }
             addFilterBefore<UsernamePasswordAuthenticationFilter>(JwtAuthFilter(jwtProvider))
@@ -55,5 +59,11 @@ class SecurityConfig(
         return UrlBasedCorsConfigurationSource().apply {
             registerCorsConfiguration("/**", config)
         }
+    }
+
+    companion object {
+        const val OWNER_API_PATTERN = "/v1/owners/**"
+        const val ADMIN_API_PATTERN = "/v1/admin/**"
+        const val USER_API_PATTERN = "/v1/users/**"
     }
 }
