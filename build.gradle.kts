@@ -8,6 +8,8 @@ plugins {
 }
 
 tasks.register<Exec>("installGitHooks") {
+    // git 저장소가 아닌 환경(Docker 이미지 빌드 등)에서는 스킵한다.
+    onlyIf { rootProject.file(".git").exists() }
     commandLine("git", "config", "core.hooksPath", ".githooks")
 }
 
