@@ -1,0 +1,23 @@
+# 빌드 산출물 / 캐시
+build/
+**/build/
+.gradle/
+.kotlin/
+
+# VCS / IDE
+.git/
+.gitignore
+.idea/
+*.iml
+
+# 시크릿 / 로컬 환경
+.env
+.env.local
+**/.env
+**/.env.local
+
+# 문서 / 기타
+docs/
+*.md
+!README.md
+.DS_Store
