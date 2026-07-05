@@ -56,6 +56,10 @@ subprojects {
         "implementation"("org.jetbrains.kotlin:kotlin-reflect")
         "testImplementation"("org.jetbrains.kotlin:kotlin-test-junit5")
         "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+
+        "testImplementation"(platform("io.kotest:kotest-bom:6.2.1"))
+        "testImplementation"("io.kotest:kotest-runner-junit5")
+        "testImplementation"("io.kotest:kotest-assertions-core")
     }
 
     tasks.withType<Test> {
