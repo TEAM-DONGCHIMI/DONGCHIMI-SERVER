@@ -49,7 +49,8 @@ class MarketJpaEntity(
     val ownerPhone: String,
     @Column(name = "owner_phone_2")
     val ownerPhone2: String? = null,
-    val ownerPhonePrimary: Short? = null,
+    @Column(nullable = false)
+    val ownerPhonePrimary: Short,
     val brn: String? = null,
 ) : BaseSoftDeleteEntity() {
     constructor(market: Market) : this(

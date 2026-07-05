@@ -44,7 +44,7 @@ CREATE TABLE markets (
     market_phone_primary SMALLINT NOT NULL,
     owner_phone VARCHAR(255) NOT NULL,
     owner_phone_2 VARCHAR(255),
-    owner_phone_primary SMALLINT,
+    owner_phone_primary SMALLINT NOT NULL,
     brn VARCHAR(255),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

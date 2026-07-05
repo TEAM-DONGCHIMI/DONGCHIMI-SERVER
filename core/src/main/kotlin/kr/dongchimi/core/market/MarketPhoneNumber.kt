@@ -6,5 +6,5 @@ data class MarketPhoneNumber(
     val marketPhonePrimary: Short,
     val ownerPhone: String,
     val ownerPhone2: String?,
-    val ownerPhonePrimary: Short?,
+    val ownerPhonePrimary: Short,
 )
