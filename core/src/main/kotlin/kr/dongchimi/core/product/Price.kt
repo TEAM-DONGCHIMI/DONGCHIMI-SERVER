@@ -8,9 +8,13 @@ data class Price(
     val discountedPrice: BigDecimal,
 ) {
     fun discountRate(): Int =
-        originalPrice
-            .subtract(discountedPrice)
-            .divide(originalPrice, 4, RoundingMode.HALF_UP)
-            .multiply(BigDecimal(100))
-            .toInt()
+        if (originalPrice.signum() == 0) {
+            0
+        } else {
+            originalPrice
+                .subtract(discountedPrice)
+                .divide(originalPrice, 4, RoundingMode.HALF_UP)
+                .multiply(BigDecimal(100))
+                .toInt()
+        }
 }
