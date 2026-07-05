@@ -20,7 +20,7 @@ class UserJpaEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     val id: Long = 0,
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     val email: String,
     val name: String? = null,
     @Enumerated(EnumType.STRING)
