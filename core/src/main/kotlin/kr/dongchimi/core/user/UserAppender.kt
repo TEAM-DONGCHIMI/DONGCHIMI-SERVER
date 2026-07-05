@@ -19,8 +19,7 @@ class UserAppender(
             User(
                 email = email,
                 name = info.name,
-                socialProvider = info.account.provider,
-                socialId = info.account.socialId,
+                socialAccount = info.account,
                 gender = gender,
                 age = info.age,
             ),

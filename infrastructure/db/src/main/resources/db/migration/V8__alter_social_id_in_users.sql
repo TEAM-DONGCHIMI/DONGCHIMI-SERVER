@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ALTER COLUMN social_id SET NOT NULL;

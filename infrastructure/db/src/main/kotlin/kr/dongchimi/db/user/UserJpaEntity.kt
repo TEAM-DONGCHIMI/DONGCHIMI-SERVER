@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.dongchimi.core.user.Gender
+import kr.dongchimi.core.user.SocialAccount
 import kr.dongchimi.core.user.SocialProvider
 import kr.dongchimi.core.user.User
 import kr.dongchimi.db.common.BaseSoftDeleteEntity
@@ -26,7 +27,8 @@ class UserJpaEntity(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val socialProvider: SocialProvider,
-    val socialId: String? = null,
+    @Column(nullable = false)
+    val socialId: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val gender: Gender,
@@ -36,8 +38,8 @@ class UserJpaEntity(
         id = user.id,
         email = user.email,
         name = user.name,
-        socialProvider = user.socialProvider,
-        socialId = user.socialId,
+        socialProvider = user.socialAccount.provider,
+        socialId = user.socialAccount.socialId,
         gender = user.gender,
         age = user.age,
     )
@@ -47,8 +49,7 @@ class UserJpaEntity(
             id = id,
             email = email,
             name = name,
-            socialProvider = socialProvider,
-            socialId = socialId,
+            socialAccount = SocialAccount(socialProvider, socialId),
             gender = gender,
             age = age,
         )
