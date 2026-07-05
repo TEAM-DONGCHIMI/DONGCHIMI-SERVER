@@ -1,21 +1,12 @@
 package kr.dongchimi.db.admin
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
-import kr.dongchimi.db.testsupport.TestPostgresContainer
+import kr.dongchimi.db.testsupport.ConstraintSpec
 import kr.dongchimi.db.testsupport.insertAdmin
-import kr.dongchimi.db.testsupport.truncate
 import org.postgresql.util.PSQLException
-import java.sql.Connection
 
 class AdminEmailUniqueConstraintTest :
-    FunSpec({
-        lateinit var connection: Connection
-
-        beforeSpec { connection = TestPostgresContainer.newConnection() }
-        beforeEach { connection.truncate("admins") }
-        afterSpec { connection.close() }
-
+    ConstraintSpec(tableName = "admins", body = {
         test("동일한 이메일의 admin을 2명 생성하면 실패한다") {
             connection.insertAdmin(email = "duplicate@dongchimi.kr")
 

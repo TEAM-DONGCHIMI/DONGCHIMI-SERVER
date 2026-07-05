@@ -1,22 +1,13 @@
 package kr.dongchimi.db.user
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
-import kr.dongchimi.db.testsupport.TestPostgresContainer
+import kr.dongchimi.db.testsupport.ConstraintSpec
 import kr.dongchimi.db.testsupport.insertUser
 import kr.dongchimi.db.testsupport.softDeleteUser
-import kr.dongchimi.db.testsupport.truncate
 import org.postgresql.util.PSQLException
-import java.sql.Connection
 
 class UserSocialAccountUniqueConstraintTest :
-    FunSpec({
-        lateinit var connection: Connection
-
-        beforeSpec { connection = TestPostgresContainer.newConnection() }
-        beforeEach { connection.truncate("users") }
-        afterSpec { connection.close() }
-
+    ConstraintSpec(tableName = "users", body = {
         test("동일한 (social_provider, social_id) 조합으로 2명 가입하면 실패한다") {
             connection.insertUser(email = "a@dongchimi.kr", socialProvider = "KAKAO", socialId = "social-1")
 

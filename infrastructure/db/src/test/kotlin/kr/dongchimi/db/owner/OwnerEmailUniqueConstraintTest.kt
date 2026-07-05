@@ -1,22 +1,13 @@
 package kr.dongchimi.db.owner
 
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.FunSpec
-import kr.dongchimi.db.testsupport.TestPostgresContainer
+import kr.dongchimi.db.testsupport.ConstraintSpec
 import kr.dongchimi.db.testsupport.insertOwner
 import kr.dongchimi.db.testsupport.softDeleteOwner
-import kr.dongchimi.db.testsupport.truncate
 import org.postgresql.util.PSQLException
-import java.sql.Connection
 
 class OwnerEmailUniqueConstraintTest :
-    FunSpec({
-        lateinit var connection: Connection
-
-        beforeSpec { connection = TestPostgresContainer.newConnection() }
-        beforeEach { connection.truncate("owners") }
-        afterSpec { connection.close() }
-
+    ConstraintSpec(tableName = "owners", body = {
         test("활성 오너 2명이 같은 이메일로 가입하면 실패한다") {
             connection.insertOwner(email = "duplicate@dongchimi.kr")
 
