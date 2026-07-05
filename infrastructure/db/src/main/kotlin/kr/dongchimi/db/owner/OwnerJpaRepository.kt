@@ -2,4 +2,6 @@ package kr.dongchimi.db.owner
 
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface OwnerJpaRepository : JpaRepository<OwnerJpaEntity, Long>
+interface OwnerJpaRepository : JpaRepository<OwnerJpaEntity, Long> {
+    fun findByIdAndDeletedAtIsNull(id: Long): OwnerJpaEntity?
+}
