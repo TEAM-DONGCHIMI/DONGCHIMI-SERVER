@@ -7,6 +7,7 @@ import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.user.Gender
 import kr.dongchimi.core.user.SocialAccount
 import kr.dongchimi.core.user.SocialProvider
+import kr.dongchimi.core.user.SocialUserResolver
 import kr.dongchimi.core.user.User
 import kr.dongchimi.core.user.UserAppender
 import kr.dongchimi.core.user.UserReader
@@ -20,7 +21,7 @@ class OAuthLoginServiceTest :
         ) = OAuthLoginService(
             SocialUserInfoReader(clients.toList()),
             UserReader(userRepository),
-            UserAppender(userRepository),
+            SocialUserResolver(UserReader(userRepository), UserAppender(userRepository)),
             FakeTokenProvider(),
         )
 
