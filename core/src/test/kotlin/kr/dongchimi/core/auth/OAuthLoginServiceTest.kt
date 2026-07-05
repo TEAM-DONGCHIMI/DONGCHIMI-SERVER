@@ -32,8 +32,7 @@ class OAuthLoginServiceTest :
                     User(
                         email = "a@dongchimi.kr",
                         name = "동치미",
-                        socialProvider = account.provider,
-                        socialId = account.socialId,
+                        socialAccount = account,
                         gender = Gender.M,
                         age = null,
                     ),
@@ -99,8 +98,7 @@ class OAuthLoginServiceTest :
 
         override fun findById(id: Long): User? = store[id]
 
-        override fun findBySocialAccount(account: SocialAccount): User? =
-            store.values.find { it.socialProvider == account.provider && it.socialId == account.socialId }
+        override fun findBySocialAccount(account: SocialAccount): User? = store.values.find { it.socialAccount == account }
 
         override fun save(user: User): User {
             val saved = if (user.id == 0L) user.copy(id = nextId++) else user

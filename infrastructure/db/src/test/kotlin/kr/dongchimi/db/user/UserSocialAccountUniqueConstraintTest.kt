@@ -21,11 +21,6 @@ class UserSocialAccountUniqueConstraintTest :
             connection.insertUser(email = "b@dongchimi.kr", socialProvider = "GOOGLE", socialId = "social-1")
         }
 
-        test("social_id가 NULL인 유저는 여러 명 가입해도 성공한다") {
-            connection.insertUser(email = "a@dongchimi.kr", socialProvider = "KAKAO", socialId = null)
-            connection.insertUser(email = "b@dongchimi.kr", socialProvider = "KAKAO", socialId = null)
-        }
-
         test("soft-delete 후 동일한 (social_provider, social_id)로 재가입하면 성공한다") {
             val id = connection.insertUser(email = "a@dongchimi.kr", socialProvider = "KAKAO", socialId = "social-1")
             connection.softDeleteUser(id)
