@@ -39,13 +39,15 @@ class MarketJpaEntity(
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     val businessHours: BusinessHours? = null,
-    @Column(nullable = false)
+    @Column(name = "market_phone_1", nullable = false)
     val marketPhone1: String,
+    @Column(name = "market_phone_2")
     val marketPhone2: String? = null,
     @Column(nullable = false)
     val marketPhonePrimary: Short,
     @Column(nullable = false)
     val ownerPhone: String,
+    @Column(name = "owner_phone_2")
     val ownerPhone2: String? = null,
     val ownerPhonePrimary: Short? = null,
     val brn: String? = null,
