@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import io.swagger.v3.oas.models.responses.ApiResponse as OpenApiResponse
 
+typealias HttpMediaType = org.springframework.http.MediaType
+
 @Component
 class ApiErrorCodesCustomizer : OperationCustomizer {
     override fun customize(
@@ -39,21 +41,21 @@ class ApiErrorCodesCustomizer : OperationCustomizer {
             val statusKey = status.toString()
             val existing = operation.responses[statusKey]
             if (existing != null) {
-                val existingContent = existing.content?.get("application/json")
+                val existingContent = existing.content?.get(HttpMediaType.APPLICATION_JSON_VALUE)
                 if (existingContent != null) {
                     existingContent.examples =
                         (existingContent.examples ?: mutableMapOf()).apply {
                             putAll(mediaType.examples)
                         }
                 } else {
-                    existing.content(Content().addMediaType("application/json", mediaType))
+                    existing.content(Content().addMediaType(HttpMediaType.APPLICATION_JSON_VALUE, mediaType))
                 }
             } else {
                 operation.responses.addApiResponse(
                     statusKey,
                     OpenApiResponse()
                         .description("에러 응답")
-                        .content(Content().addMediaType("application/json", mediaType)),
+                        .content(Content().addMediaType(HttpMediaType.APPLICATION_JSON_VALUE, mediaType)),
                 )
             }
         }
