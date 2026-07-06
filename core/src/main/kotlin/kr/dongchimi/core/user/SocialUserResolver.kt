@@ -1,7 +1,7 @@
 package kr.dongchimi.core.user
 
 import kr.dongchimi.core.auth.SocialUserInfo
-import org.springframework.dao.DataIntegrityViolationException
+import kr.dongchimi.core.user.exception.DuplicateSocialAccountException
 import org.springframework.stereotype.Component
 
 @Component
@@ -12,7 +12,7 @@ class SocialUserResolver(
     fun resolve(info: SocialUserInfo): User =
         try {
             userAppender.appendSocialUser(info)
-        } catch (exception: DataIntegrityViolationException) {
+        } catch (exception: DuplicateSocialAccountException) {
             userReader.readBySocialAccount(info.account) ?: throw exception
         }
 }

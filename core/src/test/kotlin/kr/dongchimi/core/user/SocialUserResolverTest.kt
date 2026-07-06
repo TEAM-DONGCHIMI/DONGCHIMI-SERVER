@@ -4,7 +4,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.core.auth.SocialUserInfo
-import org.springframework.dao.DataIntegrityViolationException
+import kr.dongchimi.core.user.exception.DuplicateSocialAccountException
 
 class SocialUserResolverTest :
     FunSpec({
@@ -26,7 +26,7 @@ class SocialUserResolverTest :
             val resolver = SocialUserResolver(UserReader(userRepository), UserAppender(userRepository))
             val info = SocialUserInfo(account, "a@dongchimi.kr", "동치미", Gender.M, null)
 
-            shouldThrow<DataIntegrityViolationException> {
+            shouldThrow<DuplicateSocialAccountException> {
                 resolver.resolve(info)
             }
         }
@@ -47,7 +47,7 @@ class SocialUserResolverTest :
         override fun findBySocialAccount(account: SocialAccount): User? = store.values.find { it.socialAccount == account }
 
         override fun save(user: User): User {
-            if (throwOnSave) throw DataIntegrityViolationException("duplicate key")
+            if (throwOnSave) throw DuplicateSocialAccountException()
 
             val saved = if (user.id == 0L) user.copy(id = nextId++) else user
             store[saved.id] = saved
