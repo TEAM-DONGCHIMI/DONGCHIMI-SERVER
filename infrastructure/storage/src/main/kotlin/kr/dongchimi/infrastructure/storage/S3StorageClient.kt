@@ -1,5 +1,6 @@
 package kr.dongchimi.infrastructure.storage
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kr.dongchimi.core.upload.PresignedUpload
 import kr.dongchimi.core.upload.StorageClient
 import kr.dongchimi.core.upload.StoredObjectMetadata
@@ -11,9 +12,12 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
+import software.amazon.awssdk.services.s3.model.S3Exception
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest
 import java.time.Instant
+
+private val logger = KotlinLogging.logger {}
 
 @Component
 @ConditionalOnProperty(name = ["storage.provider"], havingValue = "s3", matchIfMissing = true)
@@ -80,13 +84,17 @@ class S3StorageClient(
                 .destinationKey(destinationKey)
                 .build(),
         )
-        s3Client.deleteObject(
-            DeleteObjectRequest
-                .builder()
-                .bucket(s3Props.bucket)
-                .key(sourceKey)
-                .build(),
-        )
+        try {
+            s3Client.deleteObject(
+                DeleteObjectRequest
+                    .builder()
+                    .bucket(s3Props.bucket)
+                    .key(sourceKey)
+                    .build(),
+            )
+        } catch (e: S3Exception) {
+            logger.warn(e) { "임시 객체 삭제 실패 (복제는 완료됨): $sourceKey -> $destinationKey" }
+        }
     }
 
     override fun resolveAccessUrl(objectKey: String): String = "${storageProps.cdnBaseUrl}/$objectKey"
