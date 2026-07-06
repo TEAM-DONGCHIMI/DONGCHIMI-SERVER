@@ -3,3 +3,15 @@ oauth:
     user-info-uri: ${KAKAO_USER_INFO_URI:https://kapi.kakao.com/v2/user/me}
     connect-timeout: ${KAKAO_CONNECT_TIMEOUT:2s}
     read-timeout: ${KAKAO_READ_TIMEOUT:5s}
+
+monitoring:
+  discord:
+    enabled: ${DISCORD_ALERT_ENABLED:false}
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
+    connect-timeout: ${DISCORD_CONNECT_TIMEOUT:2s}
+    read-timeout: ${DISCORD_READ_TIMEOUT:3s}
+  sentry:
+    enabled: ${SENTRY_ENABLED:false}
+    dsn: ${SENTRY_DSN:}
+    environment: ${SENTRY_ENVIRONMENT:local}
+    traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.0}
