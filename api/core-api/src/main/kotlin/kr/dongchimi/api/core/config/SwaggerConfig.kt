@@ -6,6 +6,7 @@ import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
+import org.springdoc.core.models.GroupedOpenApi
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -28,4 +29,13 @@ class SwaggerConfig {
                 ),
             )
     }
+
+    @Bean
+    fun coreOpenApi(): GroupedOpenApi =
+        GroupedOpenApi
+            .builder()
+            .group("core")
+            .displayName("공통 API")
+            .packagesToScan("kr.dongchimi.api.core")
+            .build()
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.examples.Example
 import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
+import io.swagger.v3.oas.models.responses.ApiResponses
 import kr.dongchimi.api.core.dto.ApiResponse
 import kr.dongchimi.core.common.exception.ErrorCode
 import org.springdoc.core.customizers.OperationCustomizer
@@ -18,6 +19,8 @@ class ApiErrorCodesCustomizer : OperationCustomizer {
         handlerMethod: HandlerMethod,
     ): Operation {
         val annotation = handlerMethod.getMethodAnnotation(ApiErrorCodes::class.java) ?: return operation
+
+        operation.responses = operation.responses ?: ApiResponses()
 
         val errorCodes: List<ErrorCode> =
             annotation.value.flatMap { it.java.enumConstants?.toList() ?: emptyList() }
@@ -34,7 +37,7 @@ class ApiErrorCodesCustomizer : OperationCustomizer {
             }
 
             val statusKey = status.toString()
-            val existing = operation.responses?.get(statusKey)
+            val existing = operation.responses[statusKey]
             if (existing != null) {
                 val existingContent = existing.content?.get("application/json")
                 if (existingContent != null) {
