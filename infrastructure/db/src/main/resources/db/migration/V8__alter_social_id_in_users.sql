@@ -1,2 +1,5 @@
+DELETE FROM users
+WHERE social_id IS NULL;
+
 ALTER TABLE users
     ALTER COLUMN social_id SET NOT NULL;
