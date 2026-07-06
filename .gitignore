@@ -40,8 +40,12 @@ out/
 .claude/settings.local.json
 docs/plans
 
+### macOS ###
+.DS_Store
+
 ### Kotlin ###
 .kotlin
 
 ### Env ###
+.env
 .env.local
