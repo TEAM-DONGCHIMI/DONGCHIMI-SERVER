@@ -1,4 +1,4 @@
-package kr.dongchimi
+package kr.dongchimi.bootstrap
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
