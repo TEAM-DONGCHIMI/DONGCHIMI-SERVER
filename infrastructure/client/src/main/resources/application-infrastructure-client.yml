@@ -1,3 +1,5 @@
 oauth:
   kakao:
     user-info-uri: ${KAKAO_USER_INFO_URI:https://kapi.kakao.com/v2/user/me}
+    connect-timeout: ${KAKAO_CONNECT_TIMEOUT:2s}
+    read-timeout: ${KAKAO_READ_TIMEOUT:5s}

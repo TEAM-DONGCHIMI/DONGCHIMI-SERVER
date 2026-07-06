@@ -60,6 +60,8 @@ subprojects {
         "testImplementation"(platform("io.kotest:kotest-bom:6.2.1"))
         "testImplementation"("io.kotest:kotest-runner-junit5")
         "testImplementation"("io.kotest:kotest-assertions-core")
+
+        "implementation"("io.github.oshai:kotlin-logging-jvm:7.0.3")
     }
 
     tasks.withType<Test> {

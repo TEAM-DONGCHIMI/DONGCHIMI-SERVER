@@ -1,5 +1,6 @@
 package kr.dongchimi.client.kakao
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kr.dongchimi.core.auth.AuthErrorCode
 import kr.dongchimi.core.auth.OAuthUserClient
 import kr.dongchimi.core.auth.SocialUserInfo
@@ -9,16 +10,16 @@ import kr.dongchimi.core.user.SocialAccount
 import kr.dongchimi.core.user.SocialProvider
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestClient
-import org.springframework.web.client.RestClientResponseException
+import org.springframework.web.client.RestClientException
+
+private val logger = KotlinLogging.logger {}
 
 @Component
 class KakaoUserClient(
     private val kakaoProperties: KakaoProperties,
-    restClientBuilder: RestClient.Builder,
+    private val restClient: RestClient,
 ) : OAuthUserClient {
     override val provider: SocialProvider = SocialProvider.KAKAO
-
-    private val restClient: RestClient = restClientBuilder.build()
 
     override fun fetchUserInfo(accessToken: String): SocialUserInfo {
         val response =
@@ -30,7 +31,8 @@ class KakaoUserClient(
                     .retrieve()
                     .body(KakaoUserResponse::class.java)
                     ?: throw CoreException(AuthErrorCode.OAUTH_AUTHENTICATION_FAILED)
-            } catch (exception: RestClientResponseException) {
+            } catch (exception: RestClientException) {
+                logger.warn(exception) { "카카오 사용자 정보 조회 실패" }
                 throw CoreException(AuthErrorCode.OAUTH_AUTHENTICATION_FAILED)
             }
 

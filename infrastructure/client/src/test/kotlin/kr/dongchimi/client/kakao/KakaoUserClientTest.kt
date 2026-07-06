@@ -24,7 +24,7 @@ class KakaoUserClientTest :
         test("카카오 사용자 정보를 SocialUserInfo로 매핑한다") {
             val builder = RestClient.builder()
             val mockServer = MockRestServiceServer.bindTo(builder).build()
-            val client = KakaoUserClient(properties, builder)
+            val client = KakaoUserClient(properties, builder.build())
 
             mockServer
                 .expect(requestTo(properties.userInfoUri))
@@ -59,7 +59,7 @@ class KakaoUserClientTest :
         test("카카오 토큰이 유효하지 않으면 인증 실패 예외를 던진다") {
             val builder = RestClient.builder()
             val mockServer = MockRestServiceServer.bindTo(builder).build()
-            val client = KakaoUserClient(properties, builder)
+            val client = KakaoUserClient(properties, builder.build())
 
             mockServer
                 .expect(requestTo(properties.userInfoUri))
@@ -68,6 +68,23 @@ class KakaoUserClientTest :
             val exception =
                 shouldThrow<CoreException> {
                     client.fetchUserInfo("invalid-token")
+                }
+
+            exception.errorCode shouldBe AuthErrorCode.OAUTH_AUTHENTICATION_FAILED
+        }
+
+        test("응답 바디가 비어 있으면 인증 실패 예외를 던진다") {
+            val builder = RestClient.builder()
+            val mockServer = MockRestServiceServer.bindTo(builder).build()
+            val client = KakaoUserClient(properties, builder.build())
+
+            mockServer
+                .expect(requestTo(properties.userInfoUri))
+                .andRespond(withStatus(HttpStatus.OK))
+
+            val exception =
+                shouldThrow<CoreException> {
+                    client.fetchUserInfo("kakao-token")
                 }
 
             exception.errorCode shouldBe AuthErrorCode.OAUTH_AUTHENTICATION_FAILED
