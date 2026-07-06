@@ -97,5 +97,5 @@ class S3StorageClient(
         }
     }
 
-    override fun resolveAccessUrl(objectKey: String): String = "${storageProps.cdnBaseUrl}/$objectKey"
+    override fun resolveAccessUrl(objectKey: String): String = "${storageProps.cdnBaseUrl.trimEnd('/')}/$objectKey"
 }

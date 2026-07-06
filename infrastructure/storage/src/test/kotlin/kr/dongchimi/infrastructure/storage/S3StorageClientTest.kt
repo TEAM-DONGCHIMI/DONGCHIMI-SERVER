@@ -109,4 +109,16 @@ class S3StorageClientTest :
             storageClient.resolveAccessUrl("products/thumbnails/2026/07/x.jpg") shouldBe
                 "https://cdn.example.com/products/thumbnails/2026/07/x.jpg"
         }
+
+        test("cdnBaseUrl에 trailing slash가 있어도 이중 슬래시가 생기지 않는다") {
+            val clientWithTrailingSlash =
+                S3StorageClient(
+                    s3Client,
+                    s3Presigner,
+                    StorageProperties(provider = "s3", presignExpiry = Duration.ofMinutes(5), cdnBaseUrl = "https://cdn.example.com/"),
+                    S3Properties(region = container.region, bucket = BUCKET, endpoint = endpoint.toString(), pathStyleAccess = true),
+                )
+
+            clientWithTrailingSlash.resolveAccessUrl("x.jpg") shouldBe "https://cdn.example.com/x.jpg"
+        }
     })
