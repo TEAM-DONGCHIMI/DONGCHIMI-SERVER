@@ -1,4 +1,4 @@
-package kr.dongchimi.api.user.auth
+package kr.dongchimi.api.user.auth.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 

@@ -1,4 +1,4 @@
-package kr.dongchimi.api.user.auth
+package kr.dongchimi.api.user.auth.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.api.core.exception.validate
