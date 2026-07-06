@@ -7,5 +7,5 @@ class UploadService(
     private val uploadManager: UploadManager,
 ) {
     fun createPresignedUpload(command: PresignedUploadCommand): PresignedUpload =
-        uploadManager.issue(command.purpose, command.contentType, command.contentLength)
+        uploadManager.issuePresignedUpload(command.purpose, command.contentType, command.contentLength)
 }

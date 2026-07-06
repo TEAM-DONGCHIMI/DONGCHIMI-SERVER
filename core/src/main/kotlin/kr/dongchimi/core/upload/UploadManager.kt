@@ -10,7 +10,7 @@ class UploadManager(
     private val contentTypeValidator: UploadContentTypeValidator,
     private val uploadProperties: UploadProperties,
 ) {
-    fun issue(
+    fun issuePresignedUpload(
         purpose: UploadPurpose,
         contentType: String,
         contentLength: Long,
@@ -23,7 +23,7 @@ class UploadManager(
         return storageClient.createUploadUrl(tempKey, contentType, contentLength)
     }
 
-    fun promote(tempKey: String): PromotedObject {
+    fun promoteUpload(tempKey: String): PromotedUpload {
         val purpose = objectKeyGenerator.parsePurpose(tempKey)
         val metadata =
             storageClient.getObjectMetadata(tempKey)
@@ -34,6 +34,6 @@ class UploadManager(
         }
         val permanentKey = objectKeyGenerator.toPermanentKey(tempKey)
         storageClient.moveObject(tempKey, permanentKey)
-        return PromotedObject(permanentKey, storageClient.resolveAccessUrl(permanentKey))
+        return PromotedUpload(permanentKey, storageClient.resolveAccessUrl(permanentKey))
     }
 }

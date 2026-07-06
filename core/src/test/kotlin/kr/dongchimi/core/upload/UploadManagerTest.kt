@@ -23,7 +23,7 @@ class UploadManagerTest :
         test("발급 요청이 유효하면 presigned URL을 반환한다") {
             val storageClient = FakeStorageClient()
 
-            val result = manager(storageClient).issue(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg", 1024L)
+            val result = manager(storageClient).issuePresignedUpload(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg", 1024L)
 
             result.uploadUrl shouldBe "https://s3.example.com/${result.objectKey}"
         }
@@ -31,7 +31,7 @@ class UploadManagerTest :
         test("허용되지 않은 content-type이면 예외가 발생한다") {
             val exception =
                 shouldThrow<CoreException> {
-                    manager(FakeStorageClient()).issue(UploadPurpose.PRODUCT_THUMBNAIL, "application/pdf", 1024L)
+                    manager(FakeStorageClient()).issuePresignedUpload(UploadPurpose.PRODUCT_THUMBNAIL, "application/pdf", 1024L)
                 }
 
             exception.errorCode shouldBe UploadErrorCode.UNSUPPORTED_CONTENT_TYPE
@@ -40,7 +40,7 @@ class UploadManagerTest :
         test("최대 크기를 초과하면 예외가 발생한다") {
             val exception =
                 shouldThrow<CoreException> {
-                    manager(FakeStorageClient()).issue(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg", 10 * 1024 * 1024L)
+                    manager(FakeStorageClient()).issuePresignedUpload(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg", 10 * 1024 * 1024L)
                 }
 
             exception.errorCode shouldBe UploadErrorCode.FILE_TOO_LARGE
@@ -51,7 +51,7 @@ class UploadManagerTest :
             val tempKey = ObjectKeyGenerator().generateTempKey(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg")
             storageClient.put(tempKey, StoredObjectMetadata("image/jpeg", 1024L))
 
-            val promoted = manager(storageClient).promote(tempKey)
+            val promoted = manager(storageClient).promoteUpload(tempKey)
 
             promoted.objectKey shouldBe ObjectKeyGenerator().toPermanentKey(tempKey)
             promoted.accessUrl shouldBe "https://cdn.example.com/${promoted.objectKey}"
@@ -62,7 +62,7 @@ class UploadManagerTest :
 
             val exception =
                 shouldThrow<CoreException> {
-                    manager(FakeStorageClient()).promote(tempKey)
+                    manager(FakeStorageClient()).promoteUpload(tempKey)
                 }
 
             exception.errorCode shouldBe UploadErrorCode.UPLOAD_NOT_FOUND
@@ -75,7 +75,7 @@ class UploadManagerTest :
 
             val exception =
                 shouldThrow<CoreException> {
-                    manager(storageClient).promote(tempKey)
+                    manager(storageClient).promoteUpload(tempKey)
                 }
 
             exception.errorCode shouldBe UploadErrorCode.FILE_TOO_LARGE

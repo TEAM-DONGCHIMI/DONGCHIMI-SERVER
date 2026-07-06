@@ -1,6 +1,6 @@
 package kr.dongchimi.core.upload
 
-data class PromotedObject(
+data class PromotedUpload(
     val objectKey: String,
     val accessUrl: String,
 )
