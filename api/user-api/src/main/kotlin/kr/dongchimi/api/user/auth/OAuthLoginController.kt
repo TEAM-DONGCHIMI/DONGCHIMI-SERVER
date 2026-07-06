@@ -1,6 +1,8 @@
 package kr.dongchimi.api.user.auth
 
 import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
+import kr.dongchimi.api.user.auth.response.OAuthLoginResponse
 import kr.dongchimi.core.auth.OAuthLoginService
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -12,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/v1/users/login/oauth2")
 class OAuthLoginController(
     private val oAuthLoginService: OAuthLoginService,
-) {
+) : OAuthLoginApi {
     @PostMapping("/{provider}")
-    fun login(
+    override fun login(
         @PathVariable provider: String,
         @RequestBody request: OAuthLoginRequest,
     ): ApiResponse<OAuthLoginResponse> {

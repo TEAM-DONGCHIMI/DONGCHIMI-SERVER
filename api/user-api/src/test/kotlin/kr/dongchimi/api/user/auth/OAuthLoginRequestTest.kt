@@ -3,6 +3,7 @@ package kr.dongchimi.api.user.auth
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
 import kr.dongchimi.core.auth.AuthErrorCode
 import kr.dongchimi.core.auth.OAuthLoginCommand
 import kr.dongchimi.core.common.exception.CommonErrorCode
