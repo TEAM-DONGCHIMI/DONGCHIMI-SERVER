@@ -8,4 +8,9 @@ object PublicEndpoints {
             "/api-docs/**",
             "/swagger",
         )
+
+    val AUTH =
+        arrayOf(
+            "/v1/users/login/oauth2/**",
+        )
 }

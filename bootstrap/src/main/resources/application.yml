@@ -7,3 +7,4 @@ spring:
       - classpath:application-gateway-logging.yml
       - classpath:application-core-api.yml
       - classpath:application-infrastructure-db.yml
+      - classpath:application-infrastructure-client.yml

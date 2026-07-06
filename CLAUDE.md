@@ -26,7 +26,6 @@ Kotlin 2.3 + Spring Boot 4.1 멀티모듈 서버 (Java 21 toolchain). 패키지 
 ./gradlew :bootstrap:bootRun     # 애플리케이션 실행
 ```
 
-pre-commit 훅(`.githooks/`)이 `ktlintFormat` 후 `git add -A`를 실행하므로, 커밋 시 의도하지 않은 파일이 스테이징되지 않게 주의한다.
 
 ## 컨벤션 문서 (필독)
 

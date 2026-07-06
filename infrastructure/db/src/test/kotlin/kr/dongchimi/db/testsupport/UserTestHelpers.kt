@@ -1,12 +1,11 @@
 package kr.dongchimi.db.testsupport
 
 import java.sql.Connection
-import java.sql.Types
 
 fun Connection.insertUser(
     email: String,
     socialProvider: String = "KAKAO",
-    socialId: String? = null,
+    socialId: String = email,
     gender: String = "M",
 ): Long {
     prepareStatement(
@@ -14,7 +13,7 @@ fun Connection.insertUser(
     ).use { statement ->
         statement.setString(1, email)
         statement.setString(2, socialProvider)
-        if (socialId == null) statement.setNull(3, Types.VARCHAR) else statement.setString(3, socialId)
+        statement.setString(3, socialId)
         statement.setString(4, gender)
         statement.executeQuery().use { resultSet ->
             resultSet.next()
