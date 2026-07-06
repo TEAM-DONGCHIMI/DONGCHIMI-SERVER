@@ -3,6 +3,7 @@ spring:
     name: dongchimi-server
   config:
     import:
+      - classpath:application-core.yml
       - classpath:application-gateway-auth.yml
       - classpath:application-gateway-logging.yml
       - classpath:application-core-api.yml

@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":core"))
     implementation(project(":api:core-api"))
     implementation(project(":api:owner-api"))
     implementation(project(":api:admin-api"))
