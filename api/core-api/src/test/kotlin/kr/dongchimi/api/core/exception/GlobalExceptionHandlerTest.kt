@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.monitoring.ErrorContext
@@ -19,17 +21,19 @@ private class RecordingNotifier : ErrorNotifier {
     }
 }
 
-private class ThrowingNotifier : ErrorNotifier {
-    override fun notify(context: ErrorContext): Unit = throw RuntimeException("notifier down")
-}
-
 class GlobalExceptionHandlerTest :
     FunSpec({
         val sanitizer = RequestBodySanitizer(JsonMapper.builder().build())
 
-        test("500 응답을 반환하고 모든 notifier에 컨텍스트를 전달한다") {
+        // Dispatchers.Unconfined는 launch 본문을 호출 스레드에서 동기 실행하므로 발송 결과를 즉시 검증할 수 있다.
+        fun handlerWith(notifier: ErrorNotifier): GlobalExceptionHandler {
+            val dispatcher = ErrorNotificationDispatcher(listOf(notifier), CoroutineScope(Dispatchers.Unconfined))
+            return GlobalExceptionHandler(dispatcher, sanitizer)
+        }
+
+        test("500 응답을 반환하고 완성된 컨텍스트를 디스패처로 전달한다") {
             val recording = RecordingNotifier()
-            val handler = GlobalExceptionHandler(listOf(recording), sanitizer)
+            val handler = handlerWith(recording)
             val request = MockHttpServletRequest("POST", "/v1/users")
 
             val response = handler.handleInternalException(RuntimeException("boom"), request)
@@ -41,19 +45,9 @@ class GlobalExceptionHandlerTest :
             recording.received!!.requestUri shouldBe "/v1/users"
         }
 
-        test("한 notifier가 예외를 던져도 응답과 다른 notifier에 영향이 없다") {
+        test("CoreException 경로는 발송하지 않는다") {
             val recording = RecordingNotifier()
-            val handler = GlobalExceptionHandler(listOf(ThrowingNotifier(), recording), sanitizer)
-
-            val response = handler.handleInternalException(RuntimeException("boom"), MockHttpServletRequest())
-
-            response.statusCode.value() shouldBe 500
-            recording.received.shouldNotBeNull()
-        }
-
-        test("CoreException 경로는 notify를 호출하지 않는다") {
-            val recording = RecordingNotifier()
-            val handler = GlobalExceptionHandler(listOf(recording), sanitizer)
+            val handler = handlerWith(recording)
 
             val response = handler.handleCoreException(CoreException(CommonErrorCode.INVALID_INPUT))
 

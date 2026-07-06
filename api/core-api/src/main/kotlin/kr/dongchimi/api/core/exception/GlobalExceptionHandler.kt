@@ -6,7 +6,6 @@ import kr.dongchimi.api.core.dto.ApiResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.monitoring.ErrorContext
-import kr.dongchimi.core.monitoring.ErrorNotifier
 import kr.dongchimi.gateway.logging.MdcFilter.Companion.REQUEST_ID
 import kr.dongchimi.gateway.logging.MdcFilter.Companion.USER_ID
 import org.slf4j.MDC
@@ -19,7 +18,7 @@ private val logger = KotlinLogging.logger {}
 
 @RestControllerAdvice
 class GlobalExceptionHandler(
-    private val errorNotifiers: List<ErrorNotifier>,
+    private val errorNotificationDispatcher: ErrorNotificationDispatcher,
     private val requestBodySanitizer: RequestBodySanitizer,
 ) {
     @ExceptionHandler(CoreException::class)
@@ -63,9 +62,7 @@ class GlobalExceptionHandler(
                 requestBody = runCatching { requestBodySanitizer.sanitize(request) }.getOrNull(),
             )
 
-        errorNotifiers.forEach { notifier ->
-            runCatching { notifier.notify(context) }
-                .onFailure { logger.warn(it) { "에러 알림 실패: ${notifier::class.simpleName}" } }
-        }
+        // 컨텍스트는 요청 스레드에서 완성했으므로, 실제 발송은 디스패처에 위임해 비동기로 처리한다.
+        errorNotificationDispatcher.dispatch(context)
     }
 }
