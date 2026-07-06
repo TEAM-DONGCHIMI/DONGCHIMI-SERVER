@@ -1,7 +1,8 @@
 package kr.dongchimi.api.user.auth
 
-import io.swagger.v3.oas.annotations.Parameter
 import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
+import kr.dongchimi.api.user.auth.response.OAuthLoginResponse
 import kr.dongchimi.core.auth.OAuthLoginService
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,7 +17,6 @@ class OAuthLoginController(
 ) : OAuthLoginApi {
     @PostMapping("/{provider}")
     override fun login(
-        @Parameter(description = "소셜 로그인 제공자", example = "kakao")
         @PathVariable provider: String,
         @RequestBody request: OAuthLoginRequest,
     ): ApiResponse<OAuthLoginResponse> {
