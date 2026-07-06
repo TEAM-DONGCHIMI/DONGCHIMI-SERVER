@@ -15,14 +15,18 @@ import java.net.URI
 class S3Config(
     private val props: S3Properties,
 ) {
+    private val endpointOverride: URI? = props.endpoint?.takeIf { it.isNotBlank() }?.let { URI.create(it) }
+    private val s3ServiceConfiguration: S3Configuration =
+        S3Configuration.builder().pathStyleAccessEnabled(props.pathStyleAccess).build()
+
     @Bean
     fun s3Client(): S3Client =
         S3Client
             .builder()
             .region(Region.of(props.region))
             .credentialsProvider(DefaultCredentialsProvider.create())
-            .apply { props.endpoint?.takeIf { it.isNotBlank() }?.let { endpointOverride(URI.create(it)) } }
-            .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(props.pathStyleAccess).build())
+            .apply { endpointOverride?.let { endpointOverride(it) } }
+            .serviceConfiguration(s3ServiceConfiguration)
             .build()
 
     @Bean
@@ -31,7 +35,7 @@ class S3Config(
             .builder()
             .region(Region.of(props.region))
             .credentialsProvider(DefaultCredentialsProvider.create())
-            .apply { props.endpoint?.takeIf { it.isNotBlank() }?.let { endpointOverride(URI.create(it)) } }
-            .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(props.pathStyleAccess).build())
+            .apply { endpointOverride?.let { endpointOverride(it) } }
+            .serviceConfiguration(s3ServiceConfiguration)
             .build()
 }
