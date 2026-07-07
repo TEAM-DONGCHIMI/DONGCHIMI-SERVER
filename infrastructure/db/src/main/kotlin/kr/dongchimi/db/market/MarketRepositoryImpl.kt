@@ -10,5 +10,7 @@ class MarketRepositoryImpl(
 ) : MarketRepository {
     override fun findById(id: Long): Market? = marketJpaRepository.findByIdAndDeletedAtIsNull(id)?.toDomain()
 
+    override fun findByOwnerId(ownerId: Long): Market? = marketJpaRepository.findFirstByOwnerIdAndDeletedAtIsNull(ownerId)?.toDomain()
+
     override fun save(market: Market): Market = marketJpaRepository.save(MarketJpaEntity(market)).toDomain()
 }
