@@ -13,7 +13,7 @@ import kr.dongchimi.core.owner.OwnerErrorCode
 interface OwnerSignupApi {
     @Operation(
         summary = "사장님 회원가입",
-        description = "이메일/비밀번호로 사장님 회원가입을 한다. 회원가입 시 토큰은 발급하지 않는다.",
+        description = "이메일/비밀번호 기반 사장님 전용 회원가입 API",
     )
     @ApiErrorCodes(CommonErrorCode::class, OwnerErrorCode::class)
     fun signup(request: OwnerSignupRequest): ApiResponse<OwnerSignupResponse>
