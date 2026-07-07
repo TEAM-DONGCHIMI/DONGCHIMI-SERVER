@@ -49,3 +49,8 @@ docs/plans
 ### Env ###
 .env
 .env.local
+k6/.env.perf
+
+### k6 ###
+k6/results/*
+!k6/results/.gitkeep
