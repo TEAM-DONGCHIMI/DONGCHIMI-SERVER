@@ -12,6 +12,7 @@ import kr.dongchimi.core.user.User
 import kr.dongchimi.core.user.UserAppender
 import kr.dongchimi.core.user.UserReader
 import kr.dongchimi.core.user.UserRepository
+import java.time.LocalDateTime
 
 class OAuthLoginServiceTest :
     FunSpec({
@@ -22,7 +23,7 @@ class OAuthLoginServiceTest :
             SocialUserInfoReader(clients.toList()),
             UserReader(userRepository),
             SocialUserResolver(UserReader(userRepository), UserAppender(userRepository)),
-            FakeTokenProvider(),
+            AuthTokenIssuer(FakeTokenProvider(), RefreshTokenAppender(FakeRefreshTokenRepository())),
         )
 
         test("기존 유저는 재가입 없이 토큰을 발급받는다") {
@@ -40,9 +41,9 @@ class OAuthLoginServiceTest :
                 )
             val client = FakeOAuthUserClient(SocialProvider.KAKAO, SocialUserInfo(account, "a@dongchimi.kr", "동치미", Gender.M, null))
 
-            val token = service(userRepository, client).login(OAuthLoginCommand(SocialProvider.KAKAO, "kakao-token"))
+            val result = service(userRepository, client).login(OAuthLoginCommand(SocialProvider.KAKAO, "kakao-token"))
 
-            token shouldBe "token-${existing.id}"
+            result.accessToken shouldBe "token-${existing.id}"
             userRepository.size shouldBe 1
         }
 
@@ -51,10 +52,10 @@ class OAuthLoginServiceTest :
             val account = SocialAccount(SocialProvider.KAKAO, "social-1")
             val client = FakeOAuthUserClient(SocialProvider.KAKAO, SocialUserInfo(account, "a@dongchimi.kr", "동치미", Gender.M, null))
 
-            val token = service(userRepository, client).login(OAuthLoginCommand(SocialProvider.KAKAO, "kakao-token"))
+            val result = service(userRepository, client).login(OAuthLoginCommand(SocialProvider.KAKAO, "kakao-token"))
 
             val saved = userRepository.findBySocialAccount(account)
-            token shouldBe "token-${saved!!.id}"
+            result.accessToken shouldBe "token-${saved!!.id}"
             userRepository.size shouldBe 1
         }
 
@@ -108,6 +109,17 @@ class OAuthLoginServiceTest :
         }
     }
 
+    private class FakeRefreshTokenRepository : RefreshTokenRepository {
+        private val store = mutableMapOf<String, RefreshToken>()
+
+        override fun save(refreshToken: RefreshToken): RefreshToken {
+            store[refreshToken.tokenId] = refreshToken
+            return refreshToken
+        }
+
+        override fun deleteByTokenId(tokenId: String): Long = if (store.remove(tokenId) != null) 1L else 0L
+    }
+
     private class FakeOAuthUserClient(
         override val provider: SocialProvider,
         private val info: SocialUserInfo,
@@ -120,5 +132,12 @@ class OAuthLoginServiceTest :
             userId: Long,
             roles: Set<String>,
         ): String = "token-$userId"
+
+        override fun issueRefreshToken(
+            userId: Long,
+            roles: Set<String>,
+        ): IssuedRefreshToken = IssuedRefreshToken("refresh-$userId", "token-id-$userId", LocalDateTime.MAX)
+
+        override fun parseRefreshToken(tokenValue: String): RefreshTokenPayload = RefreshTokenPayload("token-id", 1L, setOf(Role.USER.name))
     }
 }
