@@ -22,7 +22,6 @@ data class OwnerSignupRequest(
     companion object {
         private const val MIN_PASSWORD_LENGTH = 6
         private const val MAX_PASSWORD_LENGTH = 20
-        private val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
         private val HANGUL_REGEX = Regex("[가-힣ㄱ-ㅎㅏ-ㅣ]")
     }
 }
