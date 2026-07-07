@@ -1,4 +1,4 @@
-package kr.dongchimi.api.core.config
+package kr.dongchimi.api.core.common.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.method.support.HandlerMethodArgumentResolver

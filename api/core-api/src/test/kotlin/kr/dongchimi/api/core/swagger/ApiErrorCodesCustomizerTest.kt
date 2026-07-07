@@ -6,7 +6,9 @@ import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.responses.ApiResponses
-import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.ApiResponse
+import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.swagger.ApiErrorCodesCustomizer
 import kr.dongchimi.core.common.exception.ErrorCode
 import org.springframework.web.method.HandlerMethod
 

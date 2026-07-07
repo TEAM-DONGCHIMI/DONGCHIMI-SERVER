@@ -1,6 +1,6 @@
 package kr.dongchimi.api.user.resolver
 
-import kr.dongchimi.api.core.resolver.RoleApiUserArgumentResolver
+import kr.dongchimi.api.core.common.resolver.RoleApiUserArgumentResolver
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.core.auth.PrincipalProvider
 import kr.dongchimi.core.auth.Role

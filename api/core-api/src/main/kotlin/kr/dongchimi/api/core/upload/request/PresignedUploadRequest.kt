@@ -1,7 +1,7 @@
 package kr.dongchimi.api.core.upload.request
 
 import io.swagger.v3.oas.annotations.media.Schema
-import kr.dongchimi.api.core.exception.validate
+import kr.dongchimi.api.core.common.exception.validate
 import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.upload.PresignedUploadCommand
 import kr.dongchimi.core.upload.UploadErrorCode

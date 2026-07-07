@@ -1,11 +1,11 @@
-package kr.dongchimi.api.core.swagger
+package kr.dongchimi.api.core.common.swagger
 
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.examples.Example
 import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.responses.ApiResponses
-import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.core.common.exception.ErrorCode
 import org.springdoc.core.customizers.OperationCustomizer
 import org.springframework.stereotype.Component

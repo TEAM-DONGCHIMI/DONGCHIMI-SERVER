@@ -1,7 +1,7 @@
-package kr.dongchimi.api.core.exception
+package kr.dongchimi.api.core.common.exception
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.gateway.logging.MdcFilter.Companion.REQUEST_ID

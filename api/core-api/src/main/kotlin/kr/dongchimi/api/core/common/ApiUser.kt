@@ -1,4 +1,4 @@
-package kr.dongchimi.api.core
+package kr.dongchimi.api.core.common
 
 interface ApiUser {
     val userId: Long

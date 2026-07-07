@@ -2,8 +2,8 @@ package kr.dongchimi.api.core.upload
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import kr.dongchimi.api.core.dto.ApiResponse
-import kr.dongchimi.api.core.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.dto.ApiResponse
+import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.core.upload.request.PresignedUploadRequest
 import kr.dongchimi.api.core.upload.response.PresignedUploadResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode

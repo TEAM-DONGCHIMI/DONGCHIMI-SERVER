@@ -1,4 +1,4 @@
-package kr.dongchimi.api.core.exception
+package kr.dongchimi.api.core.common.exception
 
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.common.exception.CoreException

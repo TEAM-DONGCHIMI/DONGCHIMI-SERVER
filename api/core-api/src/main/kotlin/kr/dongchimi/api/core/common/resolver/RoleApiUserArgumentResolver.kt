@@ -1,6 +1,6 @@
-package kr.dongchimi.api.core.resolver
+package kr.dongchimi.api.core.common.resolver
 
-import kr.dongchimi.api.core.ApiUser
+import kr.dongchimi.api.core.common.ApiUser
 import kr.dongchimi.core.auth.PrincipalProvider
 import kr.dongchimi.core.auth.Role
 import kr.dongchimi.core.common.exception.CommonErrorCode

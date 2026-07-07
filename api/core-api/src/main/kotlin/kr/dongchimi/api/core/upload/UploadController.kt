@@ -1,6 +1,6 @@
 package kr.dongchimi.api.core.upload
 
-import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.upload.request.PresignedUploadRequest
 import kr.dongchimi.api.core.upload.response.PresignedUploadResponse
 import kr.dongchimi.api.core.upload.response.PresignedUploadResponseMapper.toResponse

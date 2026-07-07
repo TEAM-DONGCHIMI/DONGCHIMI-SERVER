@@ -1,4 +1,4 @@
-package kr.dongchimi.api.core.config
+package kr.dongchimi.api.core.common.config
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Info
