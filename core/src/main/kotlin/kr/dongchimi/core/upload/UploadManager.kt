@@ -22,14 +22,18 @@ class UploadManager(
     }
 
     fun confirmUpload(tempKey: String): ConfirmedUpload {
-        val purpose = objectKeyGenerator.parsePurpose(tempKey)
-        val metadata =
-            storageClient.getObjectMetadata(tempKey)
-                ?: throw CoreException(UploadErrorCode.UPLOAD_NOT_FOUND)
-
-        uploadValidator.validate(purpose, metadata.contentType, metadata.contentLength)
-
         val permanentKey = objectKeyGenerator.toPermanentKey(tempKey)
+        val metadata = storageClient.getObjectMetadata(tempKey)
+
+        if (metadata == null) {
+            storageClient
+                .getObjectMetadata(permanentKey)
+                ?.let { return ConfirmedUpload(permanentKey, storageClient.resolveAccessUrl(permanentKey)) }
+            throw CoreException(UploadErrorCode.UPLOAD_NOT_FOUND)
+        }
+
+        val purpose = objectKeyGenerator.parsePurpose(tempKey)
+        uploadValidator.validate(purpose, metadata.contentType, metadata.contentLength)
 
         storageClient.moveObject(tempKey, permanentKey)
 

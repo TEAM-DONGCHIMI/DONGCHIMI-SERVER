@@ -56,6 +56,18 @@ class UploadManagerTest :
             confirmed.accessUrl shouldBe "https://cdn.example.com/${confirmed.objectKey}"
         }
 
+        test("이미 확정된 tempKey로 다시 확정을 요청하면 같은 결과를 반환한다") {
+            val storageClient = FakeStorageClient()
+            val tempKey = ObjectKeyGenerator().generateTempKey(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg")
+            val permanentKey = ObjectKeyGenerator().toPermanentKey(tempKey)
+            storageClient.put(permanentKey, StoredObjectMetadata("image/jpeg", 1024L))
+
+            val confirmed = manager(storageClient).confirmUpload(tempKey)
+
+            confirmed.objectKey shouldBe permanentKey
+            confirmed.accessUrl shouldBe "https://cdn.example.com/$permanentKey"
+        }
+
         test("업로드되지 않은 key를 확정하면 예외가 발생한다") {
             val tempKey = ObjectKeyGenerator().generateTempKey(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg")
 
