@@ -1,4 +1,4 @@
-package kr.dongchimi.api.core.exception
+package kr.dongchimi.api.core.common.exception
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PreDestroy

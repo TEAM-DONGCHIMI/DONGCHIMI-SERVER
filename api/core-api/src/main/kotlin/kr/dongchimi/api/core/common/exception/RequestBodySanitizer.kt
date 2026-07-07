@@ -1,4 +1,4 @@
-package kr.dongchimi.api.core.exception
+package kr.dongchimi.api.core.common.exception
 
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.stereotype.Component
