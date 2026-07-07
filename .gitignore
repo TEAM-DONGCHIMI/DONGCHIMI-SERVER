@@ -39,6 +39,7 @@ out/
 ### Claude Code ###
 .claude/settings.local.json
 docs/plans
+docs/api
 
 ### macOS ###
 .DS_Store
@@ -49,3 +50,4 @@ docs/plans
 ### Env ###
 .env
 .env.local
+.env.perf
