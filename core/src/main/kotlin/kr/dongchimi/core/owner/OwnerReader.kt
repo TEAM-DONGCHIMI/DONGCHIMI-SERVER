@@ -7,4 +7,6 @@ class OwnerReader(
     private val ownerRepository: OwnerRepository,
 ) {
     fun existsByEmail(email: String): Boolean = ownerRepository.findByEmail(email) != null
+
+    fun readByEmail(email: String): Owner? = ownerRepository.findByEmail(email)
 }
