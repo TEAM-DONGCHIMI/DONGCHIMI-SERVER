@@ -12,9 +12,8 @@ class RefreshTokenAppender(
     ): RefreshToken =
         refreshTokenRepository.save(
             RefreshToken(
-                tokenId = issued.tokenId,
-                userId = userId,
-                expiresAt = issued.expiresAt,
+                issued,
+                userId,
             ),
         )
 }
