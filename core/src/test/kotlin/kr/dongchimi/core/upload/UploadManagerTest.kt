@@ -17,8 +17,7 @@ private val TEST_PROPERTIES =
 
 class UploadManagerTest :
     FunSpec({
-        fun manager(storageClient: StorageClient) =
-            UploadManager(storageClient, ObjectKeyGenerator(), UploadContentTypeValidator(), TEST_PROPERTIES)
+        fun manager(storageClient: StorageClient) = UploadManager(storageClient, ObjectKeyGenerator(), UploadValidator(TEST_PROPERTIES))
 
         test("발급 요청이 유효하면 presigned URL을 반환한다") {
             val storageClient = FakeStorageClient()
