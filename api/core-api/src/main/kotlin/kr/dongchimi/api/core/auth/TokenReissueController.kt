@@ -2,7 +2,7 @@ package kr.dongchimi.api.core.auth
 
 import jakarta.servlet.http.HttpServletResponse
 import kr.dongchimi.api.core.auth.response.ReissueTokenResponse
-import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.core.auth.AuthErrorCode
 import kr.dongchimi.core.auth.ReissueTokenService
 import kr.dongchimi.core.common.exception.CoreException

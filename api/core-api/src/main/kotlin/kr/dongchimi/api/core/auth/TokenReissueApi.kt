@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import kr.dongchimi.api.core.auth.response.ReissueTokenResponse
-import kr.dongchimi.api.core.dto.ApiResponse
-import kr.dongchimi.api.core.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.dto.ApiResponse
+import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.core.auth.AuthErrorCode
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import org.springframework.web.bind.annotation.CookieValue
