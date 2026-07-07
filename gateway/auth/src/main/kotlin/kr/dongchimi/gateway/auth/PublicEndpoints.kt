@@ -14,5 +14,6 @@ object PublicEndpoints {
             "/v1/users/login/oauth2/**",
             "/v1/auth/token/refresh",
             "/v1/owners/auth/signup",
+            "/v1/owners/auth/login",
         )
 }
