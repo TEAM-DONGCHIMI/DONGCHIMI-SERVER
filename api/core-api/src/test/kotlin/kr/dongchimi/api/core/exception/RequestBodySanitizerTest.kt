@@ -5,6 +5,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotContain
+import kr.dongchimi.api.core.common.exception.RequestBodySanitizer
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.web.util.ContentCachingRequestWrapper
 import tools.jackson.databind.json.JsonMapper
