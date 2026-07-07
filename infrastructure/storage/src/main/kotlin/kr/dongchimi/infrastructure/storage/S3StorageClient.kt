@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.S3Exception
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest
-import java.time.Instant
+import java.time.LocalDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -51,7 +51,7 @@ class S3StorageClient(
         return PresignedUpload(
             uploadUrl = presigned.url().toString(),
             objectKey = objectKey,
-            expiresAt = Instant.now().plus(storageProperties.presignExpiry),
+            expiresAt = LocalDateTime.now().plus(storageProperties.presignExpiry),
             requiredHeaders = mapOf("Content-Type" to contentType),
         )
     }

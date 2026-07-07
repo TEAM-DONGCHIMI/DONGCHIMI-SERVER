@@ -4,7 +4,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.core.common.exception.CoreException
-import java.time.Instant
+import java.time.LocalDateTime
 
 private val TEST_PROPERTIES =
     UploadProperties(
@@ -98,7 +98,7 @@ class UploadManagerTest :
             PresignedUpload(
                 uploadUrl = "https://s3.example.com/$objectKey",
                 objectKey = objectKey,
-                expiresAt = Instant.now(),
+                expiresAt = LocalDateTime.now(),
             )
 
         override fun getObjectMetadata(objectKey: String): StoredObjectMetadata? = store[objectKey]
