@@ -8,6 +8,9 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+    properties:
+      jdbc:
+        time_zone: Asia/Seoul
   flyway:
     enabled: true
     locations: classpath:db/migration

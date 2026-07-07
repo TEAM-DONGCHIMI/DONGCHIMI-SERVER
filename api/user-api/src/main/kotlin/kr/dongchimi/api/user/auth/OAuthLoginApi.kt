@@ -3,6 +3,7 @@ package kr.dongchimi.api.user.auth
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletResponse
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
@@ -23,5 +24,6 @@ interface OAuthLoginApi {
         @Parameter(description = "소셜 로그인 제공자", example = "kakao")
         @PathVariable provider: String,
         request: OAuthLoginRequest,
+        @Parameter(hidden = true) response: HttpServletResponse,
     ): ApiResponse<OAuthLoginResponse>
 }

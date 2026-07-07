@@ -3,3 +3,10 @@ springdoc:
     path: /api-docs
   swagger-ui:
     path: /swagger
+
+refresh-token:
+  cookie:
+    name: refresh_token
+    path: /v1/auth/token/refresh
+    same-site: Lax
+    secure: ${REFRESH_COOKIE_SECURE:true}
