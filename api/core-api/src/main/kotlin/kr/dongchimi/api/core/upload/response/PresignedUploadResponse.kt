@@ -1,6 +1,7 @@
 package kr.dongchimi.api.core.upload.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.dongchimi.core.upload.PresignedUpload
 import java.time.LocalDateTime
 
 data class PresignedUploadResponse(
@@ -12,4 +13,6 @@ data class PresignedUploadResponse(
     val expiresAt: LocalDateTime,
     @Schema(description = "PUT 요청 시 그대로 실어야 하는 헤더")
     val requiredHeaders: Map<String, String>,
-)
+) {
+    constructor(upload: PresignedUpload) : this(upload.uploadUrl, upload.objectKey, upload.expiresAt, upload.requiredHeaders)
+}
