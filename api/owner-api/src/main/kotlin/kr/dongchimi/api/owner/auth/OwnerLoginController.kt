@@ -33,6 +33,15 @@ class OwnerLoginController(
             )
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
 
-        return ApiResponse.success(OwnerLoginResponse.from(result))
+        return ApiResponse.success(
+            OwnerLoginResponse(
+                accessToken = result.tokens.accessToken,
+                ownerId = result.owner.id,
+                email = result.owner.email,
+                marketId = result.market?.id,
+                marketName = result.market?.name,
+                marketThumbnailUrl = result.market?.thumbnailUrl,
+            ),
+        )
     }
 }
