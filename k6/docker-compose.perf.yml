@@ -1,0 +1,12 @@
+services:
+  # k6 실행기. BASE_URL은 부하 대상(SUT)의 URL이다.
+  k6:
+    image: grafana/k6:0.54.0
+    container_name: dongchimi-perf-k6
+    env_file:
+      - .env.perf
+    volumes:
+      - ./:/scripts:ro
+      - ./results:/scripts/results
+    working_dir: /scripts
+    entrypoint: ["k6"]
