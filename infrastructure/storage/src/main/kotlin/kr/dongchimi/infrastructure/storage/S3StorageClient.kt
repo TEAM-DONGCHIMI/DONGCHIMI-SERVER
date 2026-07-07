@@ -24,8 +24,8 @@ private val logger = KotlinLogging.logger {}
 class S3StorageClient(
     private val s3Client: S3Client,
     private val s3Presigner: S3Presigner,
-    private val storageProps: StorageProperties,
-    private val s3Props: S3Properties,
+    private val storageProperties: StorageProperties,
+    private val s3Properties: S3Properties,
 ) : StorageClient {
     override fun createUploadUrl(
         objectKey: String,
@@ -35,7 +35,7 @@ class S3StorageClient(
         val putRequest =
             PutObjectRequest
                 .builder()
-                .bucket(s3Props.bucket)
+                .bucket(s3Properties.bucket)
                 .key(objectKey)
                 .contentType(contentType)
                 .contentLength(contentLength)
@@ -43,7 +43,7 @@ class S3StorageClient(
         val presignRequest =
             PutObjectPresignRequest
                 .builder()
-                .signatureDuration(storageProps.presignExpiry)
+                .signatureDuration(storageProperties.presignExpiry)
                 .putObjectRequest(putRequest)
                 .build()
         val presigned = s3Presigner.presignPutObject(presignRequest)
@@ -51,7 +51,7 @@ class S3StorageClient(
         return PresignedUpload(
             uploadUrl = presigned.url().toString(),
             objectKey = objectKey,
-            expiresAt = Instant.now().plus(storageProps.presignExpiry),
+            expiresAt = Instant.now().plus(storageProperties.presignExpiry),
             requiredHeaders = mapOf("Content-Type" to contentType),
         )
     }
@@ -62,7 +62,7 @@ class S3StorageClient(
                 s3Client.headObject(
                     HeadObjectRequest
                         .builder()
-                        .bucket(s3Props.bucket)
+                        .bucket(s3Properties.bucket)
                         .key(objectKey)
                         .build(),
                 )
@@ -78,9 +78,9 @@ class S3StorageClient(
         s3Client.copyObject(
             CopyObjectRequest
                 .builder()
-                .sourceBucket(s3Props.bucket)
+                .sourceBucket(s3Properties.bucket)
                 .sourceKey(sourceKey)
-                .destinationBucket(s3Props.bucket)
+                .destinationBucket(s3Properties.bucket)
                 .destinationKey(destinationKey)
                 .build(),
         )
@@ -88,7 +88,7 @@ class S3StorageClient(
             s3Client.deleteObject(
                 DeleteObjectRequest
                     .builder()
-                    .bucket(s3Props.bucket)
+                    .bucket(s3Properties.bucket)
                     .key(sourceKey)
                     .build(),
             )
@@ -97,5 +97,5 @@ class S3StorageClient(
         }
     }
 
-    override fun resolveAccessUrl(objectKey: String): String = "${storageProps.cdnBaseUrl.trimEnd('/')}/$objectKey"
+    override fun resolveAccessUrl(objectKey: String): String = "${storageProperties.cdnBaseUrl.trimEnd('/')}/$objectKey"
 }
