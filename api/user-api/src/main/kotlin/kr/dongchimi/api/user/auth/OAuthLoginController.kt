@@ -1,6 +1,6 @@
 package kr.dongchimi.api.user.auth
 
-import kr.dongchimi.api.core.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
 import kr.dongchimi.api.user.auth.response.OAuthLoginResponse
 import kr.dongchimi.core.auth.OAuthLoginService

@@ -1,6 +1,6 @@
 package kr.dongchimi.api.admin
 
-import kr.dongchimi.api.core.ApiUser
+import kr.dongchimi.api.core.common.ApiUser
 
 data class AdminApiUser(
     override val userId: Long,

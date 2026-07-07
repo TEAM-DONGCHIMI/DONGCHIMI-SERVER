@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import kr.dongchimi.api.core.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
 import kr.dongchimi.core.auth.OAuthLoginService
 import org.mockito.Mockito
