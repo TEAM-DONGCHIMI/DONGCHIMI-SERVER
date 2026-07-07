@@ -1,10 +1,13 @@
 package kr.dongchimi.gateway.auth.jwt
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
+
+private val log = KotlinLogging.logger {}
 
 class JwtAuthFilter(
     private val jwtProvider: JwtProvider,
