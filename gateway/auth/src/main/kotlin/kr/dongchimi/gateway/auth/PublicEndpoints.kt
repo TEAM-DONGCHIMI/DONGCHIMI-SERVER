@@ -12,5 +12,6 @@ object PublicEndpoints {
     val AUTH =
         arrayOf(
             "/v1/users/login/oauth2/**",
+            "/v1/auth/token/refresh",
         )
 }
