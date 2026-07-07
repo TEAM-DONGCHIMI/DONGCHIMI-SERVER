@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 @Table(name = "refresh_tokens")
 class RefreshTokenJpaEntity(
     @Id
+    @Column(nullable = false, columnDefinition = "VARCHAR(36)")
     val tokenId: String,
     @Column(nullable = false)
     val userId: Long,
