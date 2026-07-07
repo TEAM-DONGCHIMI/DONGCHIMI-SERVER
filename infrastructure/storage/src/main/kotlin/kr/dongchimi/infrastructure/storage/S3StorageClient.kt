@@ -1,6 +1,7 @@
 package kr.dongchimi.infrastructure.storage
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import kr.dongchimi.common.utils.TimeConverter.toKSTLocalDateTime
 import kr.dongchimi.core.upload.PresignedUpload
 import kr.dongchimi.core.upload.StorageClient
 import kr.dongchimi.core.upload.StoredObjectMetadata
@@ -15,7 +16,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.S3Exception
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest
-import java.time.LocalDateTime
 
 private val logger = KotlinLogging.logger {}
 
@@ -51,7 +51,7 @@ class S3StorageClient(
         return PresignedUpload(
             uploadUrl = presigned.url().toString(),
             objectKey = objectKey,
-            expiresAt = LocalDateTime.now().plus(storageProperties.presignExpiry),
+            expiresAt = presigned.expiration().toKSTLocalDateTime(),
             requiredHeaders = mapOf("Content-Type" to contentType),
         )
     }
