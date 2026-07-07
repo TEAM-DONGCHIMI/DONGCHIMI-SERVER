@@ -19,6 +19,13 @@ class UploadController(
         @RequestBody request: PresignedUploadRequest,
     ): ApiResponse<PresignedUploadResponse> {
         val presignedUpload = uploadService.createPresignedUpload(request.toCommand())
-        return ApiResponse.success(PresignedUploadResponse(presignedUpload))
+        return ApiResponse.success(
+            PresignedUploadResponse(
+                uploadUrl = presignedUpload.uploadUrl,
+                objectKey = presignedUpload.objectKey,
+                expiresAt = presignedUpload.expiresAt,
+                requiredHeaders = presignedUpload.requiredHeaders,
+            ),
+        )
     }
 }
