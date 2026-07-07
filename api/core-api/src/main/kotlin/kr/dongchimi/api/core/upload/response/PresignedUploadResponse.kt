@@ -1,6 +1,7 @@
 package kr.dongchimi.api.core.upload.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.dongchimi.core.upload.PresignedUpload
 import java.time.Instant
 
 data class PresignedUploadResponse(
@@ -13,3 +14,11 @@ data class PresignedUploadResponse(
     @Schema(description = "PUT 요청 시 그대로 실어야 하는 헤더")
     val requiredHeaders: Map<String, String>,
 )
+
+fun PresignedUploadResponse(presignedUpload: PresignedUpload): PresignedUploadResponse =
+    PresignedUploadResponse(
+        uploadUrl = presignedUpload.uploadUrl,
+        objectKey = presignedUpload.objectKey,
+        expiresAt = presignedUpload.expiresAt,
+        requiredHeaders = presignedUpload.requiredHeaders,
+    )

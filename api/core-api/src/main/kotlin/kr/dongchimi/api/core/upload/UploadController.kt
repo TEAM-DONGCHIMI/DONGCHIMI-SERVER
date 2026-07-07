@@ -3,7 +3,6 @@ package kr.dongchimi.api.core.upload
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.upload.request.PresignedUploadRequest
 import kr.dongchimi.api.core.upload.response.PresignedUploadResponse
-import kr.dongchimi.api.core.upload.response.PresignedUploadResponseMapper.toResponse
 import kr.dongchimi.core.upload.UploadService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -19,7 +18,7 @@ class UploadController(
     override fun createPresignedUrl(
         @RequestBody request: PresignedUploadRequest,
     ): ApiResponse<PresignedUploadResponse> {
-        val result = uploadService.createPresignedUpload(request.toCommand())
-        return ApiResponse.success(result.toResponse())
+        val presignedUpload = uploadService.createPresignedUpload(request.toCommand())
+        return ApiResponse.success(PresignedUploadResponse(presignedUpload))
     }
 }
