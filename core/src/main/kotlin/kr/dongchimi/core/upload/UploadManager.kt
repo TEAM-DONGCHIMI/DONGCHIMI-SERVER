@@ -16,24 +16,32 @@ class UploadManager(
         contentLength: Long,
     ): PresignedUpload {
         contentTypeValidator.validate(purpose, contentType)
+
         if (contentLength > uploadProperties.maxSizeBytes.getValue(purpose)) {
             throw CoreException(UploadErrorCode.FILE_TOO_LARGE)
         }
+
         val tempKey = objectKeyGenerator.generateTempKey(purpose, contentType)
+
         return storageClient.createUploadUrl(tempKey, contentType, contentLength)
     }
 
-    fun promoteUpload(tempKey: String): PromotedUpload {
+    fun confirmUpload(tempKey: String): ConfirmedUpload {
         val purpose = objectKeyGenerator.parsePurpose(tempKey)
         val metadata =
             storageClient.getObjectMetadata(tempKey)
                 ?: throw CoreException(UploadErrorCode.UPLOAD_NOT_FOUND)
+
         contentTypeValidator.validate(purpose, metadata.contentType)
+
         if (metadata.contentLength > uploadProperties.maxSizeBytes.getValue(purpose)) {
             throw CoreException(UploadErrorCode.FILE_TOO_LARGE)
         }
+
         val permanentKey = objectKeyGenerator.toPermanentKey(tempKey)
+
         storageClient.moveObject(tempKey, permanentKey)
-        return PromotedUpload(permanentKey, storageClient.resolveAccessUrl(permanentKey))
+
+        return ConfirmedUpload(permanentKey, storageClient.resolveAccessUrl(permanentKey))
     }
 }

@@ -46,36 +46,36 @@ class UploadManagerTest :
             exception.errorCode shouldBe UploadErrorCode.FILE_TOO_LARGE
         }
 
-        test("승격에 성공하면 정식 경로와 accessUrl을 반환한다") {
+        test("확정에 성공하면 정식 경로와 accessUrl을 반환한다") {
             val storageClient = FakeStorageClient()
             val tempKey = ObjectKeyGenerator().generateTempKey(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg")
             storageClient.put(tempKey, StoredObjectMetadata("image/jpeg", 1024L))
 
-            val promoted = manager(storageClient).promoteUpload(tempKey)
+            val confirmed = manager(storageClient).confirmUpload(tempKey)
 
-            promoted.objectKey shouldBe ObjectKeyGenerator().toPermanentKey(tempKey)
-            promoted.accessUrl shouldBe "https://cdn.example.com/${promoted.objectKey}"
+            confirmed.objectKey shouldBe ObjectKeyGenerator().toPermanentKey(tempKey)
+            confirmed.accessUrl shouldBe "https://cdn.example.com/${confirmed.objectKey}"
         }
 
-        test("업로드되지 않은 key를 승격하면 예외가 발생한다") {
+        test("업로드되지 않은 key를 확정하면 예외가 발생한다") {
             val tempKey = ObjectKeyGenerator().generateTempKey(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg")
 
             val exception =
                 shouldThrow<CoreException> {
-                    manager(FakeStorageClient()).promoteUpload(tempKey)
+                    manager(FakeStorageClient()).confirmUpload(tempKey)
                 }
 
             exception.errorCode shouldBe UploadErrorCode.UPLOAD_NOT_FOUND
         }
 
-        test("승격 시점에 실제 크기가 초과하면 예외가 발생한다") {
+        test("확정 시점에 실제 크기가 초과하면 예외가 발생한다") {
             val storageClient = FakeStorageClient()
             val tempKey = ObjectKeyGenerator().generateTempKey(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg")
             storageClient.put(tempKey, StoredObjectMetadata("image/jpeg", 10 * 1024 * 1024L))
 
             val exception =
                 shouldThrow<CoreException> {
-                    manager(storageClient).promoteUpload(tempKey)
+                    manager(storageClient).confirmUpload(tempKey)
                 }
 
             exception.errorCode shouldBe UploadErrorCode.FILE_TOO_LARGE
