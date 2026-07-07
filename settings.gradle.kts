@@ -7,6 +7,7 @@ include(
     "gateway:logging",
     "infrastructure:db",
     "infrastructure:client",
+    "infrastructure:storage",
     "api:core-api",
     "api:owner-api",
     "api:admin-api",

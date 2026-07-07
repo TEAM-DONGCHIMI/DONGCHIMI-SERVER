@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
-import kr.dongchimi.api.core.dto.ApiResponse
-import kr.dongchimi.api.core.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.dto.ApiResponse
+import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
 import kr.dongchimi.api.user.auth.response.OAuthLoginResponse
 import kr.dongchimi.core.auth.AuthErrorCode

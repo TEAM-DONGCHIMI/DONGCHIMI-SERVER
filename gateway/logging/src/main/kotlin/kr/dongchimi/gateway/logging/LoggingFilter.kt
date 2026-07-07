@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import org.springframework.util.AntPathMatcher
 import org.springframework.web.filter.OncePerRequestFilter
 
-private val logger = KotlinLogging.logger {}
+private val log = KotlinLogging.logger {}
 
 @Component
 @Order(1)
@@ -29,7 +29,7 @@ class LoggingFilter(
             filterChain.doFilter(request, response)
         } finally {
             val duration = System.currentTimeMillis() - startTime
-            logger.info { "${request.method} ${request.requestURI} ${response.status} (${duration}ms)" }
+            log.info { "${request.method} ${request.requestURI} ${response.status} (${duration}ms)" }
         }
     }
 

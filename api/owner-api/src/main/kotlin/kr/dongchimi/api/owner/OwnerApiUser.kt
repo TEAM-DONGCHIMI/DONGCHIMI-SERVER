@@ -1,6 +1,6 @@
 package kr.dongchimi.api.owner
 
-import kr.dongchimi.api.core.ApiUser
+import kr.dongchimi.api.core.common.ApiUser
 
 data class OwnerApiUser(
     override val userId: Long,
