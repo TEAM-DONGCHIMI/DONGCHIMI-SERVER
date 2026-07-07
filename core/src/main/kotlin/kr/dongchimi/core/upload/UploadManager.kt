@@ -7,19 +7,14 @@ import org.springframework.stereotype.Component
 class UploadManager(
     private val storageClient: StorageClient,
     private val objectKeyGenerator: ObjectKeyGenerator,
-    private val contentTypeValidator: UploadContentTypeValidator,
-    private val uploadProperties: UploadProperties,
+    private val uploadValidator: UploadValidator,
 ) {
     fun issuePresignedUpload(
         purpose: UploadPurpose,
         contentType: String,
         contentLength: Long,
     ): PresignedUpload {
-        contentTypeValidator.validate(purpose, contentType)
-
-        if (contentLength > uploadProperties.maxSizeBytes.getValue(purpose)) {
-            throw CoreException(UploadErrorCode.FILE_TOO_LARGE)
-        }
+        uploadValidator.validate(purpose, contentType, contentLength)
 
         val tempKey = objectKeyGenerator.generateTempKey(purpose, contentType)
 
@@ -32,11 +27,7 @@ class UploadManager(
             storageClient.getObjectMetadata(tempKey)
                 ?: throw CoreException(UploadErrorCode.UPLOAD_NOT_FOUND)
 
-        contentTypeValidator.validate(purpose, metadata.contentType)
-
-        if (metadata.contentLength > uploadProperties.maxSizeBytes.getValue(purpose)) {
-            throw CoreException(UploadErrorCode.FILE_TOO_LARGE)
-        }
+        uploadValidator.validate(purpose, metadata.contentType, metadata.contentLength)
 
         val permanentKey = objectKeyGenerator.toPermanentKey(tempKey)
 
