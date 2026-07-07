@@ -4,6 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletResponse
+import kr.dongchimi.api.core.auth.RefreshTokenCookieFactory
 import kr.dongchimi.api.core.swagger.ApiErrorCodes
 import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
 import kr.dongchimi.core.auth.OAuthLoginService
@@ -13,8 +15,18 @@ import org.springframework.web.method.HandlerMethod
 
 class OAuthLoginApiAnnotationTest :
     FunSpec({
-        val controller = OAuthLoginController(Mockito.mock(OAuthLoginService::class.java))
-        val loginMethod = OAuthLoginController::class.java.getMethod("login", String::class.java, OAuthLoginRequest::class.java)
+        val controller =
+            OAuthLoginController(
+                Mockito.mock(OAuthLoginService::class.java),
+                Mockito.mock(RefreshTokenCookieFactory::class.java),
+            )
+        val loginMethod =
+            OAuthLoginController::class.java.getMethod(
+                "login",
+                String::class.java,
+                OAuthLoginRequest::class.java,
+                HttpServletResponse::class.java,
+            )
         val handlerMethod = HandlerMethod(controller, loginMethod)
 
         test("인터페이스에 선언한 클래스 레벨 @Tag를 컨트롤러 구현체에서 찾을 수 있다") {
