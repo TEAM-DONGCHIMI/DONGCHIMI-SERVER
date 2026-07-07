@@ -1,0 +1,41 @@
+version: 1
+labels:
+  - label: '🐛 FIX'
+    title: '(?i)^\[?(fix|hotfix|bugfix)\]?([(:\s]|$)'
+  - label: '🐛 FIX'
+    branch: '(?i)^(fix|hotfix|bugfix)/'
+
+  - label: '✨ FEAT'
+    title: '(?i)^\[?(feat|feature)\]?([(:\s]|$)'
+  - label: '✨ FEAT'
+    branch: '(?i)^(feat|feature)/'
+
+  - label: '📝 DOCS'
+    title: '(?i)^\[?docs?\]?([(:\s]|$)'
+  - label: '📝 DOCS'
+    branch: '(?i)^docs?/'
+
+  - label: '♻️ REFACTOR'
+    title: '(?i)^\[?refactor\]?([(:\s]|$)'
+  - label: '♻️ REFACTOR'
+    branch: '(?i)^refactor/'
+
+  - label: '🎉 INIT'
+    title: '(?i)^\[?init\]?([(:\s]|$)'
+  - label: '🎉 INIT'
+    branch: '(?i)^init/'
+
+  - label: '👷‍♂️ DEPLOY'
+    title: '(?i)^\[?(ci|deploy)\]?([(:\s]|$)'
+  - label: '👷‍♂️ DEPLOY'
+    branch: '(?i)^(ci|deploy)/'
+
+  - label: '🔖 RELEASE'
+    title: '(?i)^\[?release\]?([(:\s]|$)'
+  - label: '🔖 RELEASE'
+    branch: '(?i)^release/'
+
+  - label: '🚑 HOTFIX'
+    title: '(?i)^\[?hotfix\]?([(:\s]|$)'
+  - label: '🚑 HOTFIX'
+    branch: '(?i)^hotfix/'

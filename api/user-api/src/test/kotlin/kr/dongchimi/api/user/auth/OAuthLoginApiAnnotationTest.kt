@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import kr.dongchimi.api.core.auth.RefreshTokenCookieFactory
-import kr.dongchimi.api.core.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
 import kr.dongchimi.core.auth.OAuthLoginService
 import org.mockito.Mockito

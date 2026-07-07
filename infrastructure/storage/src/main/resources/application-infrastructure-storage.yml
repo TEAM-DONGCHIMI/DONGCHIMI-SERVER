@@ -1,0 +1,9 @@
+storage:
+  provider: ${STORAGE_PROVIDER:s3}
+  presign-expiry: ${STORAGE_PRESIGN_EXPIRY:PT5M}
+  cdn-base-url: ${CDN_BASE_URL}
+  s3:
+    region: ${AWS_REGION:ap-northeast-2}
+    bucket: ${S3_BUCKET}
+    endpoint: ${S3_ENDPOINT:}
+    path-style-access: ${S3_PATH_STYLE:false}
