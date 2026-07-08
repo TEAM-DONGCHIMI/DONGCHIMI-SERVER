@@ -111,6 +111,8 @@ class OwnerLoginServiceTest :
 
         override fun findByEmail(email: String): Owner? = store.values.find { it.email == email }
 
+        override fun existsByEmail(email: String): Boolean = store.values.any { it.email == email }
+
         override fun save(owner: Owner): Owner {
             store[owner.id] = owner
             return owner

@@ -6,4 +6,6 @@ interface OwnerJpaRepository : JpaRepository<OwnerJpaEntity, Long> {
     fun findByIdAndDeletedAtIsNull(id: Long): OwnerJpaEntity?
 
     fun findByEmailAndDeletedAtIsNull(email: String): OwnerJpaEntity?
+
+    fun existsByEmailAndDeletedAtIsNull(email: String): Boolean
 }

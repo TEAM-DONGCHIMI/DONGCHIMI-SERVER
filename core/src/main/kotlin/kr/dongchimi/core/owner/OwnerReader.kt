@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 class OwnerReader(
     private val ownerRepository: OwnerRepository,
 ) {
-    fun existsByEmail(email: String): Boolean = ownerRepository.findByEmail(email) != null
+    fun existsByEmail(email: String): Boolean = ownerRepository.existsByEmail(email)
 
     fun readByEmail(email: String): Owner? = ownerRepository.findByEmail(email)
 }
