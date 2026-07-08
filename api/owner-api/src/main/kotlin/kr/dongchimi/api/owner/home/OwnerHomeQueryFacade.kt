@@ -1,6 +1,6 @@
 package kr.dongchimi.api.owner.home
 
-import kr.dongchimi.api.owner.home.response.HomeProductResponseMapper.toHomeProductResponse
+import kr.dongchimi.api.owner.home.response.HomeProductResponse
 import kr.dongchimi.api.owner.home.response.OwnerHomeResponse
 import kr.dongchimi.core.market.MarketService
 import kr.dongchimi.core.product.DealType
@@ -34,9 +34,9 @@ class OwnerHomeQueryFacade(
         return OwnerHomeResponse(
             todayRegisteredCount = productService.countRegisteredOn(market.id, today),
             dailyCount = productService.countActiveProducts(market.id, DealType.DAILY, today),
-            dailyProducts = dailyProducts.map { it.toHomeProductResponse() },
+            dailyProducts = dailyProducts.map { HomeProductResponse(it) },
             periodicCount = productService.countActiveProducts(market.id, DealType.PERIODIC, today),
-            periodicProducts = periodicProducts.map { it.toHomeProductResponse() },
+            periodicProducts = periodicProducts.map { HomeProductResponse(it) },
         )
     }
 

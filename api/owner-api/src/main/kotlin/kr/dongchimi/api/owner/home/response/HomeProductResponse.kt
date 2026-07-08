@@ -1,6 +1,7 @@
 package kr.dongchimi.api.owner.home.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.dongchimi.core.product.Product
 import java.math.BigDecimal
 
 data class HomeProductResponse(
@@ -16,4 +17,13 @@ data class HomeProductResponse(
     val discountedPrice: BigDecimal,
     @Schema(description = "할인율(%)")
     val discountRate: Int,
-)
+) {
+    constructor(product: Product) : this(
+        productId = product.id,
+        thumbnailUrl = product.thumbnailUrl,
+        name = product.name,
+        originalPrice = product.price.originalPrice,
+        discountedPrice = product.price.discountedPrice,
+        discountRate = product.price.discountRate(),
+    )
+}
