@@ -14,6 +14,7 @@
 | Presentation | HTTP 요청 처리 | `{Domain}Controller` |
 | Presentation | 요청 객체 | `{Domain}{Action}Request` |
 | Presentation | 응답 객체 | `{Domain}{Action}Response` |
+| Presentation | 여러 도메인 Service 조회 조합 | `{Feature}QueryFacade` |
 | Business | 비즈니스 흐름 조율 | `{Domain}Service` |
 | Implement | 데이터 조회 | `{Domain}Reader` |
 | Implement | 데이터 저장 | `{Domain}Appender` |
@@ -339,6 +340,49 @@ class UserService(
     fun read(id: Long): User {
         return userReader.read(id)
     }
+}
+```
+
+### 2-8. QueryFacade (여러 도메인 조회 조합)
+
+- 하나의 API 응답이 **단일 Service로 표현되지 않는 교차-도메인 조회**를 필요로 할 때 사용한다 (예: 홈 화면처럼 마트 + 상품처럼 서로 다른 도메인의 조회 결과를 한 응답에 합쳐야 하는 경우).
+- **Presentation Layer**(`api:*` 모듈)에 `{Feature}QueryFacade`로 둔다. `core` 모듈에는 두지 않는다 — core는 도메인별 경계를 유지하고, 교차-도메인 조합은 응답을 만드는 presentation의 책임으로 본다.
+- 여러 도메인의 `{Domain}Service` **조회 메서드만** 조합한다. Repository/Reader를 직접 참조하지 않는다 — 반드시 Service를 통해서만 접근한다.
+- 응답 DTO(`{Domain}{Action}Response`)를 **직접 조립**한다. 별도의 core 집계 VO를 만들지 않는다.
+- Controller는 개별 Service가 아닌 Facade 하나만 참조한다: `Controller → QueryFacade → 각 도메인 Service → Implement → Repository`.
+- 조회 전용이므로 상태 변경이 없다. `@Transactional(readOnly = true)`를 사용한다.
+
+```kotlin
+// api:owner-api / kr.dongchimi.api.owner.home
+@Component
+class OwnerHomeQueryFacade(
+    private val marketService: MarketService,
+    private val productService: ProductService,
+) {
+    @Transactional(readOnly = true)
+    fun getHome(ownerId: Long): OwnerHomeResponse {
+        val market = marketService.findByOwnerId(ownerId)
+            ?: return OwnerHomeResponse.empty()
+
+        val dailyProducts = productService.getActiveProducts(market.id, DealType.DAILY)
+        val periodicProducts = productService.getActiveProducts(market.id, DealType.PERIODIC)
+
+        return OwnerHomeResponse(
+            dailyProducts = dailyProducts.map { it.toHomeProductResponse() },
+            periodicProducts = periodicProducts.map { it.toHomeProductResponse() },
+        )
+    }
+}
+
+// Controller
+@RestController
+@RequestMapping("/v1/owners/home")
+class OwnerHomeController(
+    private val ownerHomeQueryFacade: OwnerHomeQueryFacade,
+) : OwnerHomeApi {
+    @GetMapping
+    override fun getHome(owner: OwnerApiUser): ApiResponse<OwnerHomeResponse> =
+        ApiResponse.success(ownerHomeQueryFacade.getHome(owner.userId))
 }
 ```
 
