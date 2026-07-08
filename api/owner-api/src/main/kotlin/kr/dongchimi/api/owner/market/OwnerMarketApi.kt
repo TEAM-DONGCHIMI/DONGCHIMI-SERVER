@@ -13,7 +13,7 @@ import kr.dongchimi.core.market.MarketErrorCode
 import org.springframework.web.bind.annotation.PathVariable
 
 @Tag(name = "Market", description = "마트 정보 API")
-interface MarketApi {
+interface OwnerMarketApi {
     @Operation(
         summary = "마트 정보 등록",
         description = "점주가 처음 접속했을 때 마트를 새로 추가하기 위해 정보를 등록한다.",

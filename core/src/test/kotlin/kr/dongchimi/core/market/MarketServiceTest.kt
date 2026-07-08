@@ -146,4 +146,11 @@ private class FakeMarketRepository : MarketRepository {
         name: String,
         id: Long,
     ): Boolean = store.values.any { it.ownerId == ownerId && it.info.name == name && it.id != id }
+
+    override fun existsByIdAndOwnerId(
+        marketId: Long,
+        ownerId: Long,
+    ): Boolean = store[marketId]?.ownerId == ownerId
+
+    override fun existsById(id: Long): Boolean = store.containsKey(id)
 }

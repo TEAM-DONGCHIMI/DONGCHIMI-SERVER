@@ -10,6 +10,8 @@ class MarketRepositoryImpl(
 ) : MarketRepository {
     override fun findById(id: Long): Market? = marketJpaRepository.findByIdAndDeletedAtIsNull(id)?.toDomain()
 
+    override fun findByOwnerId(ownerId: Long): Market? = marketJpaRepository.findByOwnerIdAndDeletedAtIsNull(ownerId)?.toDomain()
+
     override fun save(market: Market): Market = marketJpaRepository.save(MarketJpaEntity(market)).toDomain()
 
     override fun existsByOwnerIdAndName(
@@ -22,4 +24,11 @@ class MarketRepositoryImpl(
         name: String,
         id: Long,
     ): Boolean = marketJpaRepository.existsByOwnerIdAndNameAndIdNotAndDeletedAtIsNull(ownerId, name, id)
+
+    override fun existsByIdAndOwnerId(
+        marketId: Long,
+        ownerId: Long,
+    ): Boolean = marketJpaRepository.existsByIdAndOwnerIdAndDeletedAtIsNull(marketId, ownerId)
+
+    override fun existsById(id: Long): Boolean = marketJpaRepository.existsByIdAndDeletedAtIsNull(id)
 }

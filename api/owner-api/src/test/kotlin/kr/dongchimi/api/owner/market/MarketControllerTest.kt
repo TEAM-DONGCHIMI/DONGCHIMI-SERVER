@@ -38,7 +38,7 @@ class MarketControllerTest :
                 )
             val savedMarket = sampleMarket()
             Mockito.`when`(marketService.register(1L, request.toCommand())).thenReturn(savedMarket)
-            val controller = MarketController(marketService)
+            val controller = OwnerMarketController(marketService)
 
             val response = controller.register(apiUser, request)
 
@@ -65,7 +65,7 @@ class MarketControllerTest :
                 )
             val updatedMarket = sampleMarket()
             Mockito.`when`(marketService.update(1L, 10L, request.toCommand())).thenReturn(updatedMarket)
-            val controller = MarketController(marketService)
+            val controller = OwnerMarketController(marketService)
 
             val response = controller.update(apiUser, 10L, request)
 

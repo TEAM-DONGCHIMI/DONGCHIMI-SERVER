@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/v1/owners/markets")
-class MarketController(
+class OwnerMarketController(
     private val marketService: MarketService,
-) : MarketApi {
+) : OwnerMarketApi {
     @PostMapping
     override fun register(
         apiUser: OwnerApiUser,
