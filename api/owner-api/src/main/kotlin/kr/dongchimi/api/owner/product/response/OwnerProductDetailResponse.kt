@@ -31,20 +31,17 @@ data class OwnerProductDetailResponse(
     @Schema(description = "할인 종료일 (YYYY-MM-DD)")
     val discountEndDate: LocalDate,
 ) {
-    companion object {
-        fun from(product: Product): OwnerProductDetailResponse =
-            OwnerProductDetailResponse(
-                productId = product.id,
-                name = product.name,
-                dealType = product.dealType,
-                thumbnailUrl = product.thumbnailUrl,
-                originalPrice = product.price.originalPrice,
-                discountedPrice = product.price.discountedPrice,
-                category = product.category,
-                categoryName = product.category.displayName,
-                promotionalPhrase = product.promotionalPhrase,
-                discountStartDate = product.discountPeriod.discountStartDate,
-                discountEndDate = product.discountPeriod.discountEndDate,
-            )
-    }
+    constructor(product: Product) : this(
+        productId = product.id,
+        name = product.name,
+        dealType = product.dealType,
+        thumbnailUrl = product.thumbnailUrl,
+        originalPrice = product.price.originalPrice,
+        discountedPrice = product.price.discountedPrice,
+        category = product.category,
+        categoryName = product.category.displayName,
+        promotionalPhrase = product.promotionalPhrase,
+        discountStartDate = product.discountPeriod.discountStartDate,
+        discountEndDate = product.discountPeriod.discountEndDate,
+    )
 }

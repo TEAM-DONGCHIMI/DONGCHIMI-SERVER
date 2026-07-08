@@ -28,7 +28,7 @@ class OwnerProductController(
     ): ApiResponse<OwnerProductDetailResponse> {
         val product = productService.getProduct(apiUser.userId, marketId, productId)
 
-        return ApiResponse.success(OwnerProductDetailResponse.from(product))
+        return ApiResponse.success(OwnerProductDetailResponse(product))
     }
 
     @DeleteMapping("/{productId}")
