@@ -13,20 +13,18 @@ class FlyerService(
     fun publish(
         ownerId: Long,
         marketId: Long,
-    ): FlyerPublish {
-        val market = marketReader.read(marketId)
-        marketValidator.validateOwnership(market, ownerId)
+    ): String {
+        marketValidator.validateOwnership(marketId, ownerId)
 
         val flyer = flyerAppender.publish(marketId)
-        return FlyerPublish(flyer.slug)
+        return flyer.slug
     }
 
     fun issueQrCode(
         ownerId: Long,
         marketId: Long,
     ): FlyerQr {
-        val market = marketReader.read(marketId)
-        marketValidator.validateOwnership(market, ownerId)
+        marketValidator.validateOwnership(marketId, ownerId)
 
         val flyer = flyerReader.readByMarketId(marketId)
         flyer.qrCode?.let { return FlyerQr(it) }

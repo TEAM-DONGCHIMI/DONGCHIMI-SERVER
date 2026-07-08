@@ -20,9 +20,9 @@ class FlyerController(
         apiUser: OwnerApiUser,
         @PathVariable marketId: Long,
     ): ApiResponse<FlyerPublishResponse> {
-        val flyerPublish = flyerService.publish(apiUser.userId, marketId)
+        val slug = flyerService.publish(apiUser.userId, marketId)
 
-        return ApiResponse.success(FlyerPublishResponse(flyerPublish))
+        return ApiResponse.success(FlyerPublishResponse(slug))
     }
 
     @PostMapping("/qr")

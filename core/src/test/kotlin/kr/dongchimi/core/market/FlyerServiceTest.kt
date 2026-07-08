@@ -67,7 +67,7 @@ class FlyerServiceTest :
 
             val result = newService(marketRepository, flyerRepository).publish(ownerId = 1L, marketId = 1L)
 
-            result.slug shouldBe flyerRepository.findById(1L)?.slug
+            result shouldBe flyerRepository.findById(1L)?.slug
             flyerRepository.findById(1L)?.qrCode shouldBe null
         }
 
@@ -80,7 +80,7 @@ class FlyerServiceTest :
 
             val result = newService(marketRepository, flyerRepository).publish(ownerId = 1L, marketId = 1L)
 
-            result.slug shouldBe "existing-slug"
+            result shouldBe "existing-slug"
             flyerRepository.findById(1L)?.qrCode shouldBe "data:image/png;base64,already-issued"
         }
 
@@ -145,6 +145,15 @@ class FlyerServiceTest :
             name: String,
             id: Long,
         ): Boolean = store.values.any { it.ownerId == ownerId && it.info.name == name && it.id != id }
+
+        override fun findByOwnerId(ownerId: Long): Market? = store.values.firstOrNull { it.ownerId == ownerId }
+
+        override fun existsByIdAndOwnerId(
+            marketId: Long,
+            ownerId: Long,
+        ): Boolean = store[marketId]?.ownerId == ownerId
+
+        override fun existsById(id: Long): Boolean = store.containsKey(id)
     }
 
     private class FakeFlyerRepository : FlyerRepository {
