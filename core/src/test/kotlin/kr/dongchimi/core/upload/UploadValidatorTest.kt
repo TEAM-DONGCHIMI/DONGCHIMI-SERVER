@@ -5,18 +5,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.core.common.exception.CoreException
 
-private val TEST_PROPERTIES =
-    UploadProperties(
-        maxSizeBytes =
-            mapOf(
-                UploadPurpose.PRODUCT_THUMBNAIL to 5 * 1024 * 1024L,
-                UploadPurpose.DEFAULT_PRODUCT_THUMBNAIL to 5 * 1024 * 1024L,
-            ),
-    )
-
 class UploadValidatorTest :
     FunSpec({
-        val validator = UploadValidator(TEST_PROPERTIES)
+        val validator = UploadValidator()
 
         test("허용된 content-type과 크기면 통과한다") {
             validator.validate(UploadPurpose.PRODUCT_THUMBNAIL, "image/jpeg", 1024L)

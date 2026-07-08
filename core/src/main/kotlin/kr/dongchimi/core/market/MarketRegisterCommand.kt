@@ -1,8 +1,6 @@
 package kr.dongchimi.core.market
 
-data class Market(
-    val id: Long = 0,
-    val ownerId: Long,
+data class MarketRegisterCommand(
     val info: MarketInfo,
     val location: LocationPoint,
     val businessHours: BusinessHours,

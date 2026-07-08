@@ -9,6 +9,7 @@ import jakarta.persistence.Table
 import kr.dongchimi.core.market.BusinessHours
 import kr.dongchimi.core.market.LocationPoint
 import kr.dongchimi.core.market.Market
+import kr.dongchimi.core.market.MarketInfo
 import kr.dongchimi.core.market.MarketPhoneNumber
 import kr.dongchimi.db.common.BaseSoftDeleteEntity
 import org.hibernate.annotations.JdbcTypeCode
@@ -37,8 +38,8 @@ class MarketJpaEntity(
     @Column(columnDefinition = "geography(Point,4326)", nullable = false)
     val location: Point,
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    val businessHours: BusinessHours? = null,
+    @Column(columnDefinition = "jsonb", nullable = false)
+    val businessHours: BusinessHours,
     @Column(name = "market_phone_1", nullable = false)
     val marketPhone1: String,
     @Column(name = "market_phone_2")
@@ -47,26 +48,20 @@ class MarketJpaEntity(
     val marketPhonePrimary: Short,
     @Column(nullable = false)
     val ownerPhone: String,
-    @Column(name = "owner_phone_2")
-    val ownerPhone2: String? = null,
-    @Column(nullable = false)
-    val ownerPhonePrimary: Short,
     val brn: String? = null,
 ) : BaseSoftDeleteEntity() {
     constructor(market: Market) : this(
         id = market.id,
         ownerId = market.ownerId,
-        name = market.name,
-        address = market.address,
-        thumbnailUrl = market.thumbnailUrl,
+        name = market.info.name,
+        address = market.info.address,
+        thumbnailUrl = market.info.thumbnailUrl,
         location = geometryFactory.createPoint(Coordinate(market.location.longitude, market.location.latitude)),
         businessHours = market.businessHours,
         marketPhone1 = market.phoneNumber.marketPhone1,
         marketPhone2 = market.phoneNumber.marketPhone2,
         marketPhonePrimary = market.phoneNumber.marketPhonePrimary,
         ownerPhone = market.phoneNumber.ownerPhone,
-        ownerPhone2 = market.phoneNumber.ownerPhone2,
-        ownerPhonePrimary = market.phoneNumber.ownerPhonePrimary,
         brn = market.brn,
     )
 
@@ -74,9 +69,7 @@ class MarketJpaEntity(
         Market(
             id = id,
             ownerId = ownerId,
-            name = name,
-            address = address,
-            thumbnailUrl = thumbnailUrl,
+            info = MarketInfo(name = name, address = address, thumbnailUrl = thumbnailUrl),
             location = LocationPoint(longitude = location.x, latitude = location.y),
             businessHours = businessHours,
             phoneNumber =
@@ -85,8 +78,6 @@ class MarketJpaEntity(
                     marketPhone2,
                     marketPhonePrimary,
                     ownerPhone,
-                    ownerPhone2,
-                    ownerPhonePrimary,
                 ),
             brn = brn,
         )

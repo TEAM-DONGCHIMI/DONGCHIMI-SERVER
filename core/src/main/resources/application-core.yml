@@ -1,4 +1,0 @@
-upload:
-  max-size-bytes:
-    product-thumbnail: 5242880 # 5 * 1024 * 1024
-    default-product-thumbnail: 5242880 # 5 * 1024 * 1024
