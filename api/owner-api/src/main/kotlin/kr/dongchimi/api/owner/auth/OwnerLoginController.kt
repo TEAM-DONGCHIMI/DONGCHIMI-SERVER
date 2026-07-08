@@ -39,8 +39,8 @@ class OwnerLoginController(
                 ownerId = result.owner.id,
                 email = result.owner.email,
                 marketId = result.market?.id,
-                marketName = result.market?.name,
-                marketThumbnailUrl = result.market?.thumbnailUrl,
+                marketName = result.market?.info?.name,
+                marketThumbnailUrl = result.market?.info?.thumbnailUrl,
             ),
         )
     }
