@@ -97,7 +97,7 @@ private fun sampleRegisterCommand(name: String = "동치미 마트 강남점"): 
     MarketRegisterCommand(
         info = MarketInfo(name = name, address = "서울특별시 성북구 정릉동 880-20", thumbnailUrl = null),
         location = LocationPoint(longitude = 127.0, latitude = 37.0),
-        businessHours = null,
+        businessHours = BusinessHours(),
         phoneNumber =
             MarketPhoneNumber(
                 marketPhone1 = "02-000-0000",
@@ -112,7 +112,7 @@ private fun sampleUpdateCommand(name: String = "동치미 마트 강남점"): Ma
     MarketUpdateCommand(
         info = MarketInfo(name = name, address = "서울특별시 성북구 정릉동 880-20", thumbnailUrl = null),
         location = LocationPoint(longitude = 127.0, latitude = 37.0),
-        businessHours = null,
+        businessHours = BusinessHours(),
         phoneNumber =
             MarketPhoneNumber(
                 marketPhone1 = "02-000-0000",

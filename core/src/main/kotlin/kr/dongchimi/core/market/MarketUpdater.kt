@@ -13,7 +13,7 @@ class MarketUpdater(
         ownerId: Long,
         info: MarketInfo,
         location: LocationPoint,
-        businessHours: BusinessHours?,
+        businessHours: BusinessHours,
         phoneNumber: MarketPhoneNumber,
         brn: String?,
     ): Market =

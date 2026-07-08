@@ -6,6 +6,7 @@ import kr.dongchimi.api.owner.OwnerApiUser
 import kr.dongchimi.api.owner.market.request.BusinessHoursRequest
 import kr.dongchimi.api.owner.market.request.MarketRegisterRequest
 import kr.dongchimi.api.owner.market.request.MarketUpdateRequest
+import kr.dongchimi.core.market.BusinessHours
 import kr.dongchimi.core.market.LocationPoint
 import kr.dongchimi.core.market.Market
 import kr.dongchimi.core.market.MarketInfo
@@ -79,7 +80,7 @@ private fun sampleMarket(): Market =
         ownerId = 1L,
         info = MarketInfo(name = "동치미 마트 강남점", address = "서울특별시 성북구", thumbnailUrl = null),
         location = LocationPoint(longitude = 127.0, latitude = 37.0),
-        businessHours = null,
+        businessHours = BusinessHours(),
         phoneNumber = MarketPhoneNumber("02-000-0000", null, 1, "010-0000-0000"),
         brn = null,
     )

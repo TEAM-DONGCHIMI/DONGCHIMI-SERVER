@@ -38,8 +38,8 @@ class MarketJpaEntity(
     @Column(columnDefinition = "geography(Point,4326)", nullable = false)
     val location: Point,
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    val businessHours: BusinessHours? = null,
+    @Column(columnDefinition = "jsonb", nullable = false)
+    val businessHours: BusinessHours,
     @Column(name = "market_phone_1", nullable = false)
     val marketPhone1: String,
     @Column(name = "market_phone_2")

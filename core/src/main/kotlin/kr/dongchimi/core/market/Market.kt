@@ -5,7 +5,7 @@ data class Market(
     val ownerId: Long,
     val info: MarketInfo,
     val location: LocationPoint,
-    val businessHours: BusinessHours?,
+    val businessHours: BusinessHours,
     val phoneNumber: MarketPhoneNumber,
     val brn: String?,
 )
