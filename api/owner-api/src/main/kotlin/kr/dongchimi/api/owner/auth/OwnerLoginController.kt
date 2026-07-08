@@ -5,7 +5,7 @@ import kr.dongchimi.api.core.auth.RefreshTokenCookieFactory
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.owner.auth.request.OwnerLoginRequest
 import kr.dongchimi.api.owner.auth.response.OwnerLoginResponse
-import kr.dongchimi.core.owner.OwnerLoginService
+import kr.dongchimi.core.owner.OwnerAuthService
 import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/v1/owners/auth/login")
 class OwnerLoginController(
-    private val ownerLoginService: OwnerLoginService,
+    private val ownerAuthService: OwnerAuthService,
     private val refreshTokenCookieFactory: RefreshTokenCookieFactory,
 ) : OwnerLoginApi {
     @PostMapping
@@ -23,7 +23,7 @@ class OwnerLoginController(
         @RequestBody request: OwnerLoginRequest,
         response: HttpServletResponse,
     ): ApiResponse<OwnerLoginResponse> {
-        val result = ownerLoginService.login(request.toCommand())
+        val result = ownerAuthService.login(request.toCommand())
 
         val cookie =
             refreshTokenCookieFactory.create(

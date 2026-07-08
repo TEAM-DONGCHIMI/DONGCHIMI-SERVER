@@ -8,14 +8,18 @@ import kr.dongchimi.core.market.MarketReader
 import org.springframework.stereotype.Service
 
 @Service
-class OwnerLoginService(
+class OwnerAuthService(
     private val ownerReader: OwnerReader,
+    private val ownerAppender: OwnerAppender,
     private val marketReader: MarketReader,
     private val passwordEncoder: PasswordEncoder,
     private val authTokenIssuer: AuthTokenIssuer,
 ) {
-    companion object {
-        private const val DUMMY_PASSWORD_HASH = "\$2a\$10\$abcdefghijklmnopqrstuv0123456789ABCDEFGHIJKLMNOPQRSTU"
+    fun signup(command: OwnerSignupCommand): Owner {
+        if (ownerReader.existsByEmail(command.email)) {
+            throw CoreException(OwnerErrorCode.DUPLICATE_EMAIL)
+        }
+        return ownerAppender.append(command)
     }
 
     fun login(command: OwnerLoginCommand): OwnerLoginResult {
@@ -31,5 +35,9 @@ class OwnerLoginService(
         val tokens = authTokenIssuer.issue(owner.id, setOf(Role.OWNER.name))
 
         return OwnerLoginResult(tokens, owner, market, command.isAutoLogin)
+    }
+
+    companion object {
+        private const val DUMMY_PASSWORD_HASH = "\$2a\$10\$abcdefghijklmnopqrstuv0123456789ABCDEFGHIJKLMNOPQRSTU"
     }
 }

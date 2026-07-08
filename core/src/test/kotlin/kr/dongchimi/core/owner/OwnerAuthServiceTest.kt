@@ -3,6 +3,7 @@ package kr.dongchimi.core.owner
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kr.dongchimi.core.auth.AuthTokenIssuer
 import kr.dongchimi.core.auth.IssuedRefreshToken
 import kr.dongchimi.core.auth.PasswordEncoder
@@ -24,7 +25,7 @@ private const val EMAIL = "owner@dongchimi.kr"
 private const val RAW_PASSWORD = "password123!"
 private const val ENCODED_PASSWORD = "encoded:password123!"
 
-class OwnerLoginServiceTest :
+class OwnerAuthServiceTest :
     FunSpec({
         fun ownerWithPassword(encoded: String = ENCODED_PASSWORD) = Owner(id = 1L, email = EMAIL, password = encoded)
 
@@ -44,12 +45,34 @@ class OwnerLoginServiceTest :
         fun service(
             owners: List<Owner> = emptyList(),
             markets: List<Market> = emptyList(),
-        ) = OwnerLoginService(
-            OwnerReader(FakeOwnerRepository(owners)),
-            MarketReader(FakeMarketRepository(markets)),
-            PrefixPasswordEncoder(),
-            AuthTokenIssuer(FakeTokenProvider(), RefreshTokenAppender(FakeRefreshTokenRepository())),
-        )
+        ): OwnerAuthService {
+            val ownerRepository = FakeOwnerRepository(owners)
+            return OwnerAuthService(
+                OwnerReader(ownerRepository),
+                OwnerAppender(ownerRepository, PrefixPasswordEncoder()),
+                MarketReader(FakeMarketRepository(markets)),
+                PrefixPasswordEncoder(),
+                AuthTokenIssuer(FakeTokenProvider(), RefreshTokenAppender(FakeRefreshTokenRepository())),
+            )
+        }
+
+        test("정상 가입 시 비밀번호를 해싱해 저장하고 생성된 점주를 반환한다") {
+            val owner = service().signup(OwnerSignupCommand(EMAIL, RAW_PASSWORD))
+
+            owner.id shouldNotBe 0L
+            owner.email shouldBe EMAIL
+            owner.password shouldBe ENCODED_PASSWORD
+            owner.password shouldNotBe RAW_PASSWORD
+        }
+
+        test("이미 가입된 이메일이면 DUPLICATE_EMAIL 예외를 던진다") {
+            val exception =
+                shouldThrow<CoreException> {
+                    service(owners = listOf(ownerWithPassword())).signup(OwnerSignupCommand(EMAIL, RAW_PASSWORD))
+                }
+
+            exception.errorCode shouldBe OwnerErrorCode.DUPLICATE_EMAIL
+        }
 
         test("가입되지 않은 이메일이면 LOGIN_FAILED를 던진다") {
             val exception =
@@ -106,6 +129,7 @@ class OwnerLoginServiceTest :
         seed: List<Owner> = emptyList(),
     ) : OwnerRepository {
         private val store = seed.associateBy { it.id }.toMutableMap()
+        private var nextId = (seed.maxOfOrNull { it.id } ?: 0L) + 1L
 
         override fun findById(id: Long): Owner? = store[id]
 
@@ -114,8 +138,9 @@ class OwnerLoginServiceTest :
         override fun existsByEmail(email: String): Boolean = store.values.any { it.email == email }
 
         override fun save(owner: Owner): Owner {
-            store[owner.id] = owner
-            return owner
+            val saved = if (owner.id == 0L) owner.copy(id = nextId++) else owner
+            store[saved.id] = saved
+            return saved
         }
     }
 

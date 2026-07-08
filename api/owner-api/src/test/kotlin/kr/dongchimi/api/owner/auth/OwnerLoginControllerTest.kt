@@ -12,9 +12,9 @@ import kr.dongchimi.core.market.LocationPoint
 import kr.dongchimi.core.market.Market
 import kr.dongchimi.core.market.MarketPhoneNumber
 import kr.dongchimi.core.owner.Owner
+import kr.dongchimi.core.owner.OwnerAuthService
 import kr.dongchimi.core.owner.OwnerLoginCommand
 import kr.dongchimi.core.owner.OwnerLoginResult
-import kr.dongchimi.core.owner.OwnerLoginService
 import org.mockito.Mockito
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.MockHttpServletResponse
@@ -41,7 +41,7 @@ private fun sampleMarket() =
 class OwnerLoginControllerTest :
     FunSpec({
         test("isAutoLogin=true 로그인 시 마트 정보와 함께 응답하고 refresh는 영속 쿠키로 내려준다") {
-            val service = Mockito.mock(OwnerLoginService::class.java)
+            val service = Mockito.mock(OwnerAuthService::class.java)
             val tokens = AuthTokens("access-token", "refresh-token", LocalDateTime.now().plusDays(14))
             val owner = Owner(id = 1L, email = "owner@dongchimi.kr", password = "encoded")
             Mockito
@@ -66,7 +66,7 @@ class OwnerLoginControllerTest :
         }
 
         test("isAutoLogin=false 로그인 시 refresh는 세션 쿠키(Max-Age 없음)로 내려주고 마트 필드는 null이다") {
-            val service = Mockito.mock(OwnerLoginService::class.java)
+            val service = Mockito.mock(OwnerAuthService::class.java)
             val tokens = AuthTokens("access-token", "refresh-token", LocalDateTime.now().plusDays(14))
             val owner = Owner(id = 1L, email = "owner@dongchimi.kr", password = "encoded")
             Mockito
