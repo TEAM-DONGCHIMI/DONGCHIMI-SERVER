@@ -18,7 +18,7 @@ class FlyerServiceTest :
                 marketValidator = MarketValidator(marketRepository),
                 flyerReader = FlyerReader(flyerRepository),
                 flyerQrManager = FlyerQrManager(qrCodeGenerator),
-                flyerAppender = FlyerAppender(flyerRepository),
+                flyerAppender = FlyerAppender(flyerRepository, SlugGenerator()),
             )
 
         test("마트가 없으면 예외가 발생한다") {
@@ -39,6 +39,49 @@ class FlyerServiceTest :
                 }
 
             exception.errorCode shouldBe MarketErrorCode.MARKET_ACCESS_DENIED
+        }
+
+        test("발행 시 마트가 없으면 예외가 발생한다") {
+            val exception =
+                shouldThrow<CoreException> {
+                    newService().publish(ownerId = 1L, marketId = 999L)
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("발행 시 다른 점주의 마트면 예외가 발생한다") {
+            val marketRepository = FakeMarketRepository().apply { save(sampleMarket(id = 1L, ownerId = 1L)) }
+
+            val exception =
+                shouldThrow<CoreException> {
+                    newService(marketRepository = marketRepository).publish(ownerId = 2L, marketId = 1L)
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_ACCESS_DENIED
+        }
+
+        test("전단이 없으면 새로 발행해 slug를 반환한다") {
+            val marketRepository = FakeMarketRepository().apply { save(sampleMarket(id = 1L, ownerId = 1L)) }
+            val flyerRepository = FakeFlyerRepository()
+
+            val result = newService(marketRepository, flyerRepository).publish(ownerId = 1L, marketId = 1L)
+
+            result.slug shouldBe flyerRepository.findById(1L)?.slug
+            flyerRepository.findById(1L)?.qrCode shouldBe null
+        }
+
+        test("이미 발행된 경우 기존 slug를 그대로 반환하고 재생성하지 않는다") {
+            val marketRepository = FakeMarketRepository().apply { save(sampleMarket(id = 1L, ownerId = 1L)) }
+            val flyerRepository =
+                FakeFlyerRepository().apply {
+                    save(Flyer(id = 1L, slug = "existing-slug", qrCode = "data:image/png;base64,already-issued"))
+                }
+
+            val result = newService(marketRepository, flyerRepository).publish(ownerId = 1L, marketId = 1L)
+
+            result.slug shouldBe "existing-slug"
+            flyerRepository.findById(1L)?.qrCode shouldBe "data:image/png;base64,already-issued"
         }
 
         test("전단(slug)이 발행되지 않았으면 예외가 발생한다") {

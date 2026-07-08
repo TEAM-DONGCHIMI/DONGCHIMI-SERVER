@@ -10,6 +10,17 @@ class FlyerService(
     private val flyerQrManager: FlyerQrManager,
     private val flyerAppender: FlyerAppender,
 ) {
+    fun publish(
+        ownerId: Long,
+        marketId: Long,
+    ): FlyerPublish {
+        val market = marketReader.read(marketId)
+        marketValidator.validateOwnership(market, ownerId)
+
+        val flyer = flyerAppender.publish(marketId)
+        return FlyerPublish(flyer.slug)
+    }
+
     fun issueQrCode(
         ownerId: Long,
         marketId: Long,
