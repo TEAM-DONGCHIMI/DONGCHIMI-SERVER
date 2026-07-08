@@ -2,6 +2,8 @@ package kr.dongchimi.api.owner.auth.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.api.core.common.exception.validate
+import kr.dongchimi.common.utils.RegexPatterns.containsHangul
+import kr.dongchimi.common.utils.RegexPatterns.isEmail
 import kr.dongchimi.core.owner.OwnerSignupCommand
 
 data class OwnerSignupRequest(
@@ -11,10 +13,10 @@ data class OwnerSignupRequest(
     val password: String,
 ) {
     fun toCommand(): OwnerSignupCommand {
-        validate(EMAIL_REGEX.matches(email)) { "올바르지 않은 이메일 형식입니다." }
+        validate(email.isEmail()) { "올바르지 않은 이메일 형식입니다." }
         validate(password.length in MIN_PASSWORD_LENGTH..MAX_PASSWORD_LENGTH) { "비밀번호는 6~20자로 입력해주세요." }
         validate(password.none { it.isWhitespace() }) { "비밀번호에 공백을 포함할 수 없습니다." }
-        validate(!password.contains(HANGUL_REGEX)) { "비밀번호에 한글을 포함할 수 없습니다." }
+        validate(!password.containsHangul()) { "비밀번호에 한글을 포함할 수 없습니다." }
 
         return OwnerSignupCommand(email = email, password = password)
     }
@@ -22,6 +24,5 @@ data class OwnerSignupRequest(
     companion object {
         private const val MIN_PASSWORD_LENGTH = 6
         private const val MAX_PASSWORD_LENGTH = 20
-        private val HANGUL_REGEX = Regex("[가-힣ㄱ-ㅎㅏ-ㅣ]")
     }
 }

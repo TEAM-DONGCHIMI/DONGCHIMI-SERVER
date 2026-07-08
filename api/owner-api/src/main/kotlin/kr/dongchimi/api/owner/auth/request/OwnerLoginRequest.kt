@@ -2,6 +2,7 @@ package kr.dongchimi.api.owner.auth.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.api.core.common.exception.validate
+import kr.dongchimi.common.utils.RegexPatterns.isEmail
 import kr.dongchimi.core.owner.OwnerLoginCommand
 
 data class OwnerLoginRequest(
@@ -13,7 +14,7 @@ data class OwnerLoginRequest(
     val isAutoLogin: Boolean,
 ) {
     fun toCommand(): OwnerLoginCommand {
-        validate(EMAIL_REGEX.matches(email)) { "올바른 이메일 형식이 아닙니다." }
+        validate(email.isEmail()) { "올바른 이메일 형식이 아닙니다." }
         validate(password.isNotBlank()) { "비밀번호를 입력해 주세요." }
 
         return OwnerLoginCommand(email = email, password = password, isAutoLogin = isAutoLogin)
