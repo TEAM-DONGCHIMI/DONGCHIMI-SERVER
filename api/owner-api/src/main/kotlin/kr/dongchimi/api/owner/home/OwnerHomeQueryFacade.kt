@@ -18,13 +18,7 @@ class OwnerHomeQueryFacade(
     fun getHome(ownerId: Long): OwnerHomeResponse {
         val market =
             marketService.findByOwnerId(ownerId)
-                ?: return OwnerHomeResponse(
-                    todayRegisteredCount = 0,
-                    dailyCount = 0,
-                    dailyProducts = emptyList(),
-                    periodicCount = 0,
-                    periodicProducts = emptyList(),
-                )
+                ?: return OwnerHomeResponse.EMPTY
 
         val today = LocalDate.now()
 
