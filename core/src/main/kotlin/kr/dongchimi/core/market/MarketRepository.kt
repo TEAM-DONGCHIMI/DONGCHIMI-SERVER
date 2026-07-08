@@ -17,4 +17,11 @@ interface MarketRepository {
         name: String,
         id: Long,
     ): Boolean
+
+    fun existsByIdAndOwnerId(
+        marketId: Long,
+        ownerId: Long,
+    ): Boolean
+
+    fun existsById(id: Long): Boolean
 }

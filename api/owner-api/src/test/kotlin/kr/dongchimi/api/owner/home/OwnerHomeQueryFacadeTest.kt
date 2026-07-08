@@ -74,7 +74,12 @@ private fun market(marketId: Long) =
     Market(
         id = marketId,
         ownerId = 1L,
-        info = MarketInfo(name = "신선마트", address = "서울시 강남구", thumbnailUrl = null),
+        info =
+            MarketInfo(
+                name = "신선마트",
+                address = "서울시 강남구",
+                thumbnailUrl = null,
+            ),
         location = LocationPoint(longitude = 127.0, latitude = 37.5),
         businessHours = BusinessHours(),
         phoneNumber =

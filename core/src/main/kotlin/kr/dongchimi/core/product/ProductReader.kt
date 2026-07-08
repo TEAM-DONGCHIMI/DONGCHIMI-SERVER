@@ -1,5 +1,6 @@
 package kr.dongchimi.core.product
 
+import kr.dongchimi.core.common.exception.CoreException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 
@@ -7,6 +8,8 @@ import java.time.LocalDate
 class ProductReader(
     private val productRepository: ProductRepository,
 ) {
+    fun read(id: Long): Product = productRepository.findById(id) ?: throw CoreException(ProductErrorCode.PRODUCT_NOT_FOUND)
+
     fun readActive(
         marketId: Long,
         dealType: DealType,

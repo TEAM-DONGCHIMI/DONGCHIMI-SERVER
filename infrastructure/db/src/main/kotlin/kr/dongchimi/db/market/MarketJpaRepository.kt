@@ -19,4 +19,11 @@ interface MarketJpaRepository : JpaRepository<MarketJpaEntity, Long> {
         name: String,
         id: Long,
     ): Boolean
+
+    fun existsByIdAndOwnerIdAndDeletedAtIsNull(
+        marketId: Long,
+        ownerId: Long,
+    ): Boolean
+
+    fun existsByIdAndDeletedAtIsNull(id: Long): Boolean
 }
