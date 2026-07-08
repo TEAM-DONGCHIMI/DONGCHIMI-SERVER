@@ -7,8 +7,12 @@ import io.kotest.matchers.string.shouldNotContain
 import kr.dongchimi.api.core.auth.RefreshTokenCookieFactory
 import kr.dongchimi.api.core.auth.RefreshTokenCookieProperties
 import kr.dongchimi.api.owner.auth.request.OwnerLoginRequest
+import kr.dongchimi.api.owner.auth.request.OwnerSignupRequest
 import kr.dongchimi.api.owner.auth.response.OwnerLoginResponse
+import kr.dongchimi.core.owner.Owner
+import kr.dongchimi.core.owner.OwnerAuthService
 import kr.dongchimi.core.owner.OwnerLoginCommand
+import kr.dongchimi.core.owner.OwnerSignupCommand
 import org.mockito.Mockito
 import org.springframework.http.HttpHeaders
 import org.springframework.mock.web.MockHttpServletResponse
@@ -32,8 +36,21 @@ private fun loginResponse(
     marketThumbnailUrl = marketThumbnailUrl,
 )
 
-class OwnerLoginControllerTest :
+class OwnerAuthControllerTest :
     FunSpec({
+        test("회원가입 성공 시 ownerId와 email을 반환한다") {
+            val ownerAuthService = Mockito.mock(OwnerAuthService::class.java)
+            Mockito
+                .`when`(ownerAuthService.signup(OwnerSignupCommand("owner@dongchimi.kr", "password123!")))
+                .thenReturn(Owner(id = 1L, email = "owner@dongchimi.kr", password = "encoded"))
+            val controller = OwnerAuthController(ownerAuthService, Mockito.mock(OwnerLoginQueryFacade::class.java), cookieFactory())
+
+            val result = controller.signup(OwnerSignupRequest("owner@dongchimi.kr", "password123!"))
+
+            result.data?.ownerId shouldBe 1L
+            result.data?.email shouldBe "owner@dongchimi.kr"
+        }
+
         test("isAutoLogin=true 로그인 시 facade 응답을 그대로 내려주고 refresh는 영속 쿠키로 내려준다") {
             val facade = Mockito.mock(OwnerLoginQueryFacade::class.java)
             val command = OwnerLoginCommand("owner@dongchimi.kr", "password123!", isAutoLogin = true)
@@ -47,7 +64,7 @@ class OwnerLoginControllerTest :
                         isAutoLogin = true,
                     ),
                 )
-            val controller = OwnerLoginController(facade, cookieFactory())
+            val controller = OwnerAuthController(Mockito.mock(OwnerAuthService::class.java), facade, cookieFactory())
             val response = MockHttpServletResponse()
 
             val result =
@@ -77,7 +94,7 @@ class OwnerLoginControllerTest :
                         isAutoLogin = false,
                     ),
                 )
-            val controller = OwnerLoginController(facade, cookieFactory())
+            val controller = OwnerAuthController(Mockito.mock(OwnerAuthService::class.java), facade, cookieFactory())
             val response = MockHttpServletResponse()
 
             val result =
