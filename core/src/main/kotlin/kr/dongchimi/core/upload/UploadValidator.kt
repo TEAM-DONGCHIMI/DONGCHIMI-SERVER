@@ -4,9 +4,7 @@ import kr.dongchimi.core.common.exception.CoreException
 import org.springframework.stereotype.Component
 
 @Component
-class UploadValidator(
-    private val uploadProperties: UploadProperties,
-) {
+class UploadValidator {
     fun validate(
         purpose: UploadPurpose,
         contentType: String,
@@ -16,7 +14,7 @@ class UploadValidator(
             throw CoreException(UploadErrorCode.UNSUPPORTED_CONTENT_TYPE)
         }
 
-        if (contentLength > uploadProperties.maxSizeBytes.getValue(purpose)) {
+        if (contentLength > purpose.maxSizeBytes) {
             throw CoreException(UploadErrorCode.FILE_TOO_LARGE)
         }
     }
