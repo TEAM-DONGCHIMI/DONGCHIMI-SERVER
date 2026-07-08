@@ -4,8 +4,10 @@ import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductRepository
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 
 @Repository
 class ProductRepositoryImpl(
@@ -52,4 +54,30 @@ class ProductRepositoryImpl(
 
         products.forEach { it.updateDiscountPeriod(discountPeriod) }
     }
+
+    override fun findActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> =
+        productJpaRepository
+            .findActive(marketId, dealType, date, PageRequest.of(0, limit))
+            .map { it.toDomain() }
+
+    override fun countActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): Int = productJpaRepository.countActive(marketId, dealType, date)
+
+    override fun countRegisteredOn(
+        marketId: Long,
+        date: LocalDate,
+    ): Int =
+        productJpaRepository.countByMarketIdAndCreatedAtBetweenAndDeletedAtIsNull(
+            marketId,
+            date.atStartOfDay(),
+            date.plusDays(1).atStartOfDay(),
+        )
 }

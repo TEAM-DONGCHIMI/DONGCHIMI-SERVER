@@ -2,6 +2,7 @@ package kr.dongchimi.core.product
 
 import kr.dongchimi.core.market.MarketValidator
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class ProductService(
@@ -71,4 +72,22 @@ class ProductService(
 
         productRemover.resetByDealType(marketId, dealType)
     }
+
+    fun getActiveProducts(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> = productReader.readActive(marketId, dealType, date, limit)
+
+    fun countActiveProducts(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): Int = productReader.countActive(marketId, dealType, date)
+
+    fun countRegisteredOn(
+        marketId: Long,
+        date: LocalDate,
+    ): Int = productReader.countRegisteredOn(marketId, date)
 }
