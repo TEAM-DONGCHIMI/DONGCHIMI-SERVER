@@ -50,4 +50,8 @@ docs/api
 ### Env ###
 .env
 .env.local
-.env.perf
+
+### k6 ###
+k6/.env.perf
+k6/results/*
+!k6/results/.gitkeep
