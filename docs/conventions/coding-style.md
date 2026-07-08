@@ -139,17 +139,22 @@ data class ApiResponse<T> private constructor(
 }
 ```
 
-### 2-3. 레이어 간 변환 (매퍼)
+### 2-3. 레이어 간 변환
 
-- `core → api` 방향의 변환(도메인/코어 객체 → Response DTO)은 별도 매퍼 `object`에 확장 함수로 정의한다
-- `core` 모듈이 `api` 타입에 의존하지 않도록 매퍼는 `api` 모듈에 위치한다
+- `core → api` 방향의 변환(도메인/코어 객체 → Response DTO)은 별도 매퍼 `object`를 만들지 않고, Response DTO에 도메인/코어 객체를 인자로 받는 보조 생성자(secondary constructor)를 정의한다
+- Response DTO가 `api` 모듈에 있으므로 `core` 모듈은 `api` 타입에 의존하지 않는다
 - `api → core` 방향의 변환(Request DTO → VO/Command)은 Request DTO 클래스 내부에 `toCommand()`를 정의한다
 
 ```kotlin
-// api 모듈 — core → api 변환 매퍼
-object PageResponseMapper {
-    fun <T> PageResult<T>.toPageResponse(): PageResponse<T> =
-        PageResponse(content, hasNext)
+// api 모듈 — core → api 변환은 Response DTO 보조 생성자로
+data class PageResponse<T>(
+    val content: List<T>,
+    val hasNext: Boolean,
+) {
+    constructor(pageResult: PageResult<T>) : this(
+        content = pageResult.content,
+        hasNext = pageResult.hasNext,
+    )
 }
 ```
 
@@ -368,8 +373,8 @@ class OwnerHomeQueryFacade(
         val periodicProducts = productService.getActiveProducts(market.id, DealType.PERIODIC)
 
         return OwnerHomeResponse(
-            dailyProducts = dailyProducts.map { it.toHomeProductResponse() },
-            periodicProducts = periodicProducts.map { it.toHomeProductResponse() },
+            dailyProducts = dailyProducts.map { HomeProductResponse(it) },
+            periodicProducts = periodicProducts.map { HomeProductResponse(it) },
         )
     }
 }
