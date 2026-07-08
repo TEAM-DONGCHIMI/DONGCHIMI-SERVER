@@ -42,9 +42,9 @@ class ProductJpaEntity(
     val category: ProductCategory,
     val promotionalPhrase: String? = null,
     @Column(nullable = false)
-    val discountStartDate: LocalDate,
+    var discountStartDate: LocalDate,
     @Column(nullable = false)
-    val discountEndDate: LocalDate,
+    var discountEndDate: LocalDate,
 ) : BaseSoftDeleteEntity() {
     constructor(product: Product) : this(
         id = product.id,
@@ -72,4 +72,9 @@ class ProductJpaEntity(
             promotionalPhrase = promotionalPhrase,
             discountPeriod = DiscountPeriod(discountStartDate, discountEndDate),
         )
+
+    fun updateDiscountPeriod(discountPeriod: DiscountPeriod) {
+        discountStartDate = discountPeriod.discountStartDate
+        discountEndDate = discountPeriod.discountEndDate
+    }
 }

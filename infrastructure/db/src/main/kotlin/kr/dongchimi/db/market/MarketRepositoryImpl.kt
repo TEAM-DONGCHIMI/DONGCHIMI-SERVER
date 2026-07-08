@@ -24,4 +24,11 @@ class MarketRepositoryImpl(
         name: String,
         id: Long,
     ): Boolean = marketJpaRepository.existsByOwnerIdAndNameAndIdNotAndDeletedAtIsNull(ownerId, name, id)
+
+    override fun existsByIdAndOwnerId(
+        marketId: Long,
+        ownerId: Long,
+    ): Boolean = marketJpaRepository.existsByIdAndOwnerIdAndDeletedAtIsNull(marketId, ownerId)
+
+    override fun existsById(id: Long): Boolean = marketJpaRepository.existsByIdAndDeletedAtIsNull(id)
 }
