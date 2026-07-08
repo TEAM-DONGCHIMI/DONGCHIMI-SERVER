@@ -6,18 +6,9 @@ import io.kotest.matchers.shouldBe
 import kr.dongchimi.core.common.exception.CoreException
 import java.time.LocalDateTime
 
-private val TEST_PROPERTIES =
-    UploadProperties(
-        maxSizeBytes =
-            mapOf(
-                UploadPurpose.PRODUCT_THUMBNAIL to 5 * 1024 * 1024L,
-                UploadPurpose.DEFAULT_PRODUCT_THUMBNAIL to 5 * 1024 * 1024L,
-            ),
-    )
-
 class UploadManagerTest :
     FunSpec({
-        fun manager(storageClient: StorageClient) = UploadManager(storageClient, ObjectKeyGenerator(), UploadValidator(TEST_PROPERTIES))
+        fun manager(storageClient: StorageClient) = UploadManager(storageClient, ObjectKeyGenerator(), UploadValidator())
 
         test("발급 요청이 유효하면 presigned URL을 반환한다") {
             val storageClient = FakeStorageClient()
