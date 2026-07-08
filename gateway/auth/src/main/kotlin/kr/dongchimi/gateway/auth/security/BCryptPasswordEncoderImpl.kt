@@ -5,7 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Component
 
 @Component
-class BCryptPasswordEncoderAdapter : PasswordEncoder {
+class BCryptPasswordEncoderImpl : PasswordEncoder {
     private val delegate = BCryptPasswordEncoder()
 
     override fun encode(rawPassword: String): String = requireNotNull(delegate.encode(rawPassword))
