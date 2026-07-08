@@ -9,6 +9,8 @@ class MarketService(
     private val marketUpdater: MarketUpdater,
     private val marketValidator: MarketValidator,
 ) {
+    fun findByOwnerId(ownerId: Long): Market? = marketReader.readByOwnerId(ownerId)
+
     fun register(
         ownerId: Long,
         command: MarketRegisterCommand,
