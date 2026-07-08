@@ -129,7 +129,7 @@ private class FakeMarketRepository : MarketRepository {
 
     override fun findById(id: Long): Market? = store[id]
 
-    override fun findByOwnerId(ownerId: Long): Market? = store.values.find { it.ownerId == ownerId }
+    override fun findByOwnerId(ownerId: Long): Market? = store.values.firstOrNull { it.ownerId == ownerId }
 
     override fun save(market: Market): Market {
         val id = if (market.id == 0L) nextId++ else market.id

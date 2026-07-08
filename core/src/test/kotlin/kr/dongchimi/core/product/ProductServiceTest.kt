@@ -239,6 +239,8 @@ private class FakeMarketRepository : MarketRepository {
 
     override fun findById(id: Long): Market? = store[id]
 
+    override fun findByOwnerId(ownerId: Long): Market? = store.values.firstOrNull { it.ownerId == ownerId }
+
     override fun save(market: Market): Market = market
 
     override fun existsByOwnerIdAndName(
@@ -303,4 +305,30 @@ private class FakeProductRepository : ProductRepository {
     ) {
         productIds.forEach { id -> store[id]?.let { store[id] = it.copy(discountPeriod = discountPeriod) } }
     }
+
+    override fun findActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> =
+        store.values
+            .filter { it.marketId == marketId && it.dealType == dealType && isActiveOn(it, date) }
+            .take(limit)
+
+    override fun countActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): Int = store.values.count { it.marketId == marketId && it.dealType == dealType && isActiveOn(it, date) }
+
+    override fun countRegisteredOn(
+        marketId: Long,
+        date: LocalDate,
+    ): Int = store.values.count { it.marketId == marketId }
+
+    private fun isActiveOn(
+        product: Product,
+        date: LocalDate,
+    ): Boolean = product.discountPeriod.discountStartDate <= date && product.discountPeriod.discountEndDate >= date
 }
