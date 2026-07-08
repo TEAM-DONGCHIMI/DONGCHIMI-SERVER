@@ -1,0 +1,4 @@
+qr:
+  base-url: ${FLYER_BASE_URL:https://app.dongchiimi.com}
+  size: ${QR_SIZE:512}
+  margin: ${QR_MARGIN:1}
