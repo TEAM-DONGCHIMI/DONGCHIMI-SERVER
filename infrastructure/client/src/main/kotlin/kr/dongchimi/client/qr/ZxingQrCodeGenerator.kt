@@ -1,4 +1,4 @@
-package kr.dongchimi.infrastructure.qr
+package kr.dongchimi.client.qr
 
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType

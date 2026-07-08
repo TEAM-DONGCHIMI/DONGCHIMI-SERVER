@@ -1,4 +1,4 @@
-package kr.dongchimi.infrastructure.qr
+package kr.dongchimi.client.qr
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
