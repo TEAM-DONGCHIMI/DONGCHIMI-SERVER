@@ -15,7 +15,6 @@ class OwnerLoginService(
     private val authTokenIssuer: AuthTokenIssuer,
 ) {
     companion object {
-        // BCrypt 형식의 더미 해시로, 실제 사용자 비밀번호와 무관
         private const val DUMMY_PASSWORD_HASH = "\$2a\$10\$abcdefghijklmnopqrstuv0123456789ABCDEFGHIJKLMNOPQRSTU"
     }
 
