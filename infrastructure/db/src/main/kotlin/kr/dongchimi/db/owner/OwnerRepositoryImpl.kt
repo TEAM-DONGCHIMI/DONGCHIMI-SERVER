@@ -1,8 +1,9 @@
 package kr.dongchimi.db.owner
 
+import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.owner.Owner
+import kr.dongchimi.core.owner.OwnerErrorCode
 import kr.dongchimi.core.owner.OwnerRepository
-import kr.dongchimi.core.owner.exception.DuplicateEmailException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Repository
 
@@ -21,7 +22,7 @@ class OwnerRepositoryImpl(
             ownerJpaRepository.save(OwnerJpaEntity(owner)).toDomain()
         } catch (exception: DataIntegrityViolationException) {
             if (exception.isOwnerEmailUniqueViolation()) {
-                throw DuplicateEmailException(cause = exception)
+                throw CoreException(OwnerErrorCode.DUPLICATE_EMAIL)
             }
             throw exception
         }

@@ -1,6 +1,6 @@
 package kr.dongchimi.core.owner
 
-import kr.dongchimi.core.owner.exception.DuplicateEmailException
+import kr.dongchimi.core.common.exception.CoreException
 import org.springframework.stereotype.Service
 
 @Service
@@ -10,7 +10,7 @@ class OwnerSignupService(
 ) {
     fun signup(command: OwnerSignupCommand): Owner {
         if (ownerReader.existsByEmail(command.email)) {
-            throw DuplicateEmailException()
+            throw CoreException(OwnerErrorCode.DUPLICATE_EMAIL)
         }
         return ownerAppender.append(command)
     }

@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kr.dongchimi.core.auth.PasswordEncoder
-import kr.dongchimi.core.owner.exception.DuplicateEmailException
+import kr.dongchimi.core.common.exception.CoreException
 
 class OwnerSignupServiceTest :
     FunSpec({
@@ -25,13 +25,16 @@ class OwnerSignupServiceTest :
             owner.password shouldNotBe "password123!"
         }
 
-        test("이미 가입된 이메일이면 DuplicateEmailException을 던진다") {
+        test("이미 가입된 이메일이면 DUPLICATE_EMAIL 예외를 던진다") {
             val existing = Owner(id = 1L, email = "owner@dongchimi.kr", password = "encoded:pw")
             val repository = FakeOwnerRepository(seed = listOf(existing))
 
-            shouldThrow<DuplicateEmailException> {
-                service(repository).signup(OwnerSignupCommand("owner@dongchimi.kr", "password123!"))
-            }
+            val exception =
+                shouldThrow<CoreException> {
+                    service(repository).signup(OwnerSignupCommand("owner@dongchimi.kr", "password123!"))
+                }
+
+            exception.errorCode shouldBe OwnerErrorCode.DUPLICATE_EMAIL
         }
     }) {
     private class PrefixPasswordEncoder : PasswordEncoder {
