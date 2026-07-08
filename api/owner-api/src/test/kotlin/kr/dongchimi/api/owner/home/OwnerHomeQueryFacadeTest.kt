@@ -2,8 +2,10 @@ package kr.dongchimi.api.owner.home
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import kr.dongchimi.core.market.BusinessHours
 import kr.dongchimi.core.market.LocationPoint
 import kr.dongchimi.core.market.Market
+import kr.dongchimi.core.market.MarketInfo
 import kr.dongchimi.core.market.MarketPhoneNumber
 import kr.dongchimi.core.market.MarketService
 import kr.dongchimi.core.product.DealType
@@ -72,19 +74,15 @@ private fun market(marketId: Long) =
     Market(
         id = marketId,
         ownerId = 1L,
-        name = "신선마트",
-        address = "서울시 강남구",
-        thumbnailUrl = null,
+        info = MarketInfo(name = "신선마트", address = "서울시 강남구", thumbnailUrl = null),
         location = LocationPoint(longitude = 127.0, latitude = 37.5),
-        businessHours = null,
+        businessHours = BusinessHours(),
         phoneNumber =
             MarketPhoneNumber(
                 marketPhone1 = "0212345678",
                 marketPhone2 = null,
                 marketPhonePrimary = 1,
                 ownerPhone = "01012345678",
-                ownerPhone2 = null,
-                ownerPhonePrimary = 1,
             ),
         brn = null,
     )

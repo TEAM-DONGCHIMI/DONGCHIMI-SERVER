@@ -14,11 +14,6 @@ import kr.dongchimi.core.auth.RefreshTokenRepository
 import kr.dongchimi.core.auth.Role
 import kr.dongchimi.core.auth.TokenProvider
 import kr.dongchimi.core.common.exception.CoreException
-import kr.dongchimi.core.market.LocationPoint
-import kr.dongchimi.core.market.Market
-import kr.dongchimi.core.market.MarketPhoneNumber
-import kr.dongchimi.core.market.MarketReader
-import kr.dongchimi.core.market.MarketRepository
 import java.time.LocalDateTime
 
 private const val EMAIL = "owner@dongchimi.kr"
@@ -29,28 +24,11 @@ class OwnerAuthServiceTest :
     FunSpec({
         fun ownerWithPassword(encoded: String = ENCODED_PASSWORD) = Owner(id = 1L, email = EMAIL, password = encoded)
 
-        fun sampleMarket(ownerId: Long) =
-            Market(
-                id = 10L,
-                ownerId = ownerId,
-                name = "신선마트",
-                address = "서울시 어딘가",
-                thumbnailUrl = "https://cdn.example.com/market/10.png",
-                location = LocationPoint(127.0, 37.0),
-                businessHours = null,
-                phoneNumber = MarketPhoneNumber("02-000-0000", null, 1, "010-0000-0000", null, 1),
-                brn = null,
-            )
-
-        fun service(
-            owners: List<Owner> = emptyList(),
-            markets: List<Market> = emptyList(),
-        ): OwnerAuthService {
+        fun service(owners: List<Owner> = emptyList()): OwnerAuthService {
             val ownerRepository = FakeOwnerRepository(owners)
             return OwnerAuthService(
                 OwnerReader(ownerRepository),
                 OwnerAppender(ownerRepository, PrefixPasswordEncoder()),
-                MarketReader(FakeMarketRepository(markets)),
                 PrefixPasswordEncoder(),
                 AuthTokenIssuer(FakeTokenProvider(), RefreshTokenAppender(FakeRefreshTokenRepository())),
             )
@@ -93,27 +71,15 @@ class OwnerAuthServiceTest :
             exception.errorCode shouldBe OwnerErrorCode.LOGIN_FAILED
         }
 
-        test("정상 로그인 시 토큰을 발급하고 isAutoLogin과 마트를 함께 반환한다") {
-            val market = sampleMarket(ownerId = 1L)
-
+        test("정상 로그인 시 토큰을 발급하고 점주와 isAutoLogin을 반환한다") {
             val result =
-                service(owners = listOf(ownerWithPassword()), markets = listOf(market))
+                service(owners = listOf(ownerWithPassword()))
                     .login(OwnerLoginCommand(EMAIL, RAW_PASSWORD, isAutoLogin = false))
 
             result.tokens.accessToken shouldBe "token-1"
             result.tokens.refreshToken shouldBe "refresh-1"
             result.owner.id shouldBe 1L
-            result.market shouldBe market
             result.isAutoLogin shouldBe false
-        }
-
-        test("마트가 없는 점주도 로그인에 성공하며 market은 null이다") {
-            val result =
-                service(owners = listOf(ownerWithPassword()))
-                    .login(OwnerLoginCommand(EMAIL, RAW_PASSWORD, isAutoLogin = true))
-
-            result.market shouldBe null
-            result.isAutoLogin shouldBe true
         }
     }) {
     private class PrefixPasswordEncoder : PasswordEncoder {
@@ -141,21 +107,6 @@ class OwnerAuthServiceTest :
             val saved = if (owner.id == 0L) owner.copy(id = nextId++) else owner
             store[saved.id] = saved
             return saved
-        }
-    }
-
-    private class FakeMarketRepository(
-        seed: List<Market> = emptyList(),
-    ) : MarketRepository {
-        private val store = seed.associateBy { it.id }.toMutableMap()
-
-        override fun findById(id: Long): Market? = store[id]
-
-        override fun findByOwnerId(ownerId: Long): Market? = store.values.find { it.ownerId == ownerId }
-
-        override fun save(market: Market): Market {
-            store[market.id] = market
-            return market
         }
     }
 

@@ -4,14 +4,12 @@ import kr.dongchimi.core.auth.AuthTokenIssuer
 import kr.dongchimi.core.auth.PasswordEncoder
 import kr.dongchimi.core.auth.Role
 import kr.dongchimi.core.common.exception.CoreException
-import kr.dongchimi.core.market.MarketReader
 import org.springframework.stereotype.Service
 
 @Service
 class OwnerAuthService(
     private val ownerReader: OwnerReader,
     private val ownerAppender: OwnerAppender,
-    private val marketReader: MarketReader,
     private val passwordEncoder: PasswordEncoder,
     private val authTokenIssuer: AuthTokenIssuer,
 ) {
@@ -22,7 +20,7 @@ class OwnerAuthService(
         return ownerAppender.append(command)
     }
 
-    fun login(command: OwnerLoginCommand): OwnerLoginResult {
+    fun login(command: OwnerLoginCommand): OwnerAuthResult {
         val owner = ownerReader.readByEmail(command.email)
         val passwordMatches =
             passwordEncoder.matches(command.password, owner?.password ?: DUMMY_PASSWORD_HASH)
@@ -31,10 +29,9 @@ class OwnerAuthService(
             throw CoreException(OwnerErrorCode.LOGIN_FAILED)
         }
 
-        val market = marketReader.readByOwnerId(owner.id)
         val tokens = authTokenIssuer.issue(owner.id, setOf(Role.OWNER.name))
 
-        return OwnerLoginResult(tokens, owner, market, command.isAutoLogin)
+        return OwnerAuthResult(tokens, owner, command.isAutoLogin)
     }
 
     companion object {

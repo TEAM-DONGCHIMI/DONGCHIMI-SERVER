@@ -5,7 +5,6 @@ import kr.dongchimi.api.core.auth.RefreshTokenCookieFactory
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.owner.auth.request.OwnerLoginRequest
 import kr.dongchimi.api.owner.auth.response.OwnerLoginResponse
-import kr.dongchimi.core.owner.OwnerAuthService
 import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/v1/owners/auth/login")
 class OwnerLoginController(
-    private val ownerAuthService: OwnerAuthService,
+    private val ownerLoginQueryFacade: OwnerLoginQueryFacade,
     private val refreshTokenCookieFactory: RefreshTokenCookieFactory,
 ) : OwnerLoginApi {
     @PostMapping
@@ -23,25 +22,16 @@ class OwnerLoginController(
         @RequestBody request: OwnerLoginRequest,
         response: HttpServletResponse,
     ): ApiResponse<OwnerLoginResponse> {
-        val result = ownerAuthService.login(request.toCommand())
+        val result = ownerLoginQueryFacade.login(request.toCommand())
 
         val cookie =
             refreshTokenCookieFactory.create(
-                result.tokens.refreshToken,
-                result.tokens.refreshExpiresAt,
+                result.refreshToken,
+                result.refreshExpiresAt,
                 persistent = result.isAutoLogin,
             )
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString())
 
-        return ApiResponse.success(
-            OwnerLoginResponse(
-                accessToken = result.tokens.accessToken,
-                ownerId = result.owner.id,
-                email = result.owner.email,
-                marketId = result.market?.id,
-                marketName = result.market?.info?.name,
-                marketThumbnailUrl = result.market?.info?.thumbnailUrl,
-            ),
-        )
+        return ApiResponse.success(result.response)
     }
 }
