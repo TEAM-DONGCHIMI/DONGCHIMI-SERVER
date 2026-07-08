@@ -14,12 +14,17 @@ class OwnerLoginService(
     private val passwordEncoder: PasswordEncoder,
     private val authTokenIssuer: AuthTokenIssuer,
 ) {
-    fun login(command: OwnerLoginCommand): OwnerLoginResult {
-        val owner =
-            ownerReader.readByEmail(command.email)
-                ?: throw CoreException(OwnerErrorCode.LOGIN_FAILED)
+    companion object {
+        // BCrypt 형식의 더미 해시로, 실제 사용자 비밀번호와 무관
+        private const val DUMMY_PASSWORD_HASH = "\$2a\$10\$abcdefghijklmnopqrstuv0123456789ABCDEFGHIJKLMNOPQRSTU"
+    }
 
-        if (!passwordEncoder.matches(command.password, owner.password)) {
+    fun login(command: OwnerLoginCommand): OwnerLoginResult {
+        val owner = ownerReader.readByEmail(command.email)
+        val passwordMatches =
+            passwordEncoder.matches(command.password, owner?.password ?: DUMMY_PASSWORD_HASH)
+
+        if (owner == null || !passwordMatches) {
             throw CoreException(OwnerErrorCode.LOGIN_FAILED)
         }
 
