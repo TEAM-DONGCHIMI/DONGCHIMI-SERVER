@@ -9,11 +9,11 @@ import kr.dongchimi.api.owner.auth.response.OwnerSignupResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.owner.OwnerErrorCode
 
-@Tag(name = "Owner Auth", description = "사장님 인증 API")
+@Tag(name = "Auth", description = "점주 인증 API")
 interface OwnerSignupApi {
     @Operation(
-        summary = "사장님 회원가입",
-        description = "이메일/비밀번호 기반 사장님 전용 회원가입 API",
+        summary = "점주 회원가입",
+        description = "이메일/비밀번호 기반 점주 전용 회원가입 API",
     )
     @ApiErrorCodes(CommonErrorCode::class, OwnerErrorCode::class)
     fun signup(request: OwnerSignupRequest): ApiResponse<OwnerSignupResponse>

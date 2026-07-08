@@ -84,7 +84,7 @@ class OwnerLoginServiceTest :
             result.isAutoLogin shouldBe false
         }
 
-        test("마트가 없는 사장님도 로그인에 성공하며 market은 null이다") {
+        test("마트가 없는 점주도 로그인에 성공하며 market은 null이다") {
             val result =
                 service(owners = listOf(ownerWithPassword()))
                     .login(OwnerLoginCommand(EMAIL, RAW_PASSWORD, isAutoLogin = true))

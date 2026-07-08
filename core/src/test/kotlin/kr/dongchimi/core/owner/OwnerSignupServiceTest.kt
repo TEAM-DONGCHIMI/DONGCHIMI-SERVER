@@ -14,7 +14,7 @@ class OwnerSignupServiceTest :
             return OwnerSignupService(OwnerReader(repository), OwnerAppender(repository, encoder))
         }
 
-        test("정상 가입 시 비밀번호를 해싱해 저장하고 생성된 사장님을 반환한다") {
+        test("정상 가입 시 비밀번호를 해싱해 저장하고 생성된 점주를 반환한다") {
             val repository = FakeOwnerRepository()
 
             val owner = service(repository).signup(OwnerSignupCommand("owner@dongchimi.kr", "password123!"))
