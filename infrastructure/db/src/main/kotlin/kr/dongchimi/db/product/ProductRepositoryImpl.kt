@@ -25,6 +25,9 @@ class ProductRepositoryImpl(
 
     override fun save(product: Product): Product = productJpaRepository.save(ProductJpaEntity(product)).toDomain()
 
+    override fun saveAll(products: List<Product>): List<Product> =
+        productJpaRepository.saveAll(products.map { ProductJpaEntity(it) }).map { it.toDomain() }
+
     @Transactional
     override fun softDeleteByIds(ids: List<Long>) {
         val entities = productJpaRepository.findAllByIdInAndDeletedAtIsNull(ids)

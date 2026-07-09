@@ -7,6 +7,7 @@ import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
@@ -15,6 +16,7 @@ import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResp
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.market.MarketErrorCode
+import kr.dongchimi.core.product.PreparedProductErrorCode
 import kr.dongchimi.core.product.ProductErrorCode
 import org.springframework.web.bind.annotation.PathVariable
 
@@ -31,6 +33,31 @@ interface OwnerProductApi {
         request: PreparedProductDraftSearchRequest,
         pageOffsetRequest: PageOffsetRequest,
     ): ApiResponse<OwnerPreparedProductDraftListResponse>
+
+    @Operation(
+        summary = "상품 임시저장",
+        description =
+            "점주가 편집 중인 임시저장 상품을 저장한다. 요청에 담긴 상품만 갱신하고 나머지 임시저장 상품은 건드리지 않는다. " +
+                "필수값(이미지·카테고리·상품명·판매가격·할인기간)이 모두 채워지면 SUCCESS, 하나라도 비면 FAIL로 상태가 갱신된다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class, PreparedProductErrorCode::class)
+    fun saveDrafts(
+        @Parameter(hidden = true) apiUser: OwnerApiUser,
+        @Parameter(description = "마트 ID") @PathVariable marketId: Long,
+        request: PreparedProductDraftSaveRequest,
+    ): ApiResponse<Unit>
+
+    @Operation(
+        summary = "상품 최종 저장",
+        description =
+            "임시저장 상품을 실제 상품으로 일괄 등록한다. 마트의 임시저장 상품 중 하나라도 FAIL이면 " +
+                "아무것도 등록되지 않는다(all-or-nothing). 등록된 임시저장 상품은 삭제된다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class, PreparedProductErrorCode::class)
+    fun confirmDrafts(
+        @Parameter(hidden = true) apiUser: OwnerApiUser,
+        @Parameter(description = "마트 ID") @PathVariable marketId: Long,
+    ): ApiResponse<Unit>
 
     @Operation(
         summary = "상품 상세 조회",

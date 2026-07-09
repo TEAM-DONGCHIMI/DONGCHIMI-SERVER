@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service
 class PreparedProductService(
     private val marketValidator: MarketValidator,
     private val preparedProductFinder: PreparedProductFinder,
+    private val preparedProductValidator: PreparedProductValidator,
+    private val preparedProductUpdater: PreparedProductUpdater,
+    private val preparedProductConfirmer: PreparedProductConfirmer,
 ) {
     fun getDrafts(
         ownerId: Long,
@@ -27,5 +30,28 @@ class PreparedProductService(
         marketValidator.validateOwnership(marketId, ownerId)
 
         return preparedProductFinder.countDrafts(marketId)
+    }
+
+    fun saveDrafts(
+        ownerId: Long,
+        marketId: Long,
+        commands: List<PreparedProductDraftSaveCommand>,
+    ) {
+        marketValidator.validateOwnership(marketId, ownerId)
+        preparedProductValidator.validateAllInMarket(commands.map { it.id }, marketId)
+
+        preparedProductUpdater.updateDrafts(commands)
+    }
+
+    fun confirmDrafts(
+        ownerId: Long,
+        marketId: Long,
+    ) {
+        marketValidator.validateOwnership(marketId, ownerId)
+
+        val drafts = preparedProductFinder.findAllByMarketId(marketId)
+        preparedProductValidator.validateAllCompleted(drafts)
+
+        preparedProductConfirmer.confirm(drafts)
     }
 }

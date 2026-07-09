@@ -38,4 +38,13 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
     fun countDrafts(
         @Param("marketId") marketId: Long,
     ): PreparedProductDraftCountProjection
+
+    fun findAllByMarketIdAndDeletedAtIsNull(marketId: Long): List<PreparedProductJpaEntity>
+
+    fun findAllByIdInAndDeletedAtIsNull(ids: List<Long>): List<PreparedProductJpaEntity>
+
+    fun countAllByIdInAndMarketIdAndDeletedAtIsNull(
+        ids: List<Long>,
+        marketId: Long,
+    ): Long
 }

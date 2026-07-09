@@ -14,4 +14,6 @@ class PreparedProductFinder(
     ): List<PreparedProduct> = preparedProductRepository.findDrafts(marketId, condition, pageOffset)
 
     fun countDrafts(marketId: Long): PreparedProductDraftCounts = preparedProductRepository.countDrafts(marketId)
+
+    fun findAllByMarketId(marketId: Long): List<PreparedProduct> = preparedProductRepository.findAllByMarketId(marketId)
 }

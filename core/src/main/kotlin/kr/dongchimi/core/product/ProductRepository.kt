@@ -14,6 +14,8 @@ interface ProductRepository {
 
     fun save(product: Product): Product
 
+    fun saveAll(products: List<Product>): List<Product>
+
     fun softDeleteByIds(ids: List<Long>)
 
     fun softDeleteByMarketIdAndDealType(

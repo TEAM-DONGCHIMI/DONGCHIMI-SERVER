@@ -44,7 +44,10 @@ data class OwnerPreparedProductDraftListResponse(
         val discountEndDate: LocalDate?,
         @Schema(description = "SUCCESS / FAIL")
         val draftStatus: DraftStatus,
-        @Schema(description = "실패 사유 (성공이면 null)")
+        @Schema(
+            description = "실패 사유 (성공이면 null)",
+            allowableValues = ["이미지 누락", "카테고리 미선택", "상품명 미입력", "판매가격 미입력", "할인기간 미설정"],
+        )
         val failReason: String?,
     ) {
         constructor(preparedProduct: PreparedProduct) : this(
@@ -57,7 +60,7 @@ data class OwnerPreparedProductDraftListResponse(
             discountStartDate = preparedProduct.discountPeriod?.discountStartDate,
             discountEndDate = preparedProduct.discountPeriod?.discountEndDate,
             draftStatus = preparedProduct.draftStatus,
-            failReason = preparedProduct.failReason,
+            failReason = preparedProduct.failReason?.displayName,
         )
     }
 }
