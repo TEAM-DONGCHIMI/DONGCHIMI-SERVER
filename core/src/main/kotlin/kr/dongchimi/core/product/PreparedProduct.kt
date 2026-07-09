@@ -9,6 +9,22 @@ data class PreparedProduct(
     val category: ProductCategory?,
     val promotionalPhrase: String?,
     val discountPeriod: DiscountPeriod?,
+    val dealType: DealType = DealType.PERIODIC,
     val draftStatus: DraftStatus,
-    val failReason: String?,
-)
+    val failReason: DraftFailReason?,
+) {
+    /**
+     * [PreparedProductValidator.validateAllCompleted]로 [draftStatus]가 SUCCESS임을 확인한 뒤 호출한다.
+     */
+    fun toProduct(): Product =
+        Product(
+            marketId = marketId,
+            name = name!!,
+            dealType = dealType,
+            thumbnailUrl = thumbnailUrl!!,
+            price = price!!,
+            category = category!!,
+            promotionalPhrase = promotionalPhrase,
+            discountPeriod = discountPeriod!!,
+        )
+}

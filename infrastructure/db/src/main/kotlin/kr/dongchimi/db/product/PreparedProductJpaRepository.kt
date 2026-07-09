@@ -12,7 +12,7 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
         select p from PreparedProductJpaEntity p
         where p.marketId = :marketId
             and p.deletedAt is null
-            and (:search is null or p.name like concat('%', :search, '%'))
+            and (:search is null or p.name like concat('%', cast(:search as string), '%'))
             and (:categories is null or p.category in :categories)
         order by p.createdAt desc
         """,
@@ -20,7 +20,7 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
     fun findDrafts(
         @Param("marketId") marketId: Long,
         @Param("search") search: String?,
-        @Param("categories") categories: List<ProductCategory>?,
+        @Param("categories") categories: List<ProductCategory>,
         pageable: Pageable,
     ): List<PreparedProductJpaEntity>
 
@@ -38,4 +38,13 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
     fun countDrafts(
         @Param("marketId") marketId: Long,
     ): PreparedProductDraftCountProjection
+
+    fun findAllByMarketIdAndDeletedAtIsNull(marketId: Long): List<PreparedProductJpaEntity>
+
+    fun findAllByIdInAndDeletedAtIsNull(ids: List<Long>): List<PreparedProductJpaEntity>
+
+    fun countAllByIdInAndMarketIdAndDeletedAtIsNull(
+        ids: List<Long>,
+        marketId: Long,
+    ): Long
 }

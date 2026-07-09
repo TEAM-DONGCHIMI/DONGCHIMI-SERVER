@@ -3,6 +3,7 @@ package kr.dongchimi.api.owner.product
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -39,6 +42,27 @@ class OwnerProductController(
         val preparedProducts = preparedProductService.getDrafts(apiUser.userId, marketId, condition, pageOffset)
 
         return ApiResponse.success(OwnerPreparedProductDraftListResponse(counts, preparedProducts))
+    }
+
+    @PutMapping("/draft")
+    override fun saveDrafts(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @RequestBody request: PreparedProductDraftSaveRequest,
+    ): ApiResponse<Unit> {
+        preparedProductService.saveDrafts(apiUser.userId, marketId, request.toCommands())
+
+        return ApiResponse.success()
+    }
+
+    @PostMapping
+    override fun confirmDrafts(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+    ): ApiResponse<Unit> {
+        preparedProductService.confirmDrafts(apiUser.userId, marketId)
+
+        return ApiResponse.success()
     }
 
     @GetMapping("/{productId}")

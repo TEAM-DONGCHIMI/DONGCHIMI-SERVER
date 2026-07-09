@@ -2,7 +2,9 @@ package kr.dongchimi.api.core.common.dto
 
 import kr.dongchimi.api.core.common.exception.validate
 import kr.dongchimi.core.common.PageOffset
+import org.springdoc.core.annotations.ParameterObject
 
+@ParameterObject
 data class PageOffsetRequest(
     val page: Int? = null,
     val size: Int? = null,

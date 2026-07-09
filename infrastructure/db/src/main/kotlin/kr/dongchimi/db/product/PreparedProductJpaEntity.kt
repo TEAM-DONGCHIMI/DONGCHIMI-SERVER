@@ -8,9 +8,12 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
+import kr.dongchimi.core.product.DraftFailReason
 import kr.dongchimi.core.product.DraftStatus
 import kr.dongchimi.core.product.PreparedProduct
+import kr.dongchimi.core.product.PreparedProductDraftSaveCommand
 import kr.dongchimi.core.product.Price
 import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.db.common.BaseSoftDeleteEntity
@@ -26,19 +29,23 @@ class PreparedProductJpaEntity(
     val id: Long = 0,
     @Column(name = "market_id", nullable = false)
     val marketId: Long,
-    val name: String? = null,
-    val thumbnailUrl: String? = null,
-    val originalPrice: BigDecimal? = null,
-    val discountedPrice: BigDecimal? = null,
+    var name: String? = null,
+    var thumbnailUrl: String? = null,
+    var originalPrice: BigDecimal? = null,
+    var discountedPrice: BigDecimal? = null,
     @Enumerated(EnumType.STRING)
-    val category: ProductCategory? = null,
-    val promotionalPhrase: String? = null,
-    val discountStartDate: LocalDate? = null,
-    val discountEndDate: LocalDate? = null,
+    var category: ProductCategory? = null,
+    var promotionalPhrase: String? = null,
+    var discountStartDate: LocalDate? = null,
+    var discountEndDate: LocalDate? = null,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val draftStatus: DraftStatus,
-    val failReason: String? = null,
+    var dealType: DealType = DealType.PERIODIC,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var draftStatus: DraftStatus,
+    @Enumerated(EnumType.STRING)
+    var failReason: DraftFailReason? = null,
 ) : BaseSoftDeleteEntity() {
     constructor(preparedProduct: PreparedProduct) : this(
         id = preparedProduct.id,
@@ -51,6 +58,7 @@ class PreparedProductJpaEntity(
         promotionalPhrase = preparedProduct.promotionalPhrase,
         discountStartDate = preparedProduct.discountPeriod?.discountStartDate,
         discountEndDate = preparedProduct.discountPeriod?.discountEndDate,
+        dealType = preparedProduct.dealType,
         draftStatus = preparedProduct.draftStatus,
         failReason = preparedProduct.failReason,
     )
@@ -74,8 +82,29 @@ class PreparedProductJpaEntity(
                 } else {
                     null
                 },
+            dealType = dealType,
             draftStatus = draftStatus,
             failReason = failReason,
         )
+    }
+
+    /**
+     * [draftStatus]는 [failReason]에서 유도한다. 둘을 따로 받으면 SUCCESS인데 사유가 있는 모순 상태가 생긴다.
+     */
+    fun update(
+        command: PreparedProductDraftSaveCommand,
+        failReason: DraftFailReason?,
+    ) {
+        name = command.name
+        thumbnailUrl = command.thumbnailUrl
+        originalPrice = command.price?.originalPrice
+        discountedPrice = command.price?.discountedPrice
+        category = command.category
+        promotionalPhrase = command.promotionalPhrase
+        discountStartDate = command.discountPeriod?.discountStartDate
+        discountEndDate = command.discountPeriod?.discountEndDate
+        dealType = command.dealType
+        this.failReason = failReason
+        draftStatus = if (failReason == null) DraftStatus.SUCCESS else DraftStatus.FAIL
     }
 }

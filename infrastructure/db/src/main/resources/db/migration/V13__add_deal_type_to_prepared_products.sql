@@ -1,0 +1,2 @@
+ALTER TABLE prepared_products
+    ADD COLUMN deal_type VARCHAR(20) NOT NULL DEFAULT 'PERIODIC';

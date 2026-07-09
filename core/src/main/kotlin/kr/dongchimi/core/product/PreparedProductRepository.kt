@@ -10,4 +10,18 @@ interface PreparedProductRepository {
     ): List<PreparedProduct>
 
     fun countDrafts(marketId: Long): PreparedProductDraftCounts
+
+    fun findAllByMarketId(marketId: Long): List<PreparedProduct>
+
+    fun countInMarket(
+        ids: List<Long>,
+        marketId: Long,
+    ): Int
+
+    fun updateDrafts(
+        commands: List<PreparedProductDraftSaveCommand>,
+        failReasons: Map<Long, DraftFailReason?>,
+    )
+
+    fun softDeleteByIds(ids: List<Long>)
 }
