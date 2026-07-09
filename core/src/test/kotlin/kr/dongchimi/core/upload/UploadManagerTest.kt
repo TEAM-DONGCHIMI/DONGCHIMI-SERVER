@@ -115,5 +115,13 @@ class UploadManagerTest :
         }
 
         override fun resolveAccessUrl(objectKey: String): String = "https://cdn.example.com/$objectKey"
+
+        override fun resolveObjectKey(accessUrl: String): String? = accessUrl.takeIf { it.startsWith(CDN_PREFIX) }?.removePrefix(CDN_PREFIX)
+
+        override fun download(objectKey: String): ByteArray = ByteArray(0)
+
+        companion object {
+            private const val CDN_PREFIX = "https://cdn.example.com/"
+        }
     }
 }
