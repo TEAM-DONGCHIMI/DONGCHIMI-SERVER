@@ -230,7 +230,7 @@ class ProductServiceTest :
 
             val exception =
                 shouldThrow<CoreException> {
-                    service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition())
+                    service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(), LocalDate.now())
                 }
 
             exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
@@ -246,7 +246,7 @@ class ProductServiceTest :
                 }
             val (service, _, _) = newService(markets, products)
 
-            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition())
+            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(), LocalDate.now())
 
             result.content.map { it.id } shouldBe listOf(1L)
         }
@@ -279,6 +279,7 @@ class ProductServiceTest :
                     marketId,
                     DealType.PERIODIC,
                     periodicCondition(category = ProductCategory.SEAFOOD),
+                    LocalDate.now(),
                 )
 
             result.content.map { it.id } shouldBe listOf(2L)
@@ -294,7 +295,7 @@ class ProductServiceTest :
                 }
             val (service, _, _) = newService(markets, products)
 
-            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(size = 2))
+            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(size = 2), LocalDate.now())
 
             result.content.map { it.id } shouldBe listOf(3L, 2L)
             result.hasNext shouldBe true
@@ -309,7 +310,7 @@ class ProductServiceTest :
                 }
             val (service, _, _) = newService(markets, products)
 
-            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(size = 2))
+            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(size = 2), LocalDate.now())
 
             result.hasNext shouldBe false
             result.nextCursor shouldBe null

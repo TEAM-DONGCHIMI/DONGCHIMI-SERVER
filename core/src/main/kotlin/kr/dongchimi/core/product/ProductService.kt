@@ -125,9 +125,10 @@ class ProductService(
         marketId: Long,
         dealType: DealType,
         condition: PeriodicProductSearchCondition,
+        date: LocalDate,
     ): CursorSliceResult<Product> {
         marketValidator.validateExists(marketId)
 
-        return productFinder.findActiveByCategory(marketId, dealType, condition, LocalDate.now())
+        return productFinder.findActiveByCategory(marketId, dealType, condition, date)
     }
 }

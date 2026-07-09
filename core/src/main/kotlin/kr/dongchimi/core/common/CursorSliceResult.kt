@@ -12,6 +12,8 @@ fun <T> List<T>.toCursorSlice(
     size: Int,
     cursorOf: (T) -> Long,
 ): CursorSliceResult<T> {
+    require(size > 0) { "size must be positive, but was $size" }
+
     val content = take(size)
     val hasNext = this.size > size
 

@@ -35,7 +35,7 @@ class UserProductController(
         @PathVariable marketId: Long,
         request: PeriodicProductListRequest,
     ): ApiResponse<CursorSliceResponse<PeriodicProductResponse>> {
-        val slice = productService.getActiveProductsByCategory(marketId, DealType.PERIODIC, request.toSearchCondition())
+        val slice = productService.getActiveProductsByCategory(marketId, DealType.PERIODIC, request.toSearchCondition(), LocalDate.now())
 
         return ApiResponse.success(
             CursorSliceResponse(

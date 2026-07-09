@@ -58,7 +58,12 @@ class UserProductControllerTest :
             val condition = PeriodicProductSearchCondition(category = null, cursor = null, size = 12)
             Mockito
                 .`when`(
-                    productService.getActiveProductsByCategory(eqLong(marketId), eqDealType(DealType.PERIODIC), eqCondition(condition)),
+                    productService.getActiveProductsByCategory(
+                        eqLong(marketId),
+                        eqDealType(DealType.PERIODIC),
+                        eqCondition(condition),
+                        anyLocalDate(),
+                    ),
                 ).thenReturn(
                     CursorSliceResult(
                         content = listOf(sampleProduct(1L, DealType.PERIODIC), sampleProduct(2L, DealType.PERIODIC)),
@@ -81,7 +86,12 @@ class UserProductControllerTest :
             val condition = PeriodicProductSearchCondition(category = null, cursor = null, size = 12)
             Mockito
                 .`when`(
-                    productService.getActiveProductsByCategory(eqLong(marketId), eqDealType(DealType.PERIODIC), eqCondition(condition)),
+                    productService.getActiveProductsByCategory(
+                        eqLong(marketId),
+                        eqDealType(DealType.PERIODIC),
+                        eqCondition(condition),
+                        anyLocalDate(),
+                    ),
                 ).thenReturn(CursorSliceResult(content = emptyList(), hasNext = false, nextCursor = null))
             val controller = UserProductController(productService)
 
