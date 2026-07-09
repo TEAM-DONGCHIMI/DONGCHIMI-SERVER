@@ -44,6 +44,7 @@ class FlyerService(
         )
     }
 
+    // 소유권 검증 없이 공유 호출부(getShareInfo)에서도 쓰이므로, 새 호출부를 추가할 때 인가가 필요하면 호출부 책임으로 처리한다.
     private fun issueAndStoreQrCode(flyer: Flyer): String {
         val qrCode = flyerQrManager.generate(flyer.slug)
         flyerAppender.updateQrCode(flyer, qrCode)
