@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
@@ -11,6 +12,7 @@ import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.core.common.PageOffset
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
+import kr.dongchimi.core.product.DraftFailReason
 import kr.dongchimi.core.product.DraftStatus
 import kr.dongchimi.core.product.PreparedProduct
 import kr.dongchimi.core.product.PreparedProductDraftCounts
@@ -116,7 +118,70 @@ class ProductControllerTest :
             response.data!!.failCount shouldBe 0L
             response.data!!.preparedProducts.map { it.preparedProductId } shouldBe listOf(1L)
         }
+
+        test("임시저장 목록 조회 시 실패 사유를 displayName으로 내려준다") {
+            val preparedProductService = Mockito.mock(PreparedProductService::class.java)
+            val condition = PreparedProductSearchCondition(search = null, categories = emptyList())
+            val pageOffset = PageOffset(PageOffset.DEFAULT_PAGE, PageOffset.DEFAULT_SIZE)
+            Mockito
+                .`when`(preparedProductService.getDraftCounts(1L, marketId))
+                .thenReturn(PreparedProductDraftCounts(totalCount = 1L, successCount = 0L, failCount = 1L))
+            Mockito
+                .`when`(preparedProductService.getDrafts(1L, marketId, condition, pageOffset))
+                .thenReturn(
+                    listOf(
+                        samplePreparedProduct().copy(
+                            draftStatus = DraftStatus.FAIL,
+                            failReason = DraftFailReason.THUMBNAIL_MISSING,
+                        ),
+                    ),
+                )
+            val controller = newController(preparedProductService = preparedProductService)
+
+            val response =
+                controller.getDrafts(apiUser, marketId, PreparedProductDraftSearchRequest(), PageOffsetRequest())
+
+            response.data!!
+                .preparedProducts
+                .single()
+                .failReason shouldBe "이미지 누락"
+        }
+
+        test("임시저장 시 변환된 command로 서비스를 호출한다") {
+            val preparedProductService = Mockito.mock(PreparedProductService::class.java)
+            val controller = newController(preparedProductService = preparedProductService)
+            val request = PreparedProductDraftSaveRequest(listOf(draftRequest()))
+
+            val response = controller.saveDrafts(apiUser, marketId, request)
+
+            response.success shouldBe true
+            Mockito.verify(preparedProductService).saveDrafts(1L, marketId, request.toCommands())
+        }
+
+        test("최종 저장 시 userId·marketId로 서비스를 호출한다") {
+            val preparedProductService = Mockito.mock(PreparedProductService::class.java)
+            val controller = newController(preparedProductService = preparedProductService)
+
+            val response = controller.confirmDrafts(apiUser, marketId)
+
+            response.success shouldBe true
+            Mockito.verify(preparedProductService).confirmDrafts(1L, marketId)
+        }
     })
+
+private fun draftRequest(): PreparedProductDraftSaveRequest.PreparedProductDraftRequest =
+    PreparedProductDraftSaveRequest.PreparedProductDraftRequest(
+        preparedProductId = 1L,
+        name = "삼겹살 500g",
+        thumbnailUrl = "https://cdn.example.com/products/1.png",
+        originalPrice = BigDecimal("5000"),
+        discountedPrice = BigDecimal("4000"),
+        category = ProductCategory.MEAT_EGG,
+        promotionalPhrase = null,
+        discountStartDate = LocalDate.of(2025, 8, 1),
+        discountEndDate = LocalDate.of(2025, 8, 16),
+        dealType = null,
+    )
 
 private fun sampleProduct(): Product =
     Product(

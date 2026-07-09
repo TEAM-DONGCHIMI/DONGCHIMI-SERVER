@@ -271,6 +271,11 @@ private class FakeProductRepository : ProductRepository {
 
     override fun findById(id: Long): Product? = store[id]
 
+    override fun saveAll(products: List<Product>): List<Product> {
+        products.forEach { store[it.id] = it }
+        return products
+    }
+
     override fun findAllByIds(ids: List<Long>): List<Product> = ids.mapNotNull { store[it] }
 
     override fun findAllByMarketIdAndDealType(
