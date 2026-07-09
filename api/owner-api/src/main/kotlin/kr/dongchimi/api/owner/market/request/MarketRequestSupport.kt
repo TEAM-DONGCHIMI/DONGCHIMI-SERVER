@@ -2,6 +2,10 @@ package kr.dongchimi.api.owner.market.request
 
 import kr.dongchimi.api.core.common.exception.InvalidInputException
 import kr.dongchimi.api.core.common.exception.validate
+import kr.dongchimi.core.market.BusinessHourSlot
+import kr.dongchimi.core.market.BusinessHours
+import java.time.DayOfWeek
+import java.time.LocalTime
 
 private val BRN_REGEX = Regex("^\\d{3}-\\d{2}-\\d{5}$")
 private const val NAME_MAX_LENGTH = 15
@@ -43,3 +47,41 @@ internal fun mergeAddress(
     address: String,
     detailAddress: String?,
 ): String = if (detailAddress.isNullOrBlank()) address else "$address|$detailAddress"
+
+internal fun List<BusinessHourSlotRequest>?.toBusinessHours(): BusinessHours {
+    validate(!this.isNullOrEmpty()) { "영업시간을 입력해 주세요." }
+
+    val slots = this!!.map { it.toSlot() }
+
+    val allDays = slots.flatMap { it.days }
+    validate(allDays.isNotEmpty()) { "영업 요일을 하나 이상 선택해 주세요." }
+    validate(allDays.size == allDays.toSet().size) { "같은 요일을 여러 번 지정할 수 없습니다." }
+
+    return BusinessHours(slots)
+}
+
+private fun BusinessHourSlotRequest.toSlot(): BusinessHourSlot {
+    validate(!days.isNullOrEmpty()) { "영업 요일을 하나 이상 선택해 주세요." }
+    val parsedDays = days!!.map { parseDayOfWeek(it) }
+    val open = isOpen ?: throw InvalidInputException("영업일 여부를 입력해 주세요.")
+
+    if (!open) {
+        return BusinessHourSlot(days = parsedDays, isOpen = false)
+    }
+
+    validate(!this.open.isNullOrBlank()) { "영업 시작 시각을 입력해 주세요." }
+    validate(!close.isNullOrBlank()) { "영업 종료 시각을 입력해 주세요." }
+    val openTime = parseTime(this.open!!)
+    val closeTime = parseTime(close!!)
+    validate(openTime.isBefore(closeTime)) { "영업 종료 시각은 시작 시각보다 늦어야 합니다." }
+
+    return BusinessHourSlot(days = parsedDays, isOpen = true, open = openTime, close = closeTime)
+}
+
+private fun parseDayOfWeek(value: String): DayOfWeek =
+    runCatching { DayOfWeek.valueOf(value.uppercase()) }
+        .getOrElse { throw InvalidInputException("요일 값이 올바르지 않습니다: $value") }
+
+private fun parseTime(value: String): LocalTime =
+    runCatching { LocalTime.parse(value) }
+        .getOrElse { throw InvalidInputException("영업시간은 'HH:mm' 형식으로 입력해 주세요.") }

@@ -231,7 +231,7 @@ private class FakeMarketRepository : MarketRepository {
                 ownerId = ownerId,
                 info = MarketInfo(name = "동치미 마트", address = "서울특별시 성북구", thumbnailUrl = null),
                 location = LocationPoint(longitude = 127.0, latitude = 37.0),
-                businessHours = BusinessHours(),
+                businessHours = BusinessHours(emptyList()),
                 phoneNumber = MarketPhoneNumber("02-000-0000", null, 1, "010-0000-0000"),
                 brn = null,
             )

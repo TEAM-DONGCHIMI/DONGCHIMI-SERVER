@@ -55,8 +55,11 @@ class MarketUpdateRequestTest :
         }
     })
 
-private fun sampleBusinessHoursRequest(): BusinessHoursRequest =
-    BusinessHoursRequest(mon = null, tue = null, wed = null, thu = null, fri = null, sat = null, sun = null)
+private fun sampleBusinessHoursRequest(): List<BusinessHourSlotRequest> =
+    listOf(
+        BusinessHourSlotRequest(days = listOf("MONDAY", "TUESDAY"), isOpen = true, open = "10:00", close = "20:00"),
+        BusinessHourSlotRequest(days = listOf("SUNDAY"), isOpen = false, open = null, close = null),
+    )
 
 private fun sampleRequest(
     name: String = "동치미 마트 강남점",

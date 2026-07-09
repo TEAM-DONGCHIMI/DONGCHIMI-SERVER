@@ -81,7 +81,7 @@ private fun market(marketId: Long) =
                 thumbnailUrl = null,
             ),
         location = LocationPoint(longitude = 127.0, latitude = 37.5),
-        businessHours = BusinessHours(),
+        businessHours = BusinessHours(emptyList()),
         phoneNumber =
             MarketPhoneNumber(
                 marketPhone1 = "0212345678",

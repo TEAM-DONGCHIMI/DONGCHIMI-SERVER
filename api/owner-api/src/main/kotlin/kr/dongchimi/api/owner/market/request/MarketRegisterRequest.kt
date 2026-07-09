@@ -19,8 +19,8 @@ data class MarketRegisterRequest(
     val latitude: Double,
     @Schema(description = "경도")
     val longitude: Double,
-    @Schema(description = "요일별 영업시간")
-    val businessHours: BusinessHoursRequest,
+    @Schema(description = "영업시간 (요일 묶음 배열)")
+    val businessHours: List<BusinessHourSlotRequest>,
     @Schema(description = "마트 대표 전화번호 1")
     val marketPhone1: String,
     @Schema(description = "마트 전화번호 2 (추가 등록 시)")
