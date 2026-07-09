@@ -28,11 +28,13 @@ class PreparedProductServiceTest :
             markets: PreparedProductFakeMarketRepository = PreparedProductFakeMarketRepository(),
             preparedProducts: FakePreparedProductRepository = FakePreparedProductRepository(),
             products: PreparedProductFakeProductRepository = PreparedProductFakeProductRepository(),
-        ): PreparedProductService =
-            PreparedProductService(
+        ): PreparedProductService {
+            val preparedProductValidator = PreparedProductValidator(preparedProducts)
+
+            return PreparedProductService(
                 marketValidator = MarketValidator(markets),
                 preparedProductFinder = PreparedProductFinder(preparedProducts),
-                preparedProductValidator = PreparedProductValidator(preparedProducts),
+                preparedProductValidator = preparedProductValidator,
                 preparedProductUpdater = PreparedProductUpdater(preparedProducts, DraftFailReasonResolver()),
                 preparedProductConfirmer =
                     PreparedProductConfirmer(
@@ -41,6 +43,7 @@ class PreparedProductServiceTest :
                         preparedProductValidator,
                     ),
             )
+        }
 
         test("목록 조회: 마트가 없으면 MARKET_NOT_FOUND") {
             val service = newService()
@@ -466,4 +469,10 @@ private class PreparedProductFakeProductRepository : ProductRepository {
         marketId: Long,
         date: LocalDate,
     ): Int = 0
+
+    override fun findPopularActive(
+        marketId: Long,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> = emptyList()
 }

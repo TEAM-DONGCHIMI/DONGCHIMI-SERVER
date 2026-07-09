@@ -12,6 +12,7 @@ import kr.dongchimi.core.market.MarketInfo
 import kr.dongchimi.core.market.MarketPhoneNumber
 import kr.dongchimi.core.market.MarketRepository
 import kr.dongchimi.core.market.MarketValidator
+import kr.dongchimi.core.market.ProductFinder
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -31,6 +32,7 @@ class ProductServiceTest :
                     productValidator = ProductValidator(products),
                     productRemover = ProductRemover(products),
                     productUpdater = ProductUpdater(products),
+                    productFinder = ProductFinder(products),
                 )
             return Triple(service, markets, products)
         }
