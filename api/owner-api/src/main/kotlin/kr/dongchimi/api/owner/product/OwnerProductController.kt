@@ -1,14 +1,19 @@
 package kr.dongchimi.api.owner.product
 
 import kr.dongchimi.api.core.common.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
+import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
+import kr.dongchimi.core.product.PreparedProductService
 import kr.dongchimi.core.product.ProductService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -19,7 +24,23 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/v1/owners/markets/{marketId}/products")
 class OwnerProductController(
     private val productService: ProductService,
+    private val preparedProductService: PreparedProductService,
 ) : OwnerProductApi {
+    @GetMapping("/draft")
+    override fun getDrafts(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @ModelAttribute request: PreparedProductDraftSearchRequest,
+        @ModelAttribute pageOffsetRequest: PageOffsetRequest,
+    ): ApiResponse<OwnerPreparedProductDraftListResponse> {
+        val condition = request.toSearchCondition()
+        val pageOffset = pageOffsetRequest.toPageOffset()
+        val counts = preparedProductService.getDraftCounts(apiUser.userId, marketId)
+        val preparedProducts = preparedProductService.getDrafts(apiUser.userId, marketId, condition, pageOffset)
+
+        return ApiResponse.success(OwnerPreparedProductDraftListResponse(counts, preparedProducts))
+    }
+
     @GetMapping("/{productId}")
     override fun getDetail(
         apiUser: OwnerApiUser,

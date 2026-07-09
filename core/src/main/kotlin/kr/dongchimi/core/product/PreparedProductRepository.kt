@@ -1,3 +1,13 @@
 package kr.dongchimi.core.product
 
-interface PreparedProductRepository
+import kr.dongchimi.core.common.PageOffset
+
+interface PreparedProductRepository {
+    fun findDrafts(
+        marketId: Long,
+        condition: PreparedProductSearchCondition,
+        pageOffset: PageOffset,
+    ): List<PreparedProduct>
+
+    fun countDrafts(marketId: Long): PreparedProductDraftCounts
+}
