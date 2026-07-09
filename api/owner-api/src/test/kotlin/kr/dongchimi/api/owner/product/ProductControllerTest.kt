@@ -32,7 +32,7 @@ class ProductControllerTest :
         fun newController(
             productService: ProductService = Mockito.mock(ProductService::class.java),
             preparedProductService: PreparedProductService = Mockito.mock(PreparedProductService::class.java),
-        ): OwnerProductController = OwnerProductController(productService, OwnerPreparedProductDraftQueryFacade(preparedProductService))
+        ): OwnerProductController = OwnerProductController(productService, preparedProductService)
 
         test("상세 조회 시 서비스 결과를 응답 data로 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
