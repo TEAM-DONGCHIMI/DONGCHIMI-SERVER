@@ -11,5 +11,14 @@ services:
     volumes:
       - dongchimi-postgres-data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine
+    container_name: dongchimi-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - dongchimi-redis-data:/data
+
 volumes:
   dongchimi-postgres-data:
+  dongchimi-redis-data:
