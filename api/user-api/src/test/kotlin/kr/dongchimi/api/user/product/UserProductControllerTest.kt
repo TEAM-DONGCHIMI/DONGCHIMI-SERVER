@@ -3,6 +3,7 @@ package kr.dongchimi.api.user.product
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.api.user.UserApiUser
+import kr.dongchimi.api.user.product.response.ProductDetailResponse
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.Price
@@ -21,10 +22,11 @@ class UserProductControllerTest :
 
         test("오늘의 특가 목록 조회 성공 시 totalCount와 매핑된 상품 목록을 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
             Mockito
                 .`when`(productService.getAllActiveProducts(eqLong(marketId), eqDealType(DealType.DAILY), anyLocalDate()))
                 .thenReturn(listOf(sampleProduct(1L), sampleProduct(2L)))
-            val controller = UserProductController(productService)
+            val controller = UserProductController(productService, productDetailQueryFacade)
 
             val response = controller.getDailyDeals(apiUser, marketId)
 
@@ -39,15 +41,31 @@ class UserProductControllerTest :
 
         test("오늘의 특가 상품이 없으면 totalCount 0, 빈 목록을 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
             Mockito
                 .`when`(productService.getAllActiveProducts(eqLong(marketId), eqDealType(DealType.DAILY), anyLocalDate()))
                 .thenReturn(emptyList())
-            val controller = UserProductController(productService)
+            val controller = UserProductController(productService, productDetailQueryFacade)
 
             val response = controller.getDailyDeals(apiUser, marketId)
 
             response.data!!.totalCount shouldBe 0
             response.data!!.products shouldBe emptyList()
+        }
+
+        test("상품 상세 조회 성공 시 Facade 응답을 그대로 반환한다") {
+            val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
+            val expected = ProductDetailResponse(sampleProduct(1L), marketName = "망원 신선마트")
+            Mockito
+                .`when`(productDetailQueryFacade.getDetail(marketId, 1L))
+                .thenReturn(expected)
+            val controller = UserProductController(productService, productDetailQueryFacade)
+
+            val response = controller.getDetail(apiUser, marketId, 1L)
+
+            response.success shouldBe true
+            response.data shouldBe expected
         }
     })
 

@@ -117,6 +117,26 @@ class MarketServiceTest :
 
             exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
         }
+
+        test("id로 조회 시 마트가 있으면 해당 마트를 반환한다") {
+            val (service, _, _) = newService()
+            val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
+
+            val found = service.getById(market.id)
+
+            found.id shouldBe market.id
+        }
+
+        test("id로 조회 시 마트가 없으면 MARKET_NOT_FOUND 예외가 발생한다") {
+            val (service, _, _) = newService()
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.getById(999L)
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
     })
 
 private fun sampleRegisterCommand(name: String = "동치미 마트 강남점"): MarketRegisterCommand =

@@ -77,6 +77,33 @@ class ProductServiceTest :
             product.marketId shouldBe marketId
         }
 
+        test("상세 조회(user): 상품이 해당 마트에 없으면 PRODUCT_NOT_FOUND") {
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = 999L)) }
+            val (service, _, _) = newService(products = products)
+
+            val exception = shouldThrow<CoreException> { service.getDetail(marketId, 1L) }
+
+            exception.errorCode shouldBe ProductErrorCode.PRODUCT_NOT_FOUND
+        }
+
+        test("상세 조회(user): 상품이 없으면 PRODUCT_NOT_FOUND") {
+            val (service, _, _) = newService()
+
+            val exception = shouldThrow<CoreException> { service.getDetail(marketId, 1L) }
+
+            exception.errorCode shouldBe ProductErrorCode.PRODUCT_NOT_FOUND
+        }
+
+        test("상세 조회(user): 정상이면 상품을 반환한다") {
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = marketId)) }
+            val (service, _, _) = newService(products = products)
+
+            val product = service.getDetail(marketId, 1L)
+
+            product.id shouldBe 1L
+            product.marketId shouldBe marketId
+        }
+
         test("삭제: 상품이 해당 마트에 없으면 PRODUCT_NOT_FOUND") {
             val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
             val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = 999L)) }

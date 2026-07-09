@@ -3,6 +3,7 @@ package kr.dongchimi.api.user.product
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.api.user.product.response.DailyDealListResponse
+import kr.dongchimi.api.user.product.response.ProductDetailResponse
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.ProductService
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,6 +16,7 @@ import java.time.LocalDate
 @RequestMapping("/v1/users/markets/{marketId}/products")
 class UserProductController(
     private val productService: ProductService,
+    private val productDetailQueryFacade: ProductDetailQueryFacade,
 ) : UserProductApi {
     @GetMapping("/daily")
     override fun getDailyDeals(
@@ -25,4 +27,11 @@ class UserProductController(
 
         return ApiResponse.success(DailyDealListResponse(products))
     }
+
+    @GetMapping("/{productId}")
+    override fun getDetail(
+        apiUser: UserApiUser,
+        @PathVariable marketId: Long,
+        @PathVariable productId: Long,
+    ): ApiResponse<ProductDetailResponse> = ApiResponse.success(productDetailQueryFacade.getDetail(marketId, productId))
 }
