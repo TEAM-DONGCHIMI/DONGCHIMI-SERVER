@@ -382,6 +382,30 @@ class UserService(
 - 응답 DTO(`{Domain}{Action}Response`)를 **직접 조립**한다. 별도의 core 집계 VO를 만들지 않는다.
 - Controller는 개별 Service가 아닌 Facade 하나만 참조한다: `Controller → QueryFacade → 각 도메인 Service → Implement → Repository`.
 - 조회 전용이므로 상태 변경이 없다. `@Transactional(readOnly = true)`를 사용한다.
+- **단일 도메인 조회에는 QueryFacade를 만들지 않는다.** 한 도메인의 `{Domain}Service` 조회 메서드 여러 개(예: 목록 조회 + 카운트 조회)를 조합해 응답을 만드는 경우도 교차-도메인이 아니므로 QueryFacade 대상이 아니다 — Controller가 해당 Service를 직접 참조해 조합하고 응답 DTO를 조립한다. QueryFacade는 **서로 다른 도메인의 Service 두 개 이상**을 조합해야 할 때만 만든다.
+
+```kotlin
+// 단일 도메인 조회 조합 — QueryFacade 없이 Controller에서 직접 처리
+@RestController
+@RequestMapping("/v1/owners/markets/{marketId}/products")
+class OwnerProductController(
+    private val preparedProductService: PreparedProductService,
+) : OwnerProductApi {
+    @GetMapping("/draft")
+    override fun getDrafts(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        request: PreparedProductDraftSearchRequest,
+        pageOffsetRequest: PageOffsetRequest,
+    ): ApiResponse<OwnerPreparedProductDraftListResponse> {
+        val counts = preparedProductService.getDraftCounts(apiUser.userId, marketId)
+        val preparedProducts =
+            preparedProductService.getDrafts(apiUser.userId, marketId, request.toSearchCondition(), pageOffsetRequest.toPageOffset())
+
+        return ApiResponse.success(OwnerPreparedProductDraftListResponse(counts, preparedProducts))
+    }
+}
+```
 
 ```kotlin
 // api:owner-api / kr.dongchimi.api.owner.home
