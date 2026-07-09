@@ -108,4 +108,15 @@ class ProductService(
         date: LocalDate,
         limit: Int,
     ): List<Product> = productFinder.findPopularActive(marketId, date, limit)
+
+    fun getLatestActiveProducts(
+        marketIds: List<Long>,
+        date: LocalDate,
+        limitPerMarket: Int,
+    ): List<Product> = productFinder.findLatestActiveByMarketIds(marketIds, date, limitPerMarket)
+
+    fun countActiveProductsByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+    ): Map<Long, Int> = productFinder.countActiveByMarketIds(marketIds, date)
 }

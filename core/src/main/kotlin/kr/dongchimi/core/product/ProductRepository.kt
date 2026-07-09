@@ -62,4 +62,15 @@ interface ProductRepository {
         date: LocalDate,
         limit: Int,
     ): List<Product>
+
+    fun findLatestActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+        limitPerMarket: Int,
+    ): List<Product>
+
+    fun countActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+    ): Map<Long, Int>
 }

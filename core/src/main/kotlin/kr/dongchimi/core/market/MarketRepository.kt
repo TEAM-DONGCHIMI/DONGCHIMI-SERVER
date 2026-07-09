@@ -5,6 +5,11 @@ interface MarketRepository {
 
     fun findByOwnerId(ownerId: Long): Market?
 
+    fun findNearby(
+        condition: NearbyMarketSearchCondition,
+        limit: Int,
+    ): List<NearbyMarket>
+
     fun save(market: Market): Market
 
     fun existsByOwnerIdAndName(

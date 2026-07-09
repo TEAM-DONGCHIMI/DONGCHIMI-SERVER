@@ -183,6 +183,11 @@ class FlyerServiceTest :
 
         override fun findById(id: Long): Market? = store[id]
 
+        override fun findNearby(
+            condition: NearbyMarketSearchCondition,
+            limit: Int,
+        ): List<NearbyMarket> = emptyList()
+
         override fun save(market: Market): Market {
             store[market.id] = market
             return market

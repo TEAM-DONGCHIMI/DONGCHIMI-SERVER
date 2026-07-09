@@ -14,4 +14,25 @@ class ProductFinder(
         date: LocalDate,
         limit: Int,
     ): List<Product> = productRepository.findPopularActive(marketId, date, limit)
+
+    fun findLatestActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+        limitPerMarket: Int,
+    ): List<Product> =
+        if (marketIds.isEmpty()) {
+            emptyList()
+        } else {
+            productRepository.findLatestActiveByMarketIds(marketIds, date, limitPerMarket)
+        }
+
+    fun countActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+    ): Map<Long, Int> =
+        if (marketIds.isEmpty()) {
+            emptyMap()
+        } else {
+            productRepository.countActiveByMarketIds(marketIds, date)
+        }
 }

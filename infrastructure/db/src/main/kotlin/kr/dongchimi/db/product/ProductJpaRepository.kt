@@ -96,4 +96,51 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
         @Param("date") date: LocalDate,
         pageable: Pageable,
     ): List<ProductJpaEntity>
+
+    /**
+     * 마트별 최신 활성 상품을 limitPerMarket개씩 한 번에 조회한다.
+     * window function은 JPQL로 표현할 수 없어 native로 작성하고, rn이 엔티티 매핑에 섞이지 않도록 바깥에서 컬럼을 명시한다.
+     */
+    @Query(
+        value = """
+            SELECT t.product_id, t.market_id, t.name, t.deal_type, t.thumbnail_url,
+                   t.original_price, t.discounted_price, t.category, t.promotional_phrase,
+                   t.discount_start_date, t.discount_end_date,
+                   t.created_at, t.updated_at, t.deleted_at
+            FROM (
+                SELECT p.*,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY p.market_id ORDER BY p.created_at DESC, p.product_id DESC
+                       ) AS rn
+                FROM products p
+                WHERE p.market_id IN (:marketIds)
+                  AND p.deleted_at IS NULL
+                  AND p.discount_start_date <= :date
+                  AND p.discount_end_date >= :date
+            ) t
+            WHERE t.rn <= :limitPerMarket
+        """,
+        nativeQuery = true,
+    )
+    fun findLatestActiveByMarketIds(
+        @Param("marketIds") marketIds: List<Long>,
+        @Param("date") date: LocalDate,
+        @Param("limitPerMarket") limitPerMarket: Int,
+    ): List<ProductJpaEntity>
+
+    @Query(
+        """
+        select p.marketId as marketId, count(p) as productCount
+        from ProductJpaEntity p
+        where p.marketId in :marketIds
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+        group by p.marketId
+        """,
+    )
+    fun countActiveByMarketIds(
+        @Param("marketIds") marketIds: List<Long>,
+        @Param("date") date: LocalDate,
+    ): List<MarketProductCountProjection>
 }

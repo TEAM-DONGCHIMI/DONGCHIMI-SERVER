@@ -101,4 +101,18 @@ class ProductRepositoryImpl(
         productJpaRepository
             .findPopularActive(marketId, date, PageRequest.of(0, limit))
             .map { it.toDomain() }
+
+    override fun findLatestActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+        limitPerMarket: Int,
+    ): List<Product> = productJpaRepository.findLatestActiveByMarketIds(marketIds, date, limitPerMarket).map { it.toDomain() }
+
+    override fun countActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+    ): Map<Long, Int> =
+        productJpaRepository
+            .countActiveByMarketIds(marketIds, date)
+            .associate { it.marketId to it.productCount.toInt() }
 }

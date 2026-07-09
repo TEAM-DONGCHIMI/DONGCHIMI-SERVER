@@ -12,6 +12,8 @@ import kr.dongchimi.core.market.MarketInfo
 import kr.dongchimi.core.market.MarketPhoneNumber
 import kr.dongchimi.core.market.MarketRepository
 import kr.dongchimi.core.market.MarketValidator
+import kr.dongchimi.core.market.NearbyMarket
+import kr.dongchimi.core.market.NearbyMarketSearchCondition
 import kr.dongchimi.core.market.ProductFinder
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -285,6 +287,11 @@ private class FakeMarketRepository : MarketRepository {
         ownerId: Long,
     ): Boolean = store[marketId]?.ownerId == ownerId
 
+    override fun findNearby(
+        condition: NearbyMarketSearchCondition,
+        limit: Int,
+    ): List<NearbyMarket> = emptyList()
+
     override fun existsById(id: Long): Boolean = store.containsKey(id)
 }
 
@@ -372,6 +379,25 @@ private class FakeProductRepository : ProductRepository {
         store.values
             .filter { it.marketId == marketId && isActiveOn(it, date) }
             .take(limit)
+
+    override fun findLatestActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+        limitPerMarket: Int,
+    ): List<Product> =
+        store.values
+            .filter { it.marketId in marketIds && isActiveOn(it, date) }
+            .groupBy { it.marketId }
+            .flatMap { (_, products) -> products.sortedByDescending { it.id }.take(limitPerMarket) }
+
+    override fun countActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+    ): Map<Long, Int> =
+        store.values
+            .filter { it.marketId in marketIds && isActiveOn(it, date) }
+            .groupingBy { it.marketId }
+            .eachCount()
 
     private fun isActiveOn(
         product: Product,

@@ -150,10 +150,12 @@ data class ApiResponse<T> private constructor(
 data class CursorSliceResponse<T>(
     val content: List<T>,
     val hasNext: Boolean,
+    val nextCursor: Long? = null,
 ) {
     constructor(cursorSliceResult: CursorSliceResult<T>) : this(
         content = cursorSliceResult.content,
         hasNext = cursorSliceResult.hasNext,
+        nextCursor = cursorSliceResult.nextCursor,
     )
 }
 ```
@@ -164,14 +166,18 @@ data class CursorSliceResponse<T>(
 
 | 방식 | 사용 시점 | 타입 |
 | --- | --- | --- |
-| 커서/슬라이스 기반 | 무한 스크롤 등 다음 페이지 존재 여부만 필요한 경우 | `CursorSliceResult<T>` / `CursorSliceResponse<T>` |
+| 커서/슬라이스 기반 | 무한 스크롤 등 다음 페이지 존재 여부와 다음 커서만 필요한 경우 | `CursorSliceResult<T>` / `CursorSliceResponse<T>` |
 | 오프셋 기반 | 페이지 번호·전체 개수·전체 페이지 수가 필요한 경우 | `PageResult<T>` / `PageResponse<T>` |
 
+커서 기반 목록은 응답 필드명이 항상 `content`/`hasNext`/`nextCursor`로 통일된다. 도메인별로 `{Domain}ListResponse`를 새로 만들지 않는다.
+`nextCursor`는 다음 페이지가 없으면 `null`이며, 값을 채우는 책임은 슬라이싱을 수행하는 Implement Layer(`{Domain}Finder` 등)에 있다.
+
 ```kotlin
-// core 모듈 — 커서/슬라이스 기반 (다음 페이지 존재 여부만 필요)
+// core 모듈 — 커서/슬라이스 기반 (다음 페이지 존재 여부 + 다음 커서)
 data class CursorSliceResult<T>(
     val content: List<T>,
     val hasNext: Boolean,
+    val nextCursor: Long? = null,
 )
 
 // core 모듈 — 오프셋 기반 (전체 개수/페이지 수 필요)
