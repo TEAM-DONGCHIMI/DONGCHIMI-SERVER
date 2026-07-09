@@ -34,7 +34,12 @@ class PreparedProductServiceTest :
                 preparedProductFinder = PreparedProductFinder(preparedProducts),
                 preparedProductValidator = PreparedProductValidator(preparedProducts),
                 preparedProductUpdater = PreparedProductUpdater(preparedProducts, DraftFailReasonResolver()),
-                preparedProductConfirmer = PreparedProductConfirmer(products, preparedProducts),
+                preparedProductConfirmer =
+                    PreparedProductConfirmer(
+                        products,
+                        preparedProducts,
+                        preparedProductValidator,
+                    ),
             )
 
         test("목록 조회: 마트가 없으면 MARKET_NOT_FOUND") {

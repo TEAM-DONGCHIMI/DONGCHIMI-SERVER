@@ -50,8 +50,6 @@ class PreparedProductService(
         marketValidator.validateOwnership(marketId, ownerId)
 
         val drafts = preparedProductFinder.findAllByMarketId(marketId)
-        preparedProductValidator.validateAllCompleted(drafts)
-
         preparedProductConfirmer.confirm(drafts)
     }
 }
