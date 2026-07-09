@@ -2,8 +2,10 @@ package kr.dongchimi.core.market
 
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductRepository
+import org.springframework.stereotype.Component
 import java.time.LocalDate
 
+@Component
 class ProductFinder(
     private val productRepository: ProductRepository,
 ) {
