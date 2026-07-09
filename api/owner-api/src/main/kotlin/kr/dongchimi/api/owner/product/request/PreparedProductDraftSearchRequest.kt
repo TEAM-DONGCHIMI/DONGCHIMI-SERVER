@@ -3,7 +3,9 @@ package kr.dongchimi.api.owner.product.request
 import kr.dongchimi.api.core.common.exception.InvalidInputException
 import kr.dongchimi.core.product.PreparedProductSearchCondition
 import kr.dongchimi.core.product.ProductCategory
+import org.springdoc.core.annotations.ParameterObject
 
+@ParameterObject
 data class PreparedProductDraftSearchRequest(
     val search: String? = null,
     val categories: List<String>? = null,
