@@ -52,4 +52,12 @@ class PreparedProductService(
         val drafts = preparedProductFinder.findAllByMarketId(marketId)
         preparedProductConfirmer.confirm(drafts)
     }
+
+    fun getPreviewDrafts(
+        ownerId: Long,
+        marketId: Long,
+    ): List<PreparedProduct> {
+        marketValidator.validateOwnership(marketId, ownerId)
+        return preparedProductFinder.findAllByMarketIdAndDraftStatus(marketId, DraftStatus.SUCCESS)
+    }
 }

@@ -2,6 +2,7 @@ package kr.dongchimi.db.product
 
 import kr.dongchimi.core.common.PageOffset
 import kr.dongchimi.core.product.DraftFailReason
+import kr.dongchimi.core.product.DraftStatus
 import kr.dongchimi.core.product.PreparedProduct
 import kr.dongchimi.core.product.PreparedProductDraftCounts
 import kr.dongchimi.core.product.PreparedProductDraftSaveCommand
@@ -40,6 +41,14 @@ class PreparedProductRepositoryImpl(
 
     override fun findAllByMarketId(marketId: Long): List<PreparedProduct> =
         preparedProductJpaRepository.findAllByMarketIdAndDeletedAtIsNull(marketId).map { it.toDomain() }
+
+    override fun findAllByMarketIdAndDraftStatus(
+        marketId: Long,
+        draftStatus: DraftStatus,
+    ): List<PreparedProduct> =
+        preparedProductJpaRepository
+            .findAllByMarketIdAndDraftStatusAndDeletedAtIsNullOrderByCreatedAtDesc(marketId, draftStatus)
+            .map { it.toDomain() }
 
     override fun countInMarket(
         ids: List<Long>,
