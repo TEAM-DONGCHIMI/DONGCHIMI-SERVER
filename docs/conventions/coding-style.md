@@ -147,15 +147,41 @@ data class ApiResponse<T> private constructor(
 
 ```kotlin
 // api 모듈 — core → api 변환은 Response DTO 보조 생성자로
-data class PageResponse<T>(
+data class CursorSliceResponse<T>(
     val content: List<T>,
     val hasNext: Boolean,
 ) {
-    constructor(pageResult: PageResult<T>) : this(
-        content = pageResult.content,
-        hasNext = pageResult.hasNext,
+    constructor(cursorSliceResult: CursorSliceResult<T>) : this(
+        content = cursorSliceResult.content,
+        hasNext = cursorSliceResult.hasNext,
     )
 }
+```
+
+**목록 조회 응답 — 커서 기반 vs 오프셋 기반**
+
+목록을 페이지네이션할 때는 조회 방식에 맞는 타입을 선택한다. 둘 다 `core.common` 패키지의 `{X}Result`(core 모듈)와 `api.core.common.dto` 패키지의 `{X}Response`(api 모듈, 2-3절 변환 패턴을 따르는 보조 생성자 포함) 쌍으로 구성된다.
+
+| 방식 | 사용 시점 | 타입 |
+| --- | --- | --- |
+| 커서/슬라이스 기반 | 무한 스크롤 등 다음 페이지 존재 여부만 필요한 경우 | `CursorSliceResult<T>` / `CursorSliceResponse<T>` |
+| 오프셋 기반 | 페이지 번호·전체 개수·전체 페이지 수가 필요한 경우 | `PageResult<T>` / `PageResponse<T>` |
+
+```kotlin
+// core 모듈 — 커서/슬라이스 기반 (다음 페이지 존재 여부만 필요)
+data class CursorSliceResult<T>(
+    val content: List<T>,
+    val hasNext: Boolean,
+)
+
+// core 모듈 — 오프셋 기반 (전체 개수/페이지 수 필요)
+data class PageResult<T>(
+    val content: List<T>,
+    val page: Int,
+    val size: Int,
+    val totalCount: Long,
+    val totalPage: Int,
+)
 ```
 
 ### 2-4. JPA Entity

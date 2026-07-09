@@ -2,5 +2,8 @@ package kr.dongchimi.core.common
 
 data class PageResult<T>(
     val content: List<T>,
-    val hasNext: Boolean,
+    val page: Int,
+    val size: Int,
+    val totalCount: Long,
+    val totalPage: Int,
 )
