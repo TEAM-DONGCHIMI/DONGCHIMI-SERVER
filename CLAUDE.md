@@ -46,9 +46,9 @@ Kotlin 2.3 + Spring Boot 4.1 멀티모듈 서버 (Java 21 toolchain). 패키지 
 ### 모듈 구조와 의존 방향
 
 ```
-bootstrap → api:{core,owner,admin,user}-api, gateway:{auth,logging}, infrastructure:{db,redis}
+bootstrap → api:{core,owner,admin,user}-api, gateway:{auth,logging}, infrastructure:{db,redis,excel}
 api:{owner,admin,user}-api → api:core-api → core
-gateway:auth, gateway:logging, infrastructure:{db,redis} → core
+gateway:auth, gateway:logging, infrastructure:{db,redis,excel} → core
 core → common (core는 그 외 어떤 모듈에도 의존하지 않음)
 ```
 

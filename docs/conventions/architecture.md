@@ -22,7 +22,8 @@ root
 ├── infrastructure/   # 기술 구현 모듈
 │   ├── db/           # DB 관련 모듈 (JPA Entity, Repository 구현체 등)
 │   ├── client/       # 외부 API 클라이언트 모듈 (OAuth 등 HTTP Client 구현체)
-│   └── redis/        # Redis 모듈 (진행상태 스냅샷, pub/sub, 분산 신호 등)
+│   ├── redis/        # Redis 모듈 (진행상태 스냅샷, pub/sub, 분산 신호 등)
+│   └── excel/        # 엑셀 파싱 모듈 (Apache POI)
 └── common/           # 공통 유틸리티 모듈
 ```
 
@@ -38,6 +39,7 @@ bootstrap → gateway:logging
 bootstrap → infrastructure:db
 bootstrap → infrastructure:client
 bootstrap → infrastructure:redis
+bootstrap → infrastructure:excel
 api:owner-api → api:core-api
 api:admin-api → api:core-api
 api:user-api → api:core-api
@@ -51,10 +53,11 @@ gateway:logging → core
 infrastructure:db → core
 infrastructure:client → core
 infrastructure:redis → core
+infrastructure:excel → core
 core → common
 ```
 
-- `bootstrap` 모듈은 `api:core-api`, `api:owner-api`, `api:admin-api`, `api:user-api`, `gateway:auth`, `gateway:logging`, `infrastructure:db`, `infrastructure:client`, `infrastructure:redis`에 의존한다
+- `bootstrap` 모듈은 `api:core-api`, `api:owner-api`, `api:admin-api`, `api:user-api`, `gateway:auth`, `gateway:logging`, `infrastructure:db`, `infrastructure:client`, `infrastructure:redis`, `infrastructure:excel`에 의존한다
 - `api:owner-api`/`api:admin-api`/`api:user-api`는 각각 `api:core-api`에 의존한다 (`ApiUser` 인터페이스, `ApiResponse`, `GlobalExceptionHandler` 등 공통 인프라 재사용). role 모듈끼리는 서로 의존하지 않는다
 - `api:core-api`를 포함한 모든 `api:*` 모듈은 `core`에 의존하고, `gateway:auth`는 `runtimeOnly`로 선언한다 (`PrincipalProvider` 구현체를 런타임에만 주입)
 - `api:*` 모듈은 `gateway:logging`에 의존한다 (`GlobalExceptionHandler`에서 MDC 키 상수 참조)
@@ -65,6 +68,7 @@ core → common
 - `infrastructure:db` 모듈은 `core` 모듈에 의존한다
 - `infrastructure:client` 모듈은 `core` 모듈에 의존한다
 - `infrastructure:redis` 모듈은 `core` 모듈에 의존한다
+- `infrastructure:excel` 모듈은 `core` 모듈에 의존한다
 - `core` 모듈은 다른 모듈에 의존하지 않는다 (단, `common` 제외)
 - `common` 모듈은 어떤 모듈에도 의존하지 않는다
 
@@ -126,7 +130,7 @@ dependencies {
 
 | 모듈 | 허용 의존성 |
 | --- | --- |
-| `bootstrap` | `api:core-api` + `api:owner-api` + `api:admin-api` + `api:user-api` + `gateway:auth` + `gateway:logging` + `infrastructure:db` + `infrastructure:redis` + Spring Boot 실행 관련 (Actuator 등) |
+| `bootstrap` | `api:core-api` + `api:owner-api` + `api:admin-api` + `api:user-api` + `gateway:auth` + `gateway:logging` + `infrastructure:db` + `infrastructure:redis` + `infrastructure:excel` + Spring Boot 실행 관련 (Actuator 등) |
 | `api:core-api` | `common` + `core` + `gateway:logging` + `gateway:auth`(runtimeOnly) + Spring MVC 관련 라이브러리 |
 | `api:owner-api` / `api:admin-api` / `api:user-api` | `api:core-api` + `core` + `gateway:logging` + `gateway:auth`(runtimeOnly) + `common`(선택, 유틸리티 재사용 시) + Spring MVC 관련 라이브러리 |
 | `core` | 순수 Kotlin / 비즈니스 로직 라이브러리만 |
@@ -135,4 +139,5 @@ dependencies {
 | `infrastructure:db` | `core` + 기술 구현 라이브러리 (JPA, H2 Console 등) |
 | `infrastructure:client` | `core` + 외부 통신 라이브러리 (spring-web / RestClient, Jackson 등) |
 | `infrastructure:redis` | `core` + `spring-boot-starter-data-redis` 등 Redis 클라이언트 라이브러리 |
+| `infrastructure:excel` | `core` + `poi-ooxml` 등 엑셀 파싱 라이브러리 |
 | `common` | 순수 Kotlin / 유틸리티만 |
