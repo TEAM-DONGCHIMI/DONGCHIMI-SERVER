@@ -13,3 +13,5 @@ enum class ProductCategory(
     HOUSEHOLD_GOODS("생활용품"),
     ETC("기타"),
 }
+
+fun String.toProductCategoryOrNull(): ProductCategory? = ProductCategory.entries.find { it.name == this }

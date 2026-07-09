@@ -3,7 +3,7 @@ package kr.dongchimi.api.user.product.request
 import kr.dongchimi.api.core.common.exception.InvalidInputException
 import kr.dongchimi.api.core.common.exception.validate
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
-import kr.dongchimi.core.product.ProductCategory
+import kr.dongchimi.core.product.toProductCategoryOrNull
 import org.springdoc.core.annotations.ParameterObject
 
 @ParameterObject
@@ -15,8 +15,7 @@ data class PeriodicProductListRequest(
     fun toSearchCondition(): PeriodicProductSearchCondition {
         val category =
             category?.let { raw ->
-                ProductCategory.entries.find { it.name == raw }
-                    ?: throw InvalidInputException("카테고리가 올바르지 않습니다.")
+                raw.toProductCategoryOrNull() ?: throw InvalidInputException("카테고리가 올바르지 않습니다.")
             }
         val size = size ?: DEFAULT_SIZE
         validate(cursor == null || cursor > 0) { "cursor는 1 이상이어야 합니다." }
