@@ -8,6 +8,7 @@ include(
     "infrastructure:db",
     "infrastructure:client",
     "infrastructure:storage",
+    "infrastructure:redis",
     "api:core-api",
     "api:owner-api",
     "api:admin-api",
