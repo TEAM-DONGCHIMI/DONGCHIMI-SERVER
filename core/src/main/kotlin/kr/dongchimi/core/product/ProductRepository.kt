@@ -40,6 +40,12 @@ interface ProductRepository {
         limit: Int,
     ): List<Product>
 
+    fun findAllActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<Product>
+
     fun countActiveByMarketIdAndDealType(
         marketId: Long,
         dealType: DealType,

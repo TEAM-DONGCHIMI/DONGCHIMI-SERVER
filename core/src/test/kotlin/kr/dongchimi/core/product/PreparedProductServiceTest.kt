@@ -458,6 +458,12 @@ private class PreparedProductFakeProductRepository : ProductRepository {
         limit: Int,
     ): List<Product> = emptyList()
 
+    override fun findAllActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<Product> = emptyList()
+
     override fun countActiveByMarketIdAndDealType(
         marketId: Long,
         dealType: DealType,

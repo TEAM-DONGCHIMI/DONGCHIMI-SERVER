@@ -17,6 +17,12 @@ class ProductReader(
         limit: Int,
     ): List<Product> = productRepository.findActiveByMarketIdAndDealType(marketId, dealType, date, limit)
 
+    fun readAllActive(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<Product> = productRepository.findAllActiveByMarketIdAndDealType(marketId, dealType, date)
+
     fun countActive(
         marketId: Long,
         dealType: DealType,
