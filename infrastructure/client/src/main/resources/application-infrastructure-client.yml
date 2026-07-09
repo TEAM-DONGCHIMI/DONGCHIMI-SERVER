@@ -20,3 +20,9 @@ qr:
   base-url: ${FLYER_BASE_URL:https://app.dongchiimi.com}
   size: ${QR_SIZE:183}
   margin: ${QR_MARGIN:1}
+
+import:
+  ai:
+    provider: ${IMPORT_AI_PROVIDER:mock}
+  mock:
+    latency: ${IMPORT_MOCK_LATENCY:PT0.3S}
