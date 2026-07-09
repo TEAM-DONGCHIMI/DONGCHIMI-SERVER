@@ -68,6 +68,15 @@ class ProductRepositoryImpl(
             .findActive(marketId, dealType, date, PageRequest.of(0, limit))
             .map { it.toDomain() }
 
+    override fun findAllActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<Product> =
+        productJpaRepository
+            .findAllActive(marketId, dealType, date)
+            .map { it.toDomain() }
+
     override fun countActiveByMarketIdAndDealType(
         marketId: Long,
         dealType: DealType,

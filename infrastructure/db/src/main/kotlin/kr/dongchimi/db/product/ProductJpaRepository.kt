@@ -43,6 +43,23 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
 
     @Query(
         """
+        select p from ProductJpaEntity p
+        where p.marketId = :marketId
+            and p.dealType = :dealType
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+        order by p.createdAt desc
+        """,
+    )
+    fun findAllActive(
+        @Param("marketId") marketId: Long,
+        @Param("dealType") dealType: DealType,
+        @Param("date") date: LocalDate,
+    ): List<ProductJpaEntity>
+
+    @Query(
+        """
         select count(p) from ProductJpaEntity p
         where p.marketId = :marketId
             and p.dealType = :dealType

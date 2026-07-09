@@ -82,6 +82,16 @@ class ProductService(
         limit: Int,
     ): List<Product> = productReader.readActive(marketId, dealType, date, limit)
 
+    fun getAllActiveProducts(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<Product> {
+        marketValidator.validateExists(marketId)
+
+        return productReader.readAllActive(marketId, dealType, date)
+    }
+
     fun countActiveProducts(
         marketId: Long,
         dealType: DealType,

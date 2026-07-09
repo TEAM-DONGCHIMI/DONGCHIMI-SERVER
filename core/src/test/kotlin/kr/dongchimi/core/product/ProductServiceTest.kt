@@ -200,6 +200,30 @@ class ProductServiceTest :
             exception.errorCode shouldBe ProductErrorCode.DISCOUNT_NOT_ENDED
             products.findById(1L)!!.id shouldBe 1L
         }
+
+        test("오늘의 특가: 마트가 없으면 MARKET_NOT_FOUND") {
+            val (service, _, _) = newService()
+
+            val exception =
+                shouldThrow<CoreException> { service.getAllActiveProducts(marketId, DealType.DAILY, LocalDate.now()) }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("오늘의 특가: DAILY이면서 오늘 할인 진행 중인 상품만 반환한다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products =
+                FakeProductRepository().apply {
+                    put(sampleProduct(id = 1L, marketId = marketId, dealType = DealType.DAILY, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 2L, marketId = marketId, dealType = DealType.PERIODIC, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 3L, marketId = marketId, dealType = DealType.DAILY))
+                }
+            val (service, _, _) = newService(markets, products)
+
+            val result = service.getAllActiveProducts(marketId, DealType.DAILY, LocalDate.now())
+
+            result.map { it.id } shouldBe listOf(1L)
+        }
     })
 
 private fun ongoingDiscount(): DiscountPeriod = DiscountPeriod(LocalDate.now().minusDays(1), LocalDate.now().plusDays(30))
@@ -329,6 +353,12 @@ private class FakeProductRepository : ProductRepository {
         store.values
             .filter { it.marketId == marketId && it.dealType == dealType && isActiveOn(it, date) }
             .take(limit)
+
+    override fun findAllActiveByMarketIdAndDealType(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<Product> = store.values.filter { it.marketId == marketId && it.dealType == dealType && isActiveOn(it, date) }
 
     override fun countActiveByMarketIdAndDealType(
         marketId: Long,
