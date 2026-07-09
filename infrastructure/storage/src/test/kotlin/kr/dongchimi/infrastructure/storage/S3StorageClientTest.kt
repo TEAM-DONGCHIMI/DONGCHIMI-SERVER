@@ -121,4 +121,28 @@ class S3StorageClientTest :
 
             clientWithTrailingSlash.resolveAccessUrl("x.jpg") shouldBe "https://cdn.example.com/x.jpg"
         }
+
+        test("resolveObjectKey는 우리 cdnBaseUrl 하위 URL을 objectKey로 되돌린다") {
+            storageClient.resolveObjectKey("https://cdn.example.com/products/imports/2026/07/x.xlsx") shouldBe
+                "products/imports/2026/07/x.xlsx"
+        }
+
+        test("resolveObjectKey는 우리 버킷이 아닌 URL에는 null을 반환한다 (SSRF 가드)") {
+            storageClient.resolveObjectKey("https://169.254.169.254/latest/meta-data/").shouldBeNull()
+            storageClient.resolveObjectKey("https://evil.example.com/products/imports/x.xlsx").shouldBeNull()
+        }
+
+        test("download는 업로드된 객체의 바이트를 그대로 반환한다") {
+            val objectKey = "products/imports/2026/07/download-test.xlsx"
+            val body = "excel-bytes".toByteArray()
+            val presigned =
+                storageClient.createUploadUrl(
+                    objectKey,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    body.size.toLong(),
+                )
+            putViaPresignedUrl(presigned.uploadUrl, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", body)
+
+            storageClient.download(objectKey) shouldBe body
+        }
     })

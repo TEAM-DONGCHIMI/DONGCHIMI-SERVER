@@ -42,6 +42,7 @@ class ObjectKeyGenerator {
                 "image/jpeg" to "jpg",
                 "image/png" to "png",
                 "image/webp" to "webp",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" to "xlsx",
             )
     }
 }
