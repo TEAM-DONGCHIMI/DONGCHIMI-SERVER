@@ -27,10 +27,26 @@ class FlyerService(
         marketValidator.validateOwnership(marketId, ownerId)
 
         val flyer = flyerReader.readByMarketId(marketId)
-        flyer.qrCode?.let { return FlyerQr(it) }
+        val qrCode = flyer.qrCode ?: issueAndStoreQrCode(flyer)
+        return FlyerQr(qrCode)
+    }
 
+    fun getShareInfo(marketId: Long): FlyerShareInfo {
+        val market = marketReader.read(marketId)
+        val flyer = flyerReader.readByMarketId(marketId)
+        val qrCode = flyer.qrCode ?: issueAndStoreQrCode(flyer)
+
+        return FlyerShareInfo(
+            marketId = market.id,
+            marketName = market.info.name,
+            slug = flyer.slug,
+            qrCode = qrCode,
+        )
+    }
+
+    private fun issueAndStoreQrCode(flyer: Flyer): String {
         val qrCode = flyerQrManager.generate(flyer.slug)
         flyerAppender.updateQrCode(flyer, qrCode)
-        return FlyerQr(qrCode)
+        return qrCode
     }
 }
