@@ -124,6 +124,59 @@ class FlyerServiceTest :
             result.qrCode shouldBe "data:image/png;base64,already-issued"
             qrCodeGenerator.callCount shouldBe 0
         }
+
+        test("공유 정보 조회 시 마트가 없으면 예외가 발생한다") {
+            val exception =
+                shouldThrow<CoreException> {
+                    newService().getShareInfo(marketId = 999L)
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("공유 정보 조회 시 전단(slug)이 발행되지 않았으면 예외가 발생한다") {
+            val marketRepository = FakeMarketRepository().apply { save(sampleMarket(id = 1L, ownerId = 1L)) }
+
+            val exception =
+                shouldThrow<CoreException> {
+                    newService(marketRepository = marketRepository).getShareInfo(marketId = 1L)
+                }
+
+            exception.errorCode shouldBe FlyerErrorCode.FLYER_NOT_FOUND
+        }
+
+        test("공유 정보 조회 시 QR코드가 없으면 새로 생성해 저장하고 반환한다") {
+            val marketRepository = FakeMarketRepository().apply { save(sampleMarket(id = 1L, ownerId = 1L)) }
+            val flyerRepository = FakeFlyerRepository().apply { save(Flyer(id = 1L, slug = "gangnam-mart", qrCode = null)) }
+            val qrCodeGenerator = FakeQrCodeGenerator()
+
+            val result =
+                newService(marketRepository, flyerRepository, qrCodeGenerator)
+                    .getShareInfo(marketId = 1L)
+
+            result.marketId shouldBe 1L
+            result.marketName shouldBe "동치미 마트 강남점"
+            result.slug shouldBe "gangnam-mart"
+            result.qrCode shouldBe "data:image/png;base64,${Base64.getEncoder().encodeToString("gangnam-mart".toByteArray())}"
+            flyerRepository.findById(1L)?.qrCode shouldBe result.qrCode
+            qrCodeGenerator.callCount shouldBe 1
+        }
+
+        test("공유 정보 조회 시 QR코드가 이미 있으면 그대로 반환하고 재생성하지 않는다") {
+            val marketRepository = FakeMarketRepository().apply { save(sampleMarket(id = 1L, ownerId = 1L)) }
+            val flyerRepository =
+                FakeFlyerRepository().apply {
+                    save(Flyer(id = 1L, slug = "gangnam-mart", qrCode = "data:image/png;base64,already-issued"))
+                }
+            val qrCodeGenerator = FakeQrCodeGenerator()
+
+            val result =
+                newService(marketRepository, flyerRepository, qrCodeGenerator)
+                    .getShareInfo(marketId = 1L)
+
+            result.qrCode shouldBe "data:image/png;base64,already-issued"
+            qrCodeGenerator.callCount shouldBe 0
+        }
     }) {
     private class FakeMarketRepository : MarketRepository {
         private val store = mutableMapOf<Long, Market>()
