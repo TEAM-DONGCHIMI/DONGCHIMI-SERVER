@@ -14,6 +14,7 @@ class MarketServiceTest :
             val service =
                 MarketService(
                     marketReader = MarketReader(repository),
+                    marketFinder = MarketFinder(repository),
                     marketAppender = MarketAppender(repository),
                     marketUpdater = MarketUpdater(repository),
                     marketValidator = MarketValidator(repository),
@@ -155,6 +156,12 @@ private class FakeMarketRepository : MarketRepository {
     override fun findById(id: Long): Market? = store[id]
 
     override fun findByOwnerId(ownerId: Long): Market? = store.values.firstOrNull { it.ownerId == ownerId }
+
+    // 거리 계산은 PostGIS 몫이라 fake에서는 다루지 않는다. 근처 마트 조회는 MarketFinderTest가 검증한다.
+    override fun findNearby(
+        condition: NearbyMarketSearchCondition,
+        limit: Int,
+    ): List<NearbyMarket> = emptyList()
 
     override fun save(market: Market): Market {
         val id = if (market.id == 0L) nextId++ else market.id

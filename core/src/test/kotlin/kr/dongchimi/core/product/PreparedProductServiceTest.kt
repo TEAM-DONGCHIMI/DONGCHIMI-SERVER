@@ -14,6 +14,8 @@ import kr.dongchimi.core.market.MarketInfo
 import kr.dongchimi.core.market.MarketPhoneNumber
 import kr.dongchimi.core.market.MarketRepository
 import kr.dongchimi.core.market.MarketValidator
+import kr.dongchimi.core.market.NearbyMarket
+import kr.dongchimi.core.market.NearbyMarketSearchCondition
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -350,6 +352,11 @@ private class PreparedProductFakeMarketRepository : MarketRepository {
         ownerId: Long,
     ): Boolean = store[marketId]?.ownerId == ownerId
 
+    override fun findNearby(
+        condition: NearbyMarketSearchCondition,
+        limit: Int,
+    ): List<NearbyMarket> = emptyList()
+
     override fun existsById(id: Long): Boolean = store.containsKey(id)
 }
 
@@ -475,4 +482,15 @@ private class PreparedProductFakeProductRepository : ProductRepository {
         date: LocalDate,
         limit: Int,
     ): List<Product> = emptyList()
+
+    override fun findLatestActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+        limitPerMarket: Int,
+    ): List<Product> = emptyList()
+
+    override fun countActiveByMarketIds(
+        marketIds: List<Long>,
+        date: LocalDate,
+    ): Map<Long, Int> = emptyMap()
 }
