@@ -9,7 +9,6 @@ include(
     "infrastructure:client",
     "infrastructure:storage",
     "infrastructure:redis",
-    "infrastructure:excel",
     "api:core-api",
     "api:owner-api",
     "api:admin-api",

@@ -15,5 +15,8 @@ dependencies {
     implementation("com.google.zxing:core:3.5.4") // QRCodeWriter (BitMatrix 생성)
     implementation("com.google.zxing:javase:3.5.4") // MatrixToImageWriter (PNG 인코딩)
 
+    // 엑셀 파싱
+    implementation("org.apache.poi:poi-ooxml:5.5.1")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

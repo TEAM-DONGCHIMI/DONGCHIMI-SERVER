@@ -1,4 +1,4 @@
-package kr.dongchimi.infrastructure.excel
+package kr.dongchimi.client.excel
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize

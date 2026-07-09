@@ -15,7 +15,6 @@ dependencies {
     implementation(project(":infrastructure:client"))
     implementation(project(":infrastructure:storage"))
     implementation(project(":infrastructure:redis"))
-    implementation(project(":infrastructure:excel"))
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("net.logstash.logback:logstash-logback-encoder:8.0")
     developmentOnly("org.springframework.boot:spring-boot-devtools")

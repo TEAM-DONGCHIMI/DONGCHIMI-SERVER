@@ -1,4 +1,4 @@
-package kr.dongchimi.infrastructure.excel
+package kr.dongchimi.client.excel
 
 import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.ExcelProductParser
