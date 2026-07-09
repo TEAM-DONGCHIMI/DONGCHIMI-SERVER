@@ -36,6 +36,14 @@ class ProductDetailQueryFacadeTest :
             response.productId shouldBe productId
             response.marketName shouldBe "망원 신선마트"
             response.discountRate shouldBe 20
+            response.name shouldBe "삼겹살 500g"
+            response.dealType shouldBe DealType.PERIODIC
+            response.thumbnailUrl shouldBe "https://cdn.example.com/products/1.png"
+            response.originalPrice shouldBe BigDecimal(15000)
+            response.discountedPrice shouldBe BigDecimal(12000)
+            response.promotionalPhrase shouldBe "오늘만 특가!"
+            response.discountStartDate shouldBe LocalDate.of(2025, 8, 1)
+            response.discountEndDate shouldBe LocalDate.of(2025, 8, 16)
         }
     })
 
