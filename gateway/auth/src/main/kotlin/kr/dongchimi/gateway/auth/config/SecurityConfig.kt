@@ -2,10 +2,13 @@ package kr.dongchimi.gateway.auth.config
 
 import kr.dongchimi.core.auth.Role
 import kr.dongchimi.gateway.auth.PublicEndpoints
-import kr.dongchimi.gateway.auth.jwt.JwtAuthFilter
+import kr.dongchimi.gateway.auth.filter.HeaderTokenExtractor
+import kr.dongchimi.gateway.auth.filter.JwtAuthFilter
+import kr.dongchimi.gateway.auth.filter.LocalAuthFilter
 import kr.dongchimi.gateway.auth.jwt.JwtProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -21,6 +24,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 class SecurityConfig(
     private val jwtProvider: JwtProvider,
     private val corsProperties: CorsProperties,
+    private val environment: Environment,
+    private val headerTokenExtractor: HeaderTokenExtractor,
 ) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -41,7 +46,11 @@ class SecurityConfig(
                 authorize(USER_API_PATTERN, hasAuthority(Role.USER.name))
                 authorize(anyRequest, authenticated)
             }
-            addFilterBefore<UsernamePasswordAuthenticationFilter>(JwtAuthFilter(jwtProvider))
+            if (environment.activeProfiles.contains("local")) {
+                addFilterBefore<UsernamePasswordAuthenticationFilter>(LocalAuthFilter(headerTokenExtractor))
+            } else {
+                addFilterBefore<UsernamePasswordAuthenticationFilter>(JwtAuthFilter(jwtProvider, headerTokenExtractor))
+            }
         }
 
         return http.build()
