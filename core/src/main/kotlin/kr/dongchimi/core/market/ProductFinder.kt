@@ -1,6 +1,7 @@
 package kr.dongchimi.core.market
 
 import kr.dongchimi.core.common.CursorSliceResult
+import kr.dongchimi.core.common.toCursorSlice
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
@@ -44,22 +45,8 @@ class ProductFinder(
         dealType: DealType,
         condition: PeriodicProductSearchCondition,
         date: LocalDate,
-    ): CursorSliceResult<Product> {
-        val products =
-            productRepository.findActiveByMarketIdAndDealTypeAndCategory(
-                marketId,
-                dealType,
-                condition,
-                date,
-                condition.size + 1,
-            )
-        val content = products.take(condition.size)
-        val hasNext = products.size > condition.size
-
-        return CursorSliceResult(
-            content = content,
-            hasNext = hasNext,
-            nextCursor = if (hasNext) content.last().id else null,
-        )
-    }
+    ): CursorSliceResult<Product> =
+        productRepository
+            .findActiveByMarketIdAndDealTypeAndCategory(marketId, dealType, condition, date, condition.size + 1)
+            .toCursorSlice(condition.size) { it.id }
 }
