@@ -7,19 +7,23 @@ import kr.dongchimi.core.common.exception.CoreException
 
 class MarketServiceTest :
     FunSpec({
-        fun newService(repository: MarketRepository = FakeMarketRepository()): Pair<MarketService, MarketRepository> {
+        fun newService(
+            repository: MarketRepository = FakeMarketRepository(),
+            flyerRepository: FlyerRepository = FakeFlyerRepository(),
+        ): Triple<MarketService, MarketRepository, FlyerRepository> {
             val service =
                 MarketService(
                     marketReader = MarketReader(repository),
                     marketAppender = MarketAppender(repository),
                     marketUpdater = MarketUpdater(repository),
                     marketValidator = MarketValidator(repository),
+                    flyerReader = FlyerReader(flyerRepository),
                 )
-            return service to repository
+            return Triple(service, repository, flyerRepository)
         }
 
         test("등록 시 같은 점주에 동일한 이름의 마트가 없으면 저장한다") {
-            val (service, _) = newService()
+            val (service, _, _) = newService()
 
             val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
 
@@ -30,7 +34,7 @@ class MarketServiceTest :
 
         test("등록 시 같은 점주에 동일한 이름의 마트가 이미 있으면 예외가 발생한다") {
             val repository = FakeMarketRepository()
-            val (service, _) = newService(repository)
+            val (service, _, _) = newService(repository)
             service.register(ownerId = 1L, command = sampleRegisterCommand())
 
             val exception =
@@ -42,7 +46,7 @@ class MarketServiceTest :
         }
 
         test("수정 대상 마트가 없으면 예외가 발생한다") {
-            val (service, _) = newService()
+            val (service, _, _) = newService()
 
             val exception =
                 shouldThrow<CoreException> {
@@ -53,7 +57,7 @@ class MarketServiceTest :
         }
 
         test("수정 대상 마트가 다른 점주 소유면 예외가 발생한다") {
-            val (service, _) = newService()
+            val (service, _, _) = newService()
             val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
 
             val exception =
@@ -65,7 +69,7 @@ class MarketServiceTest :
         }
 
         test("수정 시 같은 점주의 다른 마트와 이름이 겹치면 예외가 발생한다") {
-            val (service, _) = newService()
+            val (service, _, _) = newService()
             service.register(ownerId = 1L, command = sampleRegisterCommand(name = "동치미 마트 강남점"))
             val other = service.register(ownerId = 1L, command = sampleRegisterCommand(name = "동치미 마트 서초점"))
 
@@ -78,7 +82,7 @@ class MarketServiceTest :
         }
 
         test("정상 수정이면 변경된 내용이 반영된 마트를 반환한다") {
-            val (service, _) = newService()
+            val (service, _, _) = newService()
             val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
 
             val updated =
@@ -90,6 +94,27 @@ class MarketServiceTest :
 
             updated.id shouldBe market.id
             updated.info.name shouldBe "동치미 마트 강남 2호점"
+        }
+
+        test("slug로 조회 시 전단이 있으면 해당 마트를 반환한다") {
+            val (service, _, flyerRepository) = newService()
+            val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
+            flyerRepository.save(Flyer(id = market.id, slug = "market-slug", qrCode = null))
+
+            val found = service.getBySlug("market-slug")
+
+            found.id shouldBe market.id
+        }
+
+        test("slug로 조회 시 전단이 없으면 MARKET_NOT_FOUND 예외가 발생한다") {
+            val (service, _, _) = newService()
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.getBySlug("unknown-slug")
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
         }
     })
 
@@ -155,4 +180,17 @@ private class FakeMarketRepository : MarketRepository {
     ): Boolean = store[marketId]?.ownerId == ownerId
 
     override fun existsById(id: Long): Boolean = store.containsKey(id)
+}
+
+private class FakeFlyerRepository : FlyerRepository {
+    private val store = mutableMapOf<Long, Flyer>()
+
+    override fun findById(id: Long): Flyer? = store[id]
+
+    override fun findBySlug(slug: String): Flyer? = store.values.firstOrNull { it.slug == slug }
+
+    override fun save(flyer: Flyer): Flyer {
+        store[flyer.id] = flyer
+        return flyer
+    }
 }

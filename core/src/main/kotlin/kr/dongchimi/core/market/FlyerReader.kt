@@ -8,4 +8,6 @@ class FlyerReader(
     private val flyerRepository: FlyerRepository,
 ) {
     fun readByMarketId(marketId: Long): Flyer = flyerRepository.findById(marketId) ?: throw CoreException(FlyerErrorCode.FLYER_NOT_FOUND)
+
+    fun findBySlug(slug: String): Flyer? = flyerRepository.findBySlug(slug)
 }

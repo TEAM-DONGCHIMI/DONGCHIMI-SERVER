@@ -80,4 +80,13 @@ class ProductRepositoryImpl(
             date.atStartOfDay(),
             date.plusDays(1).atStartOfDay(),
         )
+
+    override fun findPopularActive(
+        marketId: Long,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> =
+        productJpaRepository
+            .findPopularActive(marketId, date, PageRequest.of(0, limit))
+            .map { it.toDomain() }
 }

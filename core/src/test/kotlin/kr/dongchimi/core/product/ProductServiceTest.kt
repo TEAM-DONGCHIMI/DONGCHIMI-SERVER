@@ -327,6 +327,15 @@ private class FakeProductRepository : ProductRepository {
         date: LocalDate,
     ): Int = store.values.count { it.marketId == marketId }
 
+    override fun findPopularActive(
+        marketId: Long,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> =
+        store.values
+            .filter { it.marketId == marketId && isActiveOn(it, date) }
+            .take(limit)
+
     private fun isActiveOn(
         product: Product,
         date: LocalDate,

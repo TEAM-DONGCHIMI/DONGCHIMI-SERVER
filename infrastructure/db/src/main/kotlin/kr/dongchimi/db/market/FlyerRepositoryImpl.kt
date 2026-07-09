@@ -11,5 +11,7 @@ class FlyerRepositoryImpl(
 ) : FlyerRepository {
     override fun findById(id: Long): Flyer? = flyerJpaRepository.findByIdOrNull(id)?.toDomain()
 
+    override fun findBySlug(slug: String): Flyer? = flyerJpaRepository.findBySlug(slug)?.toDomain()
+
     override fun save(flyer: Flyer): Flyer = flyerJpaRepository.save(FlyerJpaEntity(flyer)).toDomain()
 }

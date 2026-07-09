@@ -90,4 +90,10 @@ class ProductService(
         marketId: Long,
         date: LocalDate,
     ): Int = productReader.countRegisteredOn(marketId, date)
+
+    fun getPopularActiveProducts(
+        marketId: Long,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> = productReader.readPopularActive(marketId, date, limit)
 }

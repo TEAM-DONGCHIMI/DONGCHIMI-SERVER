@@ -62,4 +62,21 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
         start: LocalDateTime,
         end: LocalDateTime,
     ): Int
+
+    @Query(
+        """
+        select p from ProductJpaEntity p
+            left join ProductMetadataJpaEntity m on m.id = p.id
+        where p.marketId = :marketId
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+        order by coalesce(m.viewCount, 0) desc, p.createdAt asc
+        """,
+    )
+    fun findPopularActive(
+        @Param("marketId") marketId: Long,
+        @Param("date") date: LocalDate,
+        pageable: Pageable,
+    ): List<ProductJpaEntity>
 }

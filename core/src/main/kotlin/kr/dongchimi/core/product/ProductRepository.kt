@@ -48,4 +48,10 @@ interface ProductRepository {
         marketId: Long,
         date: LocalDate,
     ): Int
+
+    fun findPopularActive(
+        marketId: Long,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product>
 }

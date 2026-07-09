@@ -214,6 +214,8 @@ class FlyerServiceTest :
 
         override fun findById(id: Long): Flyer? = store[id]
 
+        override fun findBySlug(slug: String): Flyer? = store.values.firstOrNull { it.slug == slug }
+
         override fun save(flyer: Flyer): Flyer {
             store[flyer.id] = flyer
             return flyer
