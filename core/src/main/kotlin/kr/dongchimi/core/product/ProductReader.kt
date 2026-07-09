@@ -27,10 +27,4 @@ class ProductReader(
         marketId: Long,
         date: LocalDate,
     ): Int = productRepository.countRegisteredOn(marketId, date)
-
-    fun readPopularActive(
-        marketId: Long,
-        date: LocalDate,
-        limit: Int,
-    ): List<Product> = productRepository.findPopularActive(marketId, date, limit)
 }

@@ -1,6 +1,7 @@
 package kr.dongchimi.core.product
 
 import kr.dongchimi.core.market.MarketValidator
+import kr.dongchimi.core.market.ProductFinder
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -11,6 +12,7 @@ class ProductService(
     private val productValidator: ProductValidator,
     private val productRemover: ProductRemover,
     private val productUpdater: ProductUpdater,
+    private val productFinder: ProductFinder,
 ) {
     fun getProduct(
         ownerId: Long,
@@ -95,5 +97,5 @@ class ProductService(
         marketId: Long,
         date: LocalDate,
         limit: Int,
-    ): List<Product> = productReader.readPopularActive(marketId, date, limit)
+    ): List<Product> = productFinder.findPopularActive(marketId, date, limit)
 }
