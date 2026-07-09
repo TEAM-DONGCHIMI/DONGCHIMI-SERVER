@@ -24,7 +24,7 @@ class PreparedProductRepositoryImpl(
             .findDrafts(
                 marketId = marketId,
                 search = condition.search,
-                categories = condition.categories.ifEmpty { null },
+                categories = condition.categories,
                 pageable = pageOffset.toPageRequest(),
             ).map { it.toDomain() }
 

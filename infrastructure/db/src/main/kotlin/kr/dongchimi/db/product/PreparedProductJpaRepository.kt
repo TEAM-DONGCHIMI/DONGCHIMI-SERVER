@@ -20,7 +20,7 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
     fun findDrafts(
         @Param("marketId") marketId: Long,
         @Param("search") search: String?,
-        @Param("categories") categories: List<ProductCategory>?,
+        @Param("categories") categories: List<ProductCategory>,
         pageable: Pageable,
     ): List<PreparedProductJpaEntity>
 
