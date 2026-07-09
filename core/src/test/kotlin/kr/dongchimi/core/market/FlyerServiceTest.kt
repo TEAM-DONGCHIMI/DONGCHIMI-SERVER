@@ -214,6 +214,8 @@ class FlyerServiceTest :
 
         override fun findById(id: Long): Flyer? = store[id]
 
+        override fun findBySlug(slug: String): Flyer? = store.values.firstOrNull { it.slug == slug }
+
         override fun save(flyer: Flyer): Flyer {
             store[flyer.id] = flyer
             return flyer
@@ -240,7 +242,7 @@ private fun sampleMarket(
         ownerId = ownerId,
         info = MarketInfo(name = "동치미 마트 강남점", address = "서울특별시 성북구 정릉동 880-20", thumbnailUrl = null),
         location = LocationPoint(longitude = 127.0, latitude = 37.0),
-        businessHours = BusinessHours(),
+        businessHours = BusinessHours(emptyList()),
         phoneNumber =
             MarketPhoneNumber(
                 marketPhone1 = "02-000-0000",

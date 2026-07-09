@@ -1,5 +1,6 @@
 package kr.dongchimi.core.market
 
+import kr.dongchimi.core.common.exception.CoreException
 import org.springframework.stereotype.Service
 
 @Service
@@ -8,8 +9,14 @@ class MarketService(
     private val marketAppender: MarketAppender,
     private val marketUpdater: MarketUpdater,
     private val marketValidator: MarketValidator,
+    private val flyerReader: FlyerReader,
 ) {
     fun findByOwnerId(ownerId: Long): Market? = marketReader.readByOwnerId(ownerId)
+
+    fun getBySlug(slug: String): Market {
+        val flyer = flyerReader.findBySlug(slug) ?: throw CoreException(MarketErrorCode.MARKET_NOT_FOUND)
+        return marketReader.read(flyer.id)
+    }
 
     fun register(
         ownerId: Long,

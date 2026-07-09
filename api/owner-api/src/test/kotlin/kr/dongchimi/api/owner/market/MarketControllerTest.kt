@@ -3,7 +3,7 @@ package kr.dongchimi.api.owner.market
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.api.owner.OwnerApiUser
-import kr.dongchimi.api.owner.market.request.BusinessHoursRequest
+import kr.dongchimi.api.owner.market.request.BusinessHourSlotRequest
 import kr.dongchimi.api.owner.market.request.MarketRegisterRequest
 import kr.dongchimi.api.owner.market.request.MarketUpdateRequest
 import kr.dongchimi.core.market.BusinessHours
@@ -17,7 +17,11 @@ import org.mockito.Mockito
 class MarketControllerTest :
     FunSpec({
         val apiUser = OwnerApiUser(userId = 1L, roles = setOf("OWNER"))
-        val businessHours = BusinessHoursRequest(mon = null, tue = null, wed = null, thu = null, fri = null, sat = null, sun = null)
+        val businessHours =
+            listOf(
+                BusinessHourSlotRequest(days = listOf("MONDAY", "TUESDAY"), isOpen = true, open = "10:00", close = "20:00"),
+                BusinessHourSlotRequest(days = listOf("SUNDAY"), isOpen = false, open = null, close = null),
+            )
 
         test("등록 성공 시 apiUser의 userId로 서비스를 호출하고 성공 응답을 반환한다") {
             val marketService = Mockito.mock(MarketService::class.java)
@@ -80,7 +84,7 @@ private fun sampleMarket(): Market =
         ownerId = 1L,
         info = MarketInfo(name = "동치미 마트 강남점", address = "서울특별시 성북구", thumbnailUrl = null),
         location = LocationPoint(longitude = 127.0, latitude = 37.0),
-        businessHours = BusinessHours(),
+        businessHours = BusinessHours(emptyList()),
         phoneNumber = MarketPhoneNumber("02-000-0000", null, 1, "010-0000-0000"),
         brn = null,
     )

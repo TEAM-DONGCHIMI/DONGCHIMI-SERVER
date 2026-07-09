@@ -231,7 +231,7 @@ private class FakeMarketRepository : MarketRepository {
                 ownerId = ownerId,
                 info = MarketInfo(name = "동치미 마트", address = "서울특별시 성북구", thumbnailUrl = null),
                 location = LocationPoint(longitude = 127.0, latitude = 37.0),
-                businessHours = BusinessHours(),
+                businessHours = BusinessHours(emptyList()),
                 phoneNumber = MarketPhoneNumber("02-000-0000", null, 1, "010-0000-0000"),
                 brn = null,
             )
@@ -326,6 +326,15 @@ private class FakeProductRepository : ProductRepository {
         marketId: Long,
         date: LocalDate,
     ): Int = store.values.count { it.marketId == marketId }
+
+    override fun findPopularActive(
+        marketId: Long,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> =
+        store.values
+            .filter { it.marketId == marketId && isActiveOn(it, date) }
+            .take(limit)
 
     private fun isActiveOn(
         product: Product,
