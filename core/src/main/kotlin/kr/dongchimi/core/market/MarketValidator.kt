@@ -39,12 +39,16 @@ class MarketValidator(
         marketId: Long,
         ownerId: Long,
     ) {
-        if (!marketRepository.existsById(marketId)) {
-            throw CoreException(MarketErrorCode.MARKET_NOT_FOUND)
-        }
+        validateExists(marketId)
 
         if (!marketRepository.existsByIdAndOwnerId(marketId, ownerId)) {
             throw CoreException(MarketErrorCode.MARKET_ACCESS_DENIED)
+        }
+    }
+
+    fun validateExists(marketId: Long) {
+        if (!marketRepository.existsById(marketId)) {
+            throw CoreException(MarketErrorCode.MARKET_NOT_FOUND)
         }
     }
 }
