@@ -15,16 +15,19 @@ class LocalAuthFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
-        val token = headerTokenExtractor.extractToken(request) ?: return
+        val token = headerTokenExtractor.extractToken(request)
 
-        if (token.contains("test")) {
-            val split = token.split(":")
-            val roleName = split[1].uppercase()
+        token?.let {
+            if (it.contains("test")) {
+                val split = it.split(":")
+                val roleName = split[1].uppercase()
 
-            if (split[0] == "test") {
-                SecurityContextHolder.getContext().authentication = UserAuthentication(1L, setOf(roleName))
+                if (split[0] == "test") {
+                    SecurityContextHolder.getContext().authentication = UserAuthentication(1L, setOf(roleName))
+                }
             }
         }
+
         // NOTE: 추후 예외 처리 세팅 후 예외처리 구현
         filterChain.doFilter(request, response)
     }
