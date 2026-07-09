@@ -12,7 +12,7 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
         select p from PreparedProductJpaEntity p
         where p.marketId = :marketId
             and p.deletedAt is null
-            and (:search is null or p.name like concat('%', :search, '%'))
+            and (:search is null or p.name like concat('%', cast(:search as string), '%'))
             and (:categories is null or p.category in :categories)
         order by p.createdAt desc
         """,
