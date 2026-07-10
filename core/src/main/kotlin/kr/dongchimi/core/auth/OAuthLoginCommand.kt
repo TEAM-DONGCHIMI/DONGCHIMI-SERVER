@@ -4,5 +4,5 @@ import kr.dongchimi.core.user.SocialProvider
 
 data class OAuthLoginCommand(
     val provider: SocialProvider,
-    val accessToken: String,
+    val code: String,
 )
