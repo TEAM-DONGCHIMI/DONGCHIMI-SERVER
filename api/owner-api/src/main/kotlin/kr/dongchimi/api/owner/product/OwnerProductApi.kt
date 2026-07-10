@@ -7,7 +7,7 @@ import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.owner.OwnerApiUser
-import kr.dongchimi.api.owner.product.request.DailyDealRegisterRequest
+import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
@@ -66,10 +66,10 @@ interface OwnerProductApi {
         description = "점주가 오늘의 특가(DAILY) 상품을 단건 등록한다. 기간은 오늘을 포함해야 하며, 썸네일 미입력 시 null로 저장한다.",
     )
     @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class, ProductErrorCode::class)
-    fun registerDailyDeal(
+    fun registerDailyProduct(
         @Parameter(hidden = true) apiUser: OwnerApiUser,
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
-        request: DailyDealRegisterRequest,
+        request: DailyProductRegisterRequest,
     ): ApiResponse<Unit>
 
     @Operation(

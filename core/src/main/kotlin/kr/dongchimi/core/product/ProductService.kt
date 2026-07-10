@@ -20,7 +20,7 @@ class ProductService(
     fun registerDailyProduct(
         ownerId: Long,
         marketId: Long,
-        command: DailyDealRegisterCommand,
+        command: DailyProductRegisterCommand,
         today: LocalDate,
     ) {
         marketValidator.validateOwnership(marketId, ownerId)

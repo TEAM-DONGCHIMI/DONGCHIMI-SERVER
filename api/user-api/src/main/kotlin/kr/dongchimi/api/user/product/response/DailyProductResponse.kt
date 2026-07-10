@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.core.product.Product
 import java.math.BigDecimal
 
-data class DailyDealProductResponse(
+data class DailyProductResponse(
     @Schema(description = "상품 id")
     val productId: Long,
     @Schema(description = "상품명")

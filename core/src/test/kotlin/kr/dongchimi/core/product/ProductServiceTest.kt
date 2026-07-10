@@ -487,8 +487,8 @@ private fun updateCommand(
 private fun registerCommand(
     thumbnailUrl: String? = "https://cdn.example.com/products/new.png",
     discountPeriod: DiscountPeriod = DiscountPeriod(LocalDate.now(), LocalDate.now()),
-): DailyDealRegisterCommand =
-    DailyDealRegisterCommand(
+): DailyProductRegisterCommand =
+    DailyProductRegisterCommand(
         name = "토마토",
         thumbnailUrl = thumbnailUrl,
         price = Price(BigDecimal("5000"), BigDecimal("4500")),

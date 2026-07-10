@@ -1,6 +1,6 @@
 package kr.dongchimi.core.product
 
-data class DailyDealRegisterCommand(
+data class DailyProductRegisterCommand(
     val name: String,
     val thumbnailUrl: String?,
     val price: Price,

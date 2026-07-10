@@ -8,7 +8,7 @@ import kr.dongchimi.api.core.common.dto.CursorSliceResponse
 import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.api.user.product.request.PeriodicProductListRequest
-import kr.dongchimi.api.user.product.response.DailyDealListResponse
+import kr.dongchimi.api.user.product.response.DailyProductListResponse
 import kr.dongchimi.api.user.product.response.PeriodicProductResponse
 import kr.dongchimi.api.user.product.response.ProductDetailResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
@@ -23,10 +23,10 @@ interface UserProductApi {
         description = "마트의 오늘의 특가(DAILY) 상품 전체를 최근 등록순으로 조회한다. 페이지네이션 없이 전체를 반환한다.",
     )
     @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class)
-    fun getDailyDeals(
+    fun getDailyProducts(
         @Parameter(hidden = true) apiUser: UserApiUser,
         @Parameter(description = "마트 id") @PathVariable marketId: Long,
-    ): ApiResponse<DailyDealListResponse>
+    ): ApiResponse<DailyProductListResponse>
 
     @Operation(
         summary = "상품 상세 조회",

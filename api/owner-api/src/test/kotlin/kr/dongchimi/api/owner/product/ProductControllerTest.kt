@@ -4,7 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
-import kr.dongchimi.api.owner.product.request.DailyDealRegisterRequest
+import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
@@ -12,7 +12,7 @@ import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.core.common.PageOffset
-import kr.dongchimi.core.product.DailyDealRegisterCommand
+import kr.dongchimi.core.product.DailyProductRegisterCommand
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.DraftFailReason
@@ -178,7 +178,7 @@ class ProductControllerTest :
             val controller = newController(productService)
             val request = registerRequest()
 
-            val response = controller.registerDailyDeal(apiUser, marketId, request)
+            val response = controller.registerDailyProduct(apiUser, marketId, request)
 
             response.success shouldBe true
             Mockito
@@ -203,14 +203,14 @@ class ProductControllerTest :
 // Kotlin 비널 파라미터에 Mockito 매처를 쓰기 위한 헬퍼 (매처는 null을 반환하므로 폴백을 준다)
 private fun eqLong(value: Long): Long = ArgumentMatchers.eq(value)
 
-private fun eqCommand(value: DailyDealRegisterCommand): DailyDealRegisterCommand = ArgumentMatchers.eq(value) ?: value
+private fun eqCommand(value: DailyProductRegisterCommand): DailyProductRegisterCommand = ArgumentMatchers.eq(value) ?: value
 
 private fun eqUpdateCommand(value: ProductUpdateCommand): ProductUpdateCommand = ArgumentMatchers.eq(value) ?: value
 
 private fun anyLocalDate(): LocalDate = Mockito.any(LocalDate::class.java) ?: LocalDate.now()
 
-private fun registerRequest(): DailyDealRegisterRequest =
-    DailyDealRegisterRequest(
+private fun registerRequest(): DailyProductRegisterRequest =
+    DailyProductRegisterRequest(
         thumbnailUrl = "https://static.dongchimi.kr/products/test.png",
         name = "토마토",
         category = ProductCategory.VEGETABLE_FRUIT,

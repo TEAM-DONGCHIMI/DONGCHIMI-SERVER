@@ -3,7 +3,7 @@ package kr.dongchimi.api.owner.product
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
-import kr.dongchimi.api.owner.product.request.DailyDealRegisterRequest
+import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
@@ -69,10 +69,10 @@ class OwnerProductController(
     }
 
     @PostMapping("/daily")
-    override fun registerDailyDeal(
+    override fun registerDailyProduct(
         apiUser: OwnerApiUser,
         @PathVariable marketId: Long,
-        @RequestBody request: DailyDealRegisterRequest,
+        @RequestBody request: DailyProductRegisterRequest,
     ): ApiResponse<Unit> {
         productService.registerDailyProduct(apiUser.userId, marketId, request.toCommand(), LocalDate.now())
 

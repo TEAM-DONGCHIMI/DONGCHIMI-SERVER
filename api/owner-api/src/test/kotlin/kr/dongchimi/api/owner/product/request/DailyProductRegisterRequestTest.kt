@@ -10,7 +10,7 @@ import kr.dongchimi.core.product.ProductCategory
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class DailyDealRegisterRequestTest :
+class DailyProductRegisterRequestTest :
     FunSpec({
         fun request(
             thumbnailUrl: String? = "https://static.dongchimi.kr/products/test.png",
@@ -19,7 +19,7 @@ class DailyDealRegisterRequestTest :
             discountedPrice: BigDecimal = BigDecimal("4500"),
             discountStartDate: LocalDate = LocalDate.of(2026, 6, 30),
             discountEndDate: LocalDate = LocalDate.of(2026, 7, 10),
-        ) = DailyDealRegisterRequest(
+        ) = DailyProductRegisterRequest(
             thumbnailUrl = thumbnailUrl,
             name = name,
             category = ProductCategory.VEGETABLE_FRUIT,
