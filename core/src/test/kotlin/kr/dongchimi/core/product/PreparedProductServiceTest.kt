@@ -421,6 +421,15 @@ private class FakePreparedProductRepository : PreparedProductRepository {
     override fun softDeleteByIds(ids: List<Long>) {
         deletedIds += ids
     }
+
+    override fun saveAll(preparedProducts: List<PreparedProduct>): List<PreparedProduct> {
+        preparedProducts.forEach { put(it) }
+        return preparedProducts
+    }
+
+    override fun softDeleteAllByMarketId(marketId: Long) {
+        deletedIds += alive().filter { it.marketId == marketId }.map { it.id }
+    }
 }
 
 private class PreparedProductFakeProductRepository : ProductRepository {
