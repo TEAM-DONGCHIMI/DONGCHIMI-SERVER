@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 import kr.dongchimi.core.common.exception.CoreException
 import org.springframework.stereotype.Component

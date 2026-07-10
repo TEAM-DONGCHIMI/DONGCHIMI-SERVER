@@ -9,8 +9,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportStep
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportStep
 import kr.dongchimi.infrastructure.redis.testsupport.TestRedisContainer
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
@@ -69,6 +70,7 @@ class RedisImportJobEventChannelTest :
             val event =
                 ImportJobEvent.Progress(
                     jobId = jobId,
+                    status = ImportJobStatus.IN_PROGRESS,
                     progress = 40,
                     remainingSeconds = 20,
                     currentStep = ImportStep.PRICE_EXTRACTION,

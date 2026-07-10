@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 import kr.dongchimi.common.exception.ErrorStatus
 import kr.dongchimi.core.common.exception.ErrorCode

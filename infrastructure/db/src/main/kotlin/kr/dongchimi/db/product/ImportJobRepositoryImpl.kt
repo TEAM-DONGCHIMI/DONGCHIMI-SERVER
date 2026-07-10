@@ -1,9 +1,9 @@
 package kr.dongchimi.db.product
 
-import kr.dongchimi.core.product.ImportJob
-import kr.dongchimi.core.product.ImportJobRepository
-import kr.dongchimi.core.product.ImportJobResult
-import kr.dongchimi.core.product.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportJob
+import kr.dongchimi.core.product.import.ImportJobRepository
+import kr.dongchimi.core.product.import.ImportJobResult
+import kr.dongchimi.core.product.import.ImportJobStatus
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional

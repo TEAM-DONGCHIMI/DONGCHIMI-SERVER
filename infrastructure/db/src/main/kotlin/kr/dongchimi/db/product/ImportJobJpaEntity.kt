@@ -6,8 +6,8 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import kr.dongchimi.core.product.ImportJob
-import kr.dongchimi.core.product.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportJob
+import kr.dongchimi.core.product.import.ImportJobStatus
 import kr.dongchimi.db.common.BaseTimeEntity
 import java.time.LocalDateTime
 
@@ -58,5 +58,9 @@ class ImportJobJpaEntity(
             excelObjectKey = excelObjectKey,
             status = status,
             attemptCount = attemptCount,
+            totalCount = totalCount,
+            successCount = successCount,
+            failCount = failCount,
+            errorCode = errorCode,
         )
 }

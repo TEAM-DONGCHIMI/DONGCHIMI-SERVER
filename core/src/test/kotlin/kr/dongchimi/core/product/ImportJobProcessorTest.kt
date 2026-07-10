@@ -7,6 +7,23 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kr.dongchimi.core.product.import.ExcelProductParser
+import kr.dongchimi.core.product.import.ImportJob
+import kr.dongchimi.core.product.import.ImportJobCancelSignal
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobEventChannel
+import kr.dongchimi.core.product.import.ImportJobFinisher
+import kr.dongchimi.core.product.import.ImportJobProcessor
+import kr.dongchimi.core.product.import.ImportJobProgress
+import kr.dongchimi.core.product.import.ImportJobProgressStore
+import kr.dongchimi.core.product.import.ImportJobProperties
+import kr.dongchimi.core.product.import.ImportJobRepository
+import kr.dongchimi.core.product.import.ImportJobResult
+import kr.dongchimi.core.product.import.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportStep
+import kr.dongchimi.core.product.import.ParsedProductRow
+import kr.dongchimi.core.product.import.ProductCategoryClassifier
+import kr.dongchimi.core.product.import.ProductImageMatcher
 import kr.dongchimi.core.upload.PresignedUpload
 import kr.dongchimi.core.upload.StorageClient
 import kr.dongchimi.core.upload.StoredObjectMetadata
@@ -121,7 +138,11 @@ class ImportJobProcessorTest :
                     importJobProgressStore = FakeImportJobProgressStore(),
                     importJobEventChannel = FakeImportJobEventChannel(),
                     importJobCancelSignal = FakeImportJobCancelSignal(),
-                    importJobFinisher = ImportJobFinisher(ImportJobFakePreparedProductRepository(), importJobRepository),
+                    importJobFinisher =
+                        ImportJobFinisher(
+                            ImportJobFakePreparedProductRepository(),
+                            importJobRepository,
+                        ),
                     draftFailReasonResolver = DraftFailReasonResolver(),
                     properties = testProperties(),
                 )

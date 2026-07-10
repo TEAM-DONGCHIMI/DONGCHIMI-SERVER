@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +13,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import kr.dongchimi.core.product.DraftFailReasonResolver
+import kr.dongchimi.core.product.DraftStatus
+import kr.dongchimi.core.product.PreparedProduct
+import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.core.upload.StorageClient
 import org.springframework.stereotype.Component
 

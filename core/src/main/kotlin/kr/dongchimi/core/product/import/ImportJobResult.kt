@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 /**
  * 종료 상태별로 채워지는 필드가 다르다 — COMPLETED는 카운트만, FAILED는 errorCode만,

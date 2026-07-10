@@ -2,8 +2,8 @@ package kr.dongchimi.infrastructure.redis
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kr.dongchimi.core.product.ImportJobProgress
-import kr.dongchimi.core.product.ImportJobProgressStore
+import kr.dongchimi.core.product.import.ImportJobProgress
+import kr.dongchimi.core.product.import.ImportJobProgressStore
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Component
 import tools.jackson.databind.ObjectMapper
