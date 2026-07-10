@@ -38,7 +38,7 @@ data class DailyDealRegisterRequest(
             thumbnailUrl = thumbnailUrl?.takeIf { it.isNotBlank() },
             price = Price(originalPrice, discountedPrice),
             category = category,
-            promotionalPhrase = promotionalPhrase,
+            promotionalPhrase = promotionalPhrase?.takeIf { it.isNotBlank() },
             discountPeriod = DiscountPeriod(discountStartDate, discountEndDate),
         )
     }
