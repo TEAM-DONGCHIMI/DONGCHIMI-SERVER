@@ -1,5 +1,6 @@
 package kr.dongchimi.core.product
 
+import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.market.MarketValidator
 import kr.dongchimi.core.market.ProductFinder
 import org.springframework.stereotype.Service
@@ -13,7 +14,23 @@ class ProductService(
     private val productRemover: ProductRemover,
     private val productUpdater: ProductUpdater,
     private val productFinder: ProductFinder,
+    private val productAppender: ProductAppender,
 ) {
+    fun registerDailyProduct(
+        ownerId: Long,
+        marketId: Long,
+        command: DailyDealRegisterCommand,
+        today: LocalDate,
+    ) {
+        marketValidator.validateOwnership(marketId, ownerId)
+
+        if (!command.discountPeriod.includes(today)) {
+            throw CoreException(ProductErrorCode.INVALID_DISCOUNT_PERIOD)
+        }
+
+        productAppender.append(command.toProduct(marketId))
+    }
+
     fun getProduct(
         ownerId: Long,
         marketId: Long,

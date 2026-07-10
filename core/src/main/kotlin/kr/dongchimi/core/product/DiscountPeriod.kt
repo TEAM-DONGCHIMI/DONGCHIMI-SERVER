@@ -7,4 +7,6 @@ data class DiscountPeriod(
     val discountEndDate: LocalDate,
 ) {
     fun isEnded(today: LocalDate): Boolean = today > discountEndDate
+
+    fun includes(date: LocalDate): Boolean = date in discountStartDate..discountEndDate
 }

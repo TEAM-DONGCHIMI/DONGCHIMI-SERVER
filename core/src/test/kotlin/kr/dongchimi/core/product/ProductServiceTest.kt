@@ -35,6 +35,7 @@ class ProductServiceTest :
                     productRemover = ProductRemover(products),
                     productUpdater = ProductUpdater(products),
                     productFinder = ProductFinder(products),
+                    productAppender = ProductAppender(products),
                 )
             return Triple(service, markets, products)
         }
@@ -224,7 +225,83 @@ class ProductServiceTest :
 
             result.map { it.id } shouldBe listOf(1L)
         }
+
+        test("오늘의 특가 등록: 마트가 없으면 MARKET_NOT_FOUND") {
+            val (service, _, _) = newService()
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.registerDailyProduct(ownerId, marketId, registerCommand(), LocalDate.now())
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("오늘의 특가 등록: 다른 점주 소유 마트면 MARKET_ACCESS_DENIED") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId = 2L) }
+            val (service, _, _) = newService(markets)
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.registerDailyProduct(ownerId, marketId, registerCommand(), LocalDate.now())
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_ACCESS_DENIED
+        }
+
+        test("오늘의 특가 등록: 기간이 오늘을 포함하지 않으면 INVALID_DISCOUNT_PERIOD") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val (service, _, products) = newService(markets)
+            val today = LocalDate.of(2026, 7, 10)
+            val endedYesterday = DiscountPeriod(today.minusDays(3), today.minusDays(1))
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.registerDailyProduct(ownerId, marketId, registerCommand(discountPeriod = endedYesterday), today)
+                }
+
+            exception.errorCode shouldBe ProductErrorCode.INVALID_DISCOUNT_PERIOD
+            products.findById(0L) shouldBe null
+        }
+
+        test("오늘의 특가 등록: 정상이면 DAILY 상품으로 저장된다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val (service, _, products) = newService(markets)
+            val today = LocalDate.of(2026, 7, 10)
+            val period = DiscountPeriod(today.minusDays(1), today.plusDays(1))
+
+            service.registerDailyProduct(ownerId, marketId, registerCommand(discountPeriod = period), today)
+
+            val saved = products.findById(0L)!!
+            saved.dealType shouldBe DealType.DAILY
+            saved.marketId shouldBe marketId
+            saved.thumbnailUrl shouldBe "https://cdn.example.com/products/new.png"
+        }
+
+        test("오늘의 특가 등록: 썸네일이 없으면 null로 저장된다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val (service, _, products) = newService(markets)
+            val today = LocalDate.of(2026, 7, 10)
+            val period = DiscountPeriod(today, today)
+
+            service.registerDailyProduct(ownerId, marketId, registerCommand(thumbnailUrl = null, discountPeriod = period), today)
+
+            products.findById(0L)!!.thumbnailUrl shouldBe null
+        }
     })
+
+private fun registerCommand(
+    thumbnailUrl: String? = "https://cdn.example.com/products/new.png",
+    discountPeriod: DiscountPeriod = DiscountPeriod(LocalDate.now(), LocalDate.now()),
+): DailyDealRegisterCommand =
+    DailyDealRegisterCommand(
+        name = "토마토",
+        thumbnailUrl = thumbnailUrl,
+        price = Price(BigDecimal("5000"), BigDecimal("4500")),
+        category = ProductCategory.VEGETABLE_FRUIT,
+        promotionalPhrase = "멋쟁이 토마토",
+        discountPeriod = discountPeriod,
+    )
 
 private fun ongoingDiscount(): DiscountPeriod = DiscountPeriod(LocalDate.now().minusDays(1), LocalDate.now().plusDays(30))
 

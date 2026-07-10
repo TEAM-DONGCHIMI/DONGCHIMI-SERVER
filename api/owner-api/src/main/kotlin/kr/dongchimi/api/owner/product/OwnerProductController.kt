@@ -3,6 +3,7 @@ package kr.dongchimi.api.owner.product
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.product.request.DailyDealRegisterRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/v1/owners/markets/{marketId}/products")
@@ -61,6 +63,17 @@ class OwnerProductController(
         @PathVariable marketId: Long,
     ): ApiResponse<Unit> {
         preparedProductService.confirmDrafts(apiUser.userId, marketId)
+
+        return ApiResponse.success()
+    }
+
+    @PostMapping("/daily")
+    override fun registerDailyDeal(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @RequestBody request: DailyDealRegisterRequest,
+    ): ApiResponse<Unit> {
+        productService.registerDailyProduct(apiUser.userId, marketId, request.toCommand(), LocalDate.now())
 
         return ApiResponse.success()
     }
