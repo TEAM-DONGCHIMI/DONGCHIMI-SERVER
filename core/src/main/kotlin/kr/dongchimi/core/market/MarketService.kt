@@ -15,6 +15,8 @@ class MarketService(
 ) {
     fun findByOwnerId(ownerId: Long): Market? = marketReader.readByOwnerId(ownerId)
 
+    fun getById(marketId: Long): Market = marketReader.read(marketId)
+
     fun getNearbyMarkets(condition: NearbyMarketSearchCondition): CursorSliceResult<NearbyMarket> = marketFinder.findNearby(condition)
 
     fun getBySlug(slug: String): Market {
