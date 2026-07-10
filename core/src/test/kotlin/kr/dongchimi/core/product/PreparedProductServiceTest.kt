@@ -499,4 +499,12 @@ private class PreparedProductFakeProductRepository : ProductRepository {
         marketIds: List<Long>,
         date: LocalDate,
     ): Map<Long, Int> = emptyMap()
+
+    override fun findActiveByMarketIdAndDealTypeAndCategory(
+        marketId: Long,
+        dealType: DealType,
+        condition: PeriodicProductSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> = emptyList()
 }

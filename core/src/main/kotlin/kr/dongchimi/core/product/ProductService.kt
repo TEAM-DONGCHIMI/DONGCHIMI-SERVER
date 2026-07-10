@@ -1,5 +1,6 @@
 package kr.dongchimi.core.product
 
+import kr.dongchimi.core.common.CursorSliceResult
 import kr.dongchimi.core.market.MarketValidator
 import kr.dongchimi.core.market.ProductFinder
 import org.springframework.stereotype.Service
@@ -119,4 +120,15 @@ class ProductService(
         marketIds: List<Long>,
         date: LocalDate,
     ): Map<Long, Int> = productFinder.countActiveByMarketIds(marketIds, date)
+
+    fun getActiveProductsByCategory(
+        marketId: Long,
+        dealType: DealType,
+        condition: PeriodicProductSearchCondition,
+        date: LocalDate,
+    ): CursorSliceResult<Product> {
+        marketValidator.validateExists(marketId)
+
+        return productFinder.findActiveByCategory(marketId, dealType, condition, date)
+    }
 }

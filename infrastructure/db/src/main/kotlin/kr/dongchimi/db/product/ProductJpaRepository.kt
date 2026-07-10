@@ -1,6 +1,7 @@
 package kr.dongchimi.db.product
 
 import kr.dongchimi.core.product.DealType
+import kr.dongchimi.core.product.ProductCategory
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -143,4 +144,26 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
         @Param("marketIds") marketIds: List<Long>,
         @Param("date") date: LocalDate,
     ): List<MarketProductCountProjection>
+
+    @Query(
+        """
+        select p from ProductJpaEntity p
+        where p.marketId = :marketId
+            and p.dealType = :dealType
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+            and (:category is null or p.category = :category)
+            and (:cursor is null or p.id < :cursor)
+        order by p.id desc
+        """,
+    )
+    fun findActiveByCategory(
+        @Param("marketId") marketId: Long,
+        @Param("dealType") dealType: DealType,
+        @Param("category") category: ProductCategory?,
+        @Param("cursor") cursor: Long?,
+        @Param("date") date: LocalDate,
+        pageable: Pageable,
+    ): List<ProductJpaEntity>
 }
