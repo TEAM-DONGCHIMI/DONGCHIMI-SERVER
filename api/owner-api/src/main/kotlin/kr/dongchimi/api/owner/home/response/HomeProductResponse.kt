@@ -7,8 +7,8 @@ import java.math.BigDecimal
 data class HomeProductResponse(
     @Schema(description = "상품 id")
     val productId: Long,
-    @Schema(description = "상품 썸네일 이미지 URL")
-    val thumbnailUrl: String,
+    @Schema(description = "상품 썸네일 이미지 URL (없으면 null)")
+    val thumbnailUrl: String?,
     @Schema(description = "상품명")
     val name: String,
     @Schema(description = "정가")

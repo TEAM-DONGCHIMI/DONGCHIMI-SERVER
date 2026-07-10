@@ -31,8 +31,7 @@ class ProductJpaEntity(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val dealType: DealType,
-    @Column(nullable = false)
-    val thumbnailUrl: String,
+    val thumbnailUrl: String? = null,
     @Column(nullable = false)
     val originalPrice: BigDecimal,
     @Column(nullable = false)
