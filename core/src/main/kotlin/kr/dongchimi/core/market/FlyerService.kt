@@ -44,6 +44,20 @@ class FlyerService(
         )
     }
 
+    // 아직 전단을 발행하지 않은 마켓도 조회하는 홈 화면 등에서 사용 — 미발행 상태를 예외가 아닌 null로 표현한다.
+    fun getShareInfoOrNull(marketId: Long): FlyerShareInfo? {
+        val flyer = flyerReader.findByMarketId(marketId) ?: return null
+        val market = marketReader.read(marketId)
+        val qrCode = flyer.qrCode ?: issueAndStoreQrCode(flyer)
+
+        return FlyerShareInfo(
+            marketId = market.id,
+            marketName = market.info.name,
+            slug = flyer.slug,
+            qrCode = qrCode,
+        )
+    }
+
     // 소유권 검증 없이 공유 호출부(getShareInfo)에서도 쓰이므로, 새 호출부를 추가할 때 인가가 필요하면 호출부 책임으로 처리한다.
     private fun issueAndStoreQrCode(flyer: Flyer): String {
         val qrCode = flyerQrManager.generate(flyer.slug)
