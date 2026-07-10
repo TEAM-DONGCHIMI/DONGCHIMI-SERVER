@@ -10,7 +10,7 @@ import kr.dongchimi.api.owner.product.request.ProductImportRequest
 import kr.dongchimi.api.owner.product.response.ProductImportResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.market.MarketErrorCode
-import kr.dongchimi.core.product.ImportJobErrorCode
+import kr.dongchimi.core.product.import.ImportJobErrorCode
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter
 

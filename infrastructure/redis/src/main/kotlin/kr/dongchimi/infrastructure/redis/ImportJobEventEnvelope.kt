@@ -1,9 +1,9 @@
 package kr.dongchimi.infrastructure.redis
 
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportJobStatus
-import kr.dongchimi.core.product.ImportStep
-import kr.dongchimi.core.product.ImportStepProgress
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportStep
+import kr.dongchimi.core.product.import.ImportStepProgress
 
 /**
  * ImportJobEvent(sealed)를 Redis pub/sub JSON으로 실어 보내기 위한 평평한(flat) 봉투.

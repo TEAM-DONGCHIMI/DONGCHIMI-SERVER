@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 /**
  * 워커가 체크포인트에서 취소 신호를 발견했을 때만 던지는 내부 제어 흐름 신호다.

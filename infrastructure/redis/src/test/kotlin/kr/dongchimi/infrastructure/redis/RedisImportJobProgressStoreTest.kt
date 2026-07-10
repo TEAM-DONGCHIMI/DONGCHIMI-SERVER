@@ -3,10 +3,10 @@ package kr.dongchimi.infrastructure.redis
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
-import kr.dongchimi.core.product.ImportJobProgress
-import kr.dongchimi.core.product.ImportStep
-import kr.dongchimi.core.product.ImportStepProgress
-import kr.dongchimi.core.product.ImportStepStatus
+import kr.dongchimi.core.product.import.ImportJobProgress
+import kr.dongchimi.core.product.import.ImportStep
+import kr.dongchimi.core.product.import.ImportStepProgress
+import kr.dongchimi.core.product.import.ImportStepStatus
 import kr.dongchimi.infrastructure.redis.testsupport.TestRedisContainer
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory

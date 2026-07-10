@@ -9,9 +9,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportJobStatus
-import kr.dongchimi.core.product.ImportStep
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportStep
 import kr.dongchimi.infrastructure.redis.testsupport.TestRedisContainer
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory

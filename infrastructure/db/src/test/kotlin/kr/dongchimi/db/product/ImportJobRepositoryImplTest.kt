@@ -9,9 +9,9 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import kr.dongchimi.core.product.ImportJob
-import kr.dongchimi.core.product.ImportJobResult
-import kr.dongchimi.core.product.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportJob
+import kr.dongchimi.core.product.import.ImportJobResult
+import kr.dongchimi.core.product.import.ImportJobStatus
 import kr.dongchimi.db.testsupport.TestJpaConfig
 import kr.dongchimi.db.testsupport.TestPostgresContainer
 import org.springframework.test.context.ContextConfiguration

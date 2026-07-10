@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll

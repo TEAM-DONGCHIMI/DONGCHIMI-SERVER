@@ -5,6 +5,13 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kr.dongchimi.core.product.import.ImportJob
+import kr.dongchimi.core.product.import.ImportJobPoller
+import kr.dongchimi.core.product.import.ImportJobProperties
+import kr.dongchimi.core.product.import.ImportJobRepository
+import kr.dongchimi.core.product.import.ImportJobResult
+import kr.dongchimi.core.product.import.ImportJobRunner
+import kr.dongchimi.core.product.import.ImportJobStatus
 import java.time.Duration
 
 class ImportJobPollerTest :
@@ -20,7 +27,13 @@ class ImportJobPollerTest :
             )
 
         fun newJob(jobId: String = "imp_1") =
-            ImportJob(jobId = jobId, marketId = 1L, ownerId = 1L, excelObjectKey = "k", status = ImportJobStatus.PENDING)
+            ImportJob(
+                jobId = jobId,
+                marketId = 1L,
+                ownerId = 1L,
+                excelObjectKey = "k",
+                status = ImportJobStatus.PENDING,
+            )
 
         test("pollOnce는 claim에 성공하면 러너에 위임한다") {
             val job = newJob()

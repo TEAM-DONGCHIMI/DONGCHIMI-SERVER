@@ -17,8 +17,8 @@ import kr.dongchimi.api.owner.product.response.ImportCompletedResponse
 import kr.dongchimi.api.owner.product.response.ImportFailedResponse
 import kr.dongchimi.api.owner.product.response.ImportProgressResponse
 import kr.dongchimi.api.owner.product.response.ProductImportResponse
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportJobService
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

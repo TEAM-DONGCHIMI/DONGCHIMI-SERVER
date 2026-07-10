@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 /**
  * SSE로 그대로 나가는 이벤트. Progress는 [ImportJobProgress] 스냅샷과 필드가 같아서

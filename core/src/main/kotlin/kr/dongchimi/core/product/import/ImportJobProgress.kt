@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 /**
  * Redis에 스냅샷으로 저장되는 진행상태. remainingSeconds/currentStep은 아직 첫 단계 진행률이

@@ -1,9 +1,9 @@
 package kr.dongchimi.client.excel
 
 import kr.dongchimi.core.product.DiscountPeriod
-import kr.dongchimi.core.product.ExcelProductParser
-import kr.dongchimi.core.product.ParsedProductRow
 import kr.dongchimi.core.product.Price
+import kr.dongchimi.core.product.import.ExcelProductParser
+import kr.dongchimi.core.product.import.ParsedProductRow
 import org.apache.poi.ss.usermodel.DataFormatter
 import org.apache.poi.ss.usermodel.Row
 import org.apache.poi.ss.usermodel.WorkbookFactory

@@ -6,10 +6,10 @@ import io.kotest.matchers.shouldBe
 import kotlinx.coroutines.flow.flowOf
 import kr.dongchimi.api.owner.OwnerApiUser
 import kr.dongchimi.api.owner.product.request.ProductImportRequest
-import kr.dongchimi.core.product.ImportJob
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportJobService
-import kr.dongchimi.core.product.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportJob
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobService
+import kr.dongchimi.core.product.import.ImportJobStatus
 import org.mockito.Mockito
 
 class OwnerProductImportControllerTest :

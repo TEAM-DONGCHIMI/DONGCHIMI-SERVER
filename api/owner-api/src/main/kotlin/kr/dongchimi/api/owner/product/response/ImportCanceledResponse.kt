@@ -1,8 +1,8 @@
 package kr.dongchimi.api.owner.product.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobStatus
 
 data class ImportCanceledResponse(
     @Schema(description = "분석 작업 id")

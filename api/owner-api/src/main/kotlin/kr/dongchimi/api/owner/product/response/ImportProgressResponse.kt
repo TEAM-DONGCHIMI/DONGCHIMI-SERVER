@@ -1,11 +1,11 @@
 package kr.dongchimi.api.owner.product.response
 
 import io.swagger.v3.oas.annotations.media.Schema
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportJobStatus
-import kr.dongchimi.core.product.ImportStep
-import kr.dongchimi.core.product.ImportStepProgress
-import kr.dongchimi.core.product.ImportStepStatus
+import kr.dongchimi.core.product.import.ImportJobEvent
+import kr.dongchimi.core.product.import.ImportJobStatus
+import kr.dongchimi.core.product.import.ImportStep
+import kr.dongchimi.core.product.import.ImportStepProgress
+import kr.dongchimi.core.product.import.ImportStepStatus
 
 data class ImportProgressResponse(
     @Schema(description = "분석 작업 id")

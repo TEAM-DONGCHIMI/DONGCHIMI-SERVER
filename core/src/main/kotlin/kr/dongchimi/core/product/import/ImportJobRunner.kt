@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.import
 
 /**
  * [ImportJobPoller]가 claim한 job 하나를 넘겨 실행을 위임하는 경계. [ImportJobProcessor]가
