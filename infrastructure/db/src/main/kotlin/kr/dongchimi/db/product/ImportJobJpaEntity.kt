@@ -58,5 +58,9 @@ class ImportJobJpaEntity(
             excelObjectKey = excelObjectKey,
             status = status,
             attemptCount = attemptCount,
+            totalCount = totalCount,
+            successCount = successCount,
+            failCount = failCount,
+            errorCode = errorCode,
         )
 }
