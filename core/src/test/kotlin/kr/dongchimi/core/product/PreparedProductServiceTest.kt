@@ -442,6 +442,8 @@ private class PreparedProductFakeProductRepository : ProductRepository {
 
     override fun save(product: Product): Product = product
 
+    override fun update(product: Product) = Unit
+
     override fun softDeleteByIds(ids: List<Long>) = Unit
 
     override fun softDeleteByMarketIdAndDealType(

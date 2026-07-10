@@ -27,19 +27,19 @@ class ProductJpaEntity(
     @Column(name = "market_id", nullable = false)
     val marketId: Long,
     @Column(nullable = false)
-    val name: String,
+    var name: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val dealType: DealType,
-    val thumbnailUrl: String? = null,
+    var thumbnailUrl: String? = null,
     @Column(nullable = false)
-    val originalPrice: BigDecimal,
+    var originalPrice: BigDecimal,
     @Column(nullable = false)
-    val discountedPrice: BigDecimal,
+    var discountedPrice: BigDecimal,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val category: ProductCategory,
-    val promotionalPhrase: String? = null,
+    var category: ProductCategory,
+    var promotionalPhrase: String? = null,
     @Column(nullable = false)
     var discountStartDate: LocalDate,
     @Column(nullable = false)
@@ -75,5 +75,16 @@ class ProductJpaEntity(
     fun updateDiscountPeriod(discountPeriod: DiscountPeriod) {
         discountStartDate = discountPeriod.discountStartDate
         discountEndDate = discountPeriod.discountEndDate
+    }
+
+    fun update(product: Product) {
+        name = product.name
+        thumbnailUrl = product.thumbnailUrl
+        category = product.category
+        promotionalPhrase = product.promotionalPhrase
+        originalPrice = product.price.originalPrice
+        discountedPrice = product.price.discountedPrice
+        discountStartDate = product.discountPeriod.discountStartDate
+        discountEndDate = product.discountPeriod.discountEndDate
     }
 }

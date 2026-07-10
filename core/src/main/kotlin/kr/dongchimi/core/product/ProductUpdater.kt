@@ -12,4 +12,8 @@ class ProductUpdater(
     ) {
         productRepository.updateDiscountPeriod(productIds, discountPeriod)
     }
+
+    fun update(product: Product) {
+        productRepository.update(product)
+    }
 }

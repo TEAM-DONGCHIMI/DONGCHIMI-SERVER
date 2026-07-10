@@ -288,7 +288,89 @@ class ProductServiceTest :
 
             products.findById(0L)!!.thumbnailUrl shouldBe null
         }
+
+        test("상품 수정: 상품이 해당 마트에 없으면 PRODUCT_NOT_FOUND") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = 999L)) }
+            val (service, _, _) = newService(markets, products)
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.updateProduct(ownerId, marketId, 1L, updateCommand(dealType = DealType.PERIODIC), LocalDate.now())
+                }
+
+            exception.errorCode shouldBe ProductErrorCode.PRODUCT_NOT_FOUND
+        }
+
+        test("상품 수정: 요청 type이 상품의 dealType과 다르면 TYPE_MISMATCH") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = marketId, dealType = DealType.PERIODIC)) }
+            val (service, _, _) = newService(markets, products)
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.updateProduct(ownerId, marketId, 1L, updateCommand(dealType = DealType.DAILY), LocalDate.now())
+                }
+
+            exception.errorCode shouldBe ProductErrorCode.TYPE_MISMATCH
+        }
+
+        test("상품 수정: DAILY인데 기간이 오늘을 포함하지 않으면 INVALID_DISCOUNT_PERIOD") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = marketId, dealType = DealType.DAILY)) }
+            val (service, _, _) = newService(markets, products)
+            val today = LocalDate.of(2026, 7, 10)
+            val past = DiscountPeriod(today.minusDays(3), today.minusDays(1))
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.updateProduct(ownerId, marketId, 1L, updateCommand(dealType = DealType.DAILY, discountPeriod = past), today)
+                }
+
+            exception.errorCode shouldBe ProductErrorCode.INVALID_DISCOUNT_PERIOD
+        }
+
+        test("상품 수정: PERIODIC은 기간이 오늘을 포함하지 않아도 통과한다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = marketId, dealType = DealType.PERIODIC)) }
+            val (service, _, _) = newService(markets, products)
+            val today = LocalDate.of(2026, 7, 10)
+            val future = DiscountPeriod(today.plusDays(1), today.plusDays(5))
+
+            service.updateProduct(ownerId, marketId, 1L, updateCommand(dealType = DealType.PERIODIC, discountPeriod = future), today)
+
+            products.findById(1L)!!.discountPeriod shouldBe future
+        }
+
+        test("상품 수정: 정상이면 필드가 반영되고 id·marketId·dealType은 유지된다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = marketId, dealType = DealType.PERIODIC)) }
+            val (service, _, _) = newService(markets, products)
+
+            service.updateProduct(ownerId, marketId, 1L, updateCommand(dealType = DealType.PERIODIC, name = "수정된 상품"), LocalDate.now())
+
+            val updated = products.findById(1L)!!
+            updated.id shouldBe 1L
+            updated.marketId shouldBe marketId
+            updated.dealType shouldBe DealType.PERIODIC
+            updated.name shouldBe "수정된 상품"
+        }
     })
+
+private fun updateCommand(
+    dealType: DealType,
+    name: String = "수정된 상품",
+    discountPeriod: DiscountPeriod = DiscountPeriod(LocalDate.now(), LocalDate.now()),
+): ProductUpdateCommand =
+    ProductUpdateCommand(
+        dealType = dealType,
+        name = name,
+        thumbnailUrl = "https://cdn.example.com/products/edit.png",
+        price = Price(BigDecimal("15000"), BigDecimal("12000")),
+        category = ProductCategory.MEAT_EGG,
+        promotionalPhrase = null,
+        discountPeriod = discountPeriod,
+    )
 
 private fun registerCommand(
     thumbnailUrl: String? = "https://cdn.example.com/products/new.png",
@@ -396,6 +478,10 @@ private class FakeProductRepository : ProductRepository {
     override fun save(product: Product): Product {
         store[product.id] = product
         return product
+    }
+
+    override fun update(product: Product) {
+        store[product.id] = product
     }
 
     override fun softDeleteByIds(ids: List<Long>) {

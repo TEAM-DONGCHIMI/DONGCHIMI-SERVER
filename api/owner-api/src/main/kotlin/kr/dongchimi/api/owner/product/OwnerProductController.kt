@@ -9,6 +9,7 @@ import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
+import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.core.product.PreparedProductService
@@ -87,6 +88,18 @@ class OwnerProductController(
         val product = productService.getProduct(apiUser.userId, marketId, productId)
 
         return ApiResponse.success(OwnerProductDetailResponse(product))
+    }
+
+    @PutMapping("/{productId}")
+    override fun updateProduct(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @PathVariable productId: Long,
+        @RequestBody request: ProductUpdateRequest,
+    ): ApiResponse<Unit> {
+        productService.updateProduct(apiUser.userId, marketId, productId, request.toCommand(), LocalDate.now())
+
+        return ApiResponse.success()
     }
 
     @DeleteMapping("/{productId}")

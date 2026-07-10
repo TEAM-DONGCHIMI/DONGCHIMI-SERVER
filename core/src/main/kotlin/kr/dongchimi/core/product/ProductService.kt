@@ -44,6 +44,28 @@ class ProductService(
         return product
     }
 
+    fun updateProduct(
+        ownerId: Long,
+        marketId: Long,
+        productId: Long,
+        command: ProductUpdateCommand,
+        today: LocalDate,
+    ) {
+        marketValidator.validateOwnership(marketId, ownerId)
+
+        val product = productReader.read(productId)
+        productValidator.validateBelongsToMarket(product, marketId)
+
+        if (command.dealType != product.dealType) {
+            throw CoreException(ProductErrorCode.TYPE_MISMATCH)
+        }
+        if (command.dealType == DealType.DAILY && !command.discountPeriod.includes(today)) {
+            throw CoreException(ProductErrorCode.INVALID_DISCOUNT_PERIOD)
+        }
+
+        productUpdater.update(command.applyTo(product))
+    }
+
     fun delete(
         ownerId: Long,
         marketId: Long,

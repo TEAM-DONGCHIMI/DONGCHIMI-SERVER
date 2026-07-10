@@ -10,6 +10,7 @@ import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
+import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.core.common.PageOffset
 import kr.dongchimi.core.product.DailyDealRegisterCommand
 import kr.dongchimi.core.product.DealType
@@ -24,6 +25,7 @@ import kr.dongchimi.core.product.Price
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.core.product.ProductService
+import kr.dongchimi.core.product.ProductUpdateCommand
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import java.math.BigDecimal
@@ -183,12 +185,27 @@ class ProductControllerTest :
                 .verify(productService)
                 .registerDailyProduct(eqLong(1L), eqLong(marketId), eqCommand(request.toCommand()), anyLocalDate())
         }
+
+        test("상품 수정 시 변환된 command와 오늘 날짜로 서비스를 호출한다") {
+            val productService = Mockito.mock(ProductService::class.java)
+            val controller = newController(productService)
+            val request = updateRequest()
+
+            val response = controller.updateProduct(apiUser, marketId, 5L, request)
+
+            response.success shouldBe true
+            Mockito
+                .verify(productService)
+                .updateProduct(eqLong(1L), eqLong(marketId), eqLong(5L), eqUpdateCommand(request.toCommand()), anyLocalDate())
+        }
     })
 
 // Kotlin 비널 파라미터에 Mockito 매처를 쓰기 위한 헬퍼 (매처는 null을 반환하므로 폴백을 준다)
 private fun eqLong(value: Long): Long = ArgumentMatchers.eq(value)
 
 private fun eqCommand(value: DailyDealRegisterCommand): DailyDealRegisterCommand = ArgumentMatchers.eq(value) ?: value
+
+private fun eqUpdateCommand(value: ProductUpdateCommand): ProductUpdateCommand = ArgumentMatchers.eq(value) ?: value
 
 private fun anyLocalDate(): LocalDate = Mockito.any(LocalDate::class.java) ?: LocalDate.now()
 
@@ -200,6 +217,19 @@ private fun registerRequest(): DailyDealRegisterRequest =
         promotionalPhrase = "멋쟁이 토마토",
         originalPrice = BigDecimal("5000"),
         discountedPrice = BigDecimal("4500"),
+        discountStartDate = LocalDate.now(),
+        discountEndDate = LocalDate.now(),
+    )
+
+private fun updateRequest(): ProductUpdateRequest =
+    ProductUpdateRequest(
+        type = DealType.DAILY,
+        thumbnailUrl = "https://cdn.dongchimi.kr/products/201.png",
+        name = "삼겹살 500g",
+        category = ProductCategory.MEAT_EGG,
+        promotionalPhrase = "신선한 삼겹살",
+        originalPrice = BigDecimal("22000"),
+        discountedPrice = BigDecimal("19500"),
         discountStartDate = LocalDate.now(),
         discountEndDate = LocalDate.now(),
     )
