@@ -4,10 +4,12 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dongchimi.api.core.common.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.CursorSliceResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.owner.OwnerApiUser
 import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
+import kr.dongchimi.api.owner.product.request.OwnerProductListRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
@@ -16,6 +18,7 @@ import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
+import kr.dongchimi.api.owner.product.response.OwnerProductListItemResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.market.MarketErrorCode
 import kr.dongchimi.core.product.PreparedProductErrorCode
@@ -71,6 +74,19 @@ interface OwnerProductApi {
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
         request: DailyProductRegisterRequest,
     ): ApiResponse<Unit>
+
+    @Operation(
+        summary = "상품 목록 조회",
+        description =
+            "점주가 등록한 상품을 type(PERIODIC/DAILY)별로, 오늘 할인 진행 중인 것만 커서 무한스크롤로 조회한다. " +
+                "정렬은 CATEGORY(기본)/LATEST/VIEW_COUNT, category(카테고리) 필터를 지원한다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class)
+    fun getProducts(
+        @Parameter(hidden = true) apiUser: OwnerApiUser,
+        @Parameter(description = "마트 ID") @PathVariable marketId: Long,
+        request: OwnerProductListRequest,
+    ): ApiResponse<CursorSliceResponse<OwnerProductListItemResponse>>
 
     @Operation(
         summary = "상품 상세 조회",
