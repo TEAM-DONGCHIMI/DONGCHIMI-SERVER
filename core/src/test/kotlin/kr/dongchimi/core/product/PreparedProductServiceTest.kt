@@ -569,5 +569,8 @@ private class PreparedProductFakeProductRepository : ProductRepository {
         limit: Int,
     ): List<ProductListItem> = emptyList()
 
-    override fun findListCursorAnchor(cursor: Long): ProductListCursorAnchor? = null
+    override fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor? = null
 }

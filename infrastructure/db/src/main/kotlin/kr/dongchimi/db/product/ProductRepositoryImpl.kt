@@ -193,8 +193,11 @@ class ProductRepositoryImpl(
                 PageRequest.of(0, limit),
             ).map { it.toListItem() }
 
-    override fun findListCursorAnchor(cursor: Long): ProductListCursorAnchor? =
-        productJpaRepository.findListCursorAnchor(cursor)?.let {
+    override fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor? =
+        productJpaRepository.findListCursorAnchor(cursor, marketId)?.let {
             ProductListCursorAnchor(categoryOrder = it.category.ordinal, viewCount = it.viewCount)
         }
 }

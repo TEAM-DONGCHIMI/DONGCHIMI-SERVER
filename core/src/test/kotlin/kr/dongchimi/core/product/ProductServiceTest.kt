@@ -788,8 +788,10 @@ private class FakeProductRepository : ProductRepository {
             .sortedWith(compareBy<ProductListItem> { it.product.category.ordinal }.thenByDescending { it.product.id })
             .take(limit)
 
-    override fun findListCursorAnchor(cursor: Long): ProductListCursorAnchor? =
-        store[cursor]?.let { ProductListCursorAnchor(categoryOrder = it.category.ordinal, viewCount = 0) }
+    override fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor? = store[cursor]?.let { ProductListCursorAnchor(categoryOrder = it.category.ordinal, viewCount = 0) }
 
     private fun activeListItems(
         marketId: Long,

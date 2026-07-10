@@ -107,5 +107,8 @@ interface ProductRepository {
         limit: Int,
     ): List<ProductListItem>
 
-    fun findListCursorAnchor(cursor: Long): ProductListCursorAnchor?
+    fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor?
 }

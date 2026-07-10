@@ -86,7 +86,7 @@ class OwnerProductController(
     override fun getProducts(
         apiUser: OwnerApiUser,
         @PathVariable marketId: Long,
-        request: OwnerProductListRequest,
+        @ModelAttribute request: OwnerProductListRequest,
     ): ApiResponse<CursorSliceResponse<OwnerProductListItemResponse>> {
         val slice = productService.getOwnerProducts(apiUser.userId, marketId, request.toSearchCondition(), LocalDate.now())
 

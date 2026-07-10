@@ -286,9 +286,11 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
             left join ProductMetadataJpaEntity m on m.id = p.id
         where p.id = :cursor
             and p.deletedAt is null
+            and p.marketId = :marketId
         """,
     )
     fun findListCursorAnchor(
         @Param("cursor") cursor: Long,
+        @Param("marketId") marketId: Long,
     ): OwnerProductAnchorRow?
 }

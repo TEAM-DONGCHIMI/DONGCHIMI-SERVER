@@ -66,11 +66,11 @@ class ProductFinder(
                 ProductSortType.LATEST ->
                     productRepository.findActiveByLatest(marketId, condition, date, condition.size + 1)
                 ProductSortType.VIEW_COUNT ->
-                    withCursorAnchor(condition) { anchor ->
+                    withCursorAnchor(marketId, condition) { anchor ->
                         productRepository.findActiveByViewCount(marketId, condition, date, anchor?.viewCount, condition.size + 1)
                     }
                 ProductSortType.CATEGORY ->
-                    withCursorAnchor(condition) { anchor ->
+                    withCursorAnchor(marketId, condition) { anchor ->
                         productRepository.findActiveByCategoryOrder(
                             marketId,
                             condition,
@@ -85,11 +85,12 @@ class ProductFinder(
 
     // 커서 상품이 그 사이 삭제돼 anchor를 못 찾으면 빈 결과(마지막 페이지)로 처리한다 — 페이지 경계에서 잘못된 중복 노출 방지.
     private fun withCursorAnchor(
+        marketId: Long,
         condition: ProductListSearchCondition,
         query: (ProductListCursorAnchor?) -> List<ProductListItem>,
     ): List<ProductListItem> {
         if (condition.cursor == null) return query(null)
-        val anchor = productRepository.findListCursorAnchor(condition.cursor) ?: return emptyList()
+        val anchor = productRepository.findListCursorAnchor(condition.cursor, marketId) ?: return emptyList()
         return query(anchor)
     }
 }

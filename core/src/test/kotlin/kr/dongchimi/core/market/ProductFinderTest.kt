@@ -154,7 +154,10 @@ private class StubProductRepository(
         return categoryOrderResult
     }
 
-    override fun findListCursorAnchor(cursor: Long): ProductListCursorAnchor? {
+    override fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor? {
         anchorRequestedCursor = cursor
         return anchor
     }
