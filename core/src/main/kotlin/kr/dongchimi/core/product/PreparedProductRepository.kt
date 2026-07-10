@@ -29,4 +29,8 @@ interface PreparedProductRepository {
     )
 
     fun softDeleteByIds(ids: List<Long>)
+
+    fun saveAll(preparedProducts: List<PreparedProduct>): List<PreparedProduct>
+
+    fun softDeleteAllByMarketId(marketId: Long)
 }

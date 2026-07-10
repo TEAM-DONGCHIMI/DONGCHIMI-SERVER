@@ -10,3 +10,4 @@ spring:
       - classpath:application-infrastructure-client.yml
       - classpath:application-infrastructure-storage.yml
       - classpath:application-infrastructure-redis.yml
+      - classpath:application-core.yml

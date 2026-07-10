@@ -73,4 +73,14 @@ class PreparedProductRepositoryImpl(
 
         entities.forEach { it.delete() }
     }
+
+    override fun saveAll(preparedProducts: List<PreparedProduct>): List<PreparedProduct> =
+        preparedProductJpaRepository.saveAll(preparedProducts.map { PreparedProductJpaEntity(it) }).map { it.toDomain() }
+
+    @Transactional
+    override fun softDeleteAllByMarketId(marketId: Long) {
+        val entities = preparedProductJpaRepository.findAllByMarketIdAndDeletedAtIsNull(marketId)
+
+        entities.forEach { it.delete() }
+    }
 }
