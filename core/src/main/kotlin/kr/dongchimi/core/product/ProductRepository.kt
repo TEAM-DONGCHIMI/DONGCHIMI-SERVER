@@ -83,4 +83,29 @@ interface ProductRepository {
         date: LocalDate,
         limit: Int,
     ): List<Product>
+
+    fun findActiveByLatest(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<ProductListItem>
+
+    fun findActiveByViewCount(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorViewCount: Int?,
+        limit: Int,
+    ): List<ProductListItem>
+
+    fun findActiveByCategoryOrder(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorCategoryOrder: Int?,
+        limit: Int,
+    ): List<ProductListItem>
+
+    fun findListCursorAnchor(cursor: Long): ProductListCursorAnchor?
 }

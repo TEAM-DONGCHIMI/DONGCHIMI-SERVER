@@ -180,4 +180,15 @@ class ProductService(
 
         return productFinder.findActiveByCategory(marketId, dealType, condition, date)
     }
+
+    fun getOwnerProducts(
+        ownerId: Long,
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+    ): CursorSliceResult<ProductListItem> {
+        marketValidator.validateOwnership(marketId, ownerId)
+
+        return productFinder.findActiveProductList(marketId, condition, date)
+    }
 }
