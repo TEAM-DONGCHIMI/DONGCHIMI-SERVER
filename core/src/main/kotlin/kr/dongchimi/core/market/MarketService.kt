@@ -24,6 +24,15 @@ class MarketService(
         return marketReader.read(flyer.id)
     }
 
+    fun getByIdForOwner(
+        ownerId: Long,
+        marketId: Long,
+    ): Market {
+        val market = marketReader.read(marketId)
+        marketValidator.validateOwnership(market, ownerId)
+        return market
+    }
+
     fun register(
         ownerId: Long,
         command: MarketRegisterCommand,
