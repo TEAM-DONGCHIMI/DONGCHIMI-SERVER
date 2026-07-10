@@ -15,11 +15,22 @@ class MarketService(
 ) {
     fun findByOwnerId(ownerId: Long): Market? = marketReader.readByOwnerId(ownerId)
 
+    fun getById(marketId: Long): Market = marketReader.read(marketId)
+
     fun getNearbyMarkets(condition: NearbyMarketSearchCondition): CursorSliceResult<NearbyMarket> = marketFinder.findNearby(condition)
 
     fun getBySlug(slug: String): Market {
         val flyer = flyerReader.findBySlug(slug) ?: throw CoreException(MarketErrorCode.MARKET_NOT_FOUND)
         return marketReader.read(flyer.id)
+    }
+
+    fun getByIdForOwner(
+        ownerId: Long,
+        marketId: Long,
+    ): Market {
+        val market = marketReader.read(marketId)
+        marketValidator.validateOwnership(market, ownerId)
+        return market
     }
 
     fun register(

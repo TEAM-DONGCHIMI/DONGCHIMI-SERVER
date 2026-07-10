@@ -78,6 +78,33 @@ class ProductServiceTest :
             product.marketId shouldBe marketId
         }
 
+        test("상세 조회(user): 상품이 해당 마트에 없으면 PRODUCT_NOT_FOUND") {
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = 999L)) }
+            val (service, _, _) = newService(products = products)
+
+            val exception = shouldThrow<CoreException> { service.getDetail(marketId, 1L) }
+
+            exception.errorCode shouldBe ProductErrorCode.PRODUCT_NOT_FOUND
+        }
+
+        test("상세 조회(user): 상품이 없으면 PRODUCT_NOT_FOUND") {
+            val (service, _, _) = newService()
+
+            val exception = shouldThrow<CoreException> { service.getDetail(marketId, 1L) }
+
+            exception.errorCode shouldBe ProductErrorCode.PRODUCT_NOT_FOUND
+        }
+
+        test("상세 조회(user): 정상이면 상품을 반환한다") {
+            val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = marketId)) }
+            val (service, _, _) = newService(products = products)
+
+            val product = service.getDetail(marketId, 1L)
+
+            product.id shouldBe 1L
+            product.marketId shouldBe marketId
+        }
+
         test("삭제: 상품이 해당 마트에 없으면 PRODUCT_NOT_FOUND") {
             val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
             val products = FakeProductRepository().apply { put(sampleProduct(id = 1L, marketId = 999L)) }
@@ -355,7 +382,92 @@ class ProductServiceTest :
             updated.dealType shouldBe DealType.PERIODIC
             updated.name shouldBe "수정된 상품"
         }
+        test("행사 할인 상품: PERIODIC이면서 오늘 할인 진행 중인 상품만 반환한다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products =
+                FakeProductRepository().apply {
+                    put(sampleProduct(id = 1L, marketId = marketId, dealType = DealType.PERIODIC, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 2L, marketId = marketId, dealType = DealType.DAILY, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 3L, marketId = marketId, dealType = DealType.PERIODIC))
+                }
+            val (service, _, _) = newService(markets, products)
+
+            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(), LocalDate.now())
+
+            result.content.map { it.id } shouldBe listOf(1L)
+        }
+
+        test("행사 할인 상품: category가 있으면 해당 카테고리만 반환한다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products =
+                FakeProductRepository().apply {
+                    put(
+                        sampleProduct(
+                            id = 1L,
+                            marketId = marketId,
+                            discountPeriod = ongoingDiscount(),
+                            category = ProductCategory.MEAT_EGG,
+                        ),
+                    )
+                    put(
+                        sampleProduct(
+                            id = 2L,
+                            marketId = marketId,
+                            discountPeriod = ongoingDiscount(),
+                            category = ProductCategory.SEAFOOD,
+                        ),
+                    )
+                }
+            val (service, _, _) = newService(markets, products)
+
+            val result =
+                service.getActiveProductsByCategory(
+                    marketId,
+                    DealType.PERIODIC,
+                    periodicCondition(category = ProductCategory.SEAFOOD),
+                    LocalDate.now(),
+                )
+
+            result.content.map { it.id } shouldBe listOf(2L)
+        }
+
+        test("행사 할인 상품: size보다 많이 조회되면 hasNext가 true이고 마지막 상품 id가 nextCursor다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products =
+                FakeProductRepository().apply {
+                    put(sampleProduct(id = 1L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 2L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 3L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                }
+            val (service, _, _) = newService(markets, products)
+
+            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(size = 2), LocalDate.now())
+
+            result.content.map { it.id } shouldBe listOf(3L, 2L)
+            result.hasNext shouldBe true
+            result.nextCursor shouldBe 2L
+        }
+
+        test("행사 할인 상품: size 이하로 조회되면 hasNext가 false이고 nextCursor는 null이다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products =
+                FakeProductRepository().apply {
+                    put(sampleProduct(id = 1L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                }
+            val (service, _, _) = newService(markets, products)
+
+            val result = service.getActiveProductsByCategory(marketId, DealType.PERIODIC, periodicCondition(size = 2), LocalDate.now())
+
+            result.hasNext shouldBe false
+            result.nextCursor shouldBe null
+        }
     })
+
+private fun periodicCondition(
+    category: ProductCategory? = null,
+    cursor: Long? = null,
+    size: Int = 12,
+): PeriodicProductSearchCondition = PeriodicProductSearchCondition(category = category, cursor = cursor, size = size)
 
 private fun updateCommand(
     dealType: DealType,
@@ -392,6 +504,7 @@ private fun sampleProduct(
     marketId: Long,
     dealType: DealType = DealType.PERIODIC,
     discountPeriod: DiscountPeriod = DiscountPeriod(LocalDate.of(2025, 8, 1), LocalDate.of(2025, 8, 16)),
+    category: ProductCategory = ProductCategory.MEAT_EGG,
 ): Product =
     Product(
         id = id,
@@ -400,7 +513,7 @@ private fun sampleProduct(
         dealType = dealType,
         thumbnailUrl = "https://cdn.example.com/products/$id.png",
         price = Price(BigDecimal("15000"), BigDecimal("12000")),
-        category = ProductCategory.MEAT_EGG,
+        category = category,
         promotionalPhrase = null,
         discountPeriod = discountPeriod,
     )
@@ -561,6 +674,23 @@ private class FakeProductRepository : ProductRepository {
             .filter { it.marketId in marketIds && isActiveOn(it, date) }
             .groupingBy { it.marketId }
             .eachCount()
+
+    override fun findActiveByMarketIdAndDealTypeAndCategory(
+        marketId: Long,
+        dealType: DealType,
+        condition: PeriodicProductSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> =
+        store.values
+            .filter {
+                it.marketId == marketId &&
+                    it.dealType == dealType &&
+                    isActiveOn(it, date) &&
+                    (condition.category == null || it.category == condition.category) &&
+                    (condition.cursor == null || it.id < condition.cursor)
+            }.sortedByDescending { it.id }
+            .take(limit)
 
     private fun isActiveOn(
         product: Product,

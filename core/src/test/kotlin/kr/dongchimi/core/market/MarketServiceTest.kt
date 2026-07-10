@@ -117,6 +117,58 @@ class MarketServiceTest :
 
             exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
         }
+
+        test("id로 조회 시 마트가 있으면 해당 마트를 반환한다") {
+            val (service, _, _) = newService()
+            val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
+
+            val found = service.getById(market.id)
+
+            found.id shouldBe market.id
+        }
+
+        test("id로 조회 시 마트가 없으면 MARKET_NOT_FOUND 예외가 발생한다") {
+            val (service, _, _) = newService()
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.getById(999L)
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("소유자용 조회 시 마트가 없으면 MARKET_NOT_FOUND 예외가 발생한다") {
+            val (service, _, _) = newService()
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.getByIdForOwner(ownerId = 1L, marketId = 999L)
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("소유자용 조회 시 다른 점주 소유면 MARKET_ACCESS_DENIED 예외가 발생한다") {
+            val (service, _, _) = newService()
+            val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.getByIdForOwner(ownerId = 2L, marketId = market.id)
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_ACCESS_DENIED
+        }
+
+        test("소유자용 조회 시 정상이면 마트를 반환한다") {
+            val (service, _, _) = newService()
+            val market = service.register(ownerId = 1L, command = sampleRegisterCommand())
+
+            val found = service.getByIdForOwner(ownerId = 1L, marketId = market.id)
+
+            found.id shouldBe market.id
+        }
     })
 
 private fun sampleRegisterCommand(name: String = "동치미 마트 강남점"): MarketRegisterCommand =

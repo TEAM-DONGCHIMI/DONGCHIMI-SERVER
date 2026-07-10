@@ -1,5 +1,9 @@
 package kr.dongchimi.core.market
 
+import kr.dongchimi.core.common.CursorSliceResult
+import kr.dongchimi.core.common.toCursorSlice
+import kr.dongchimi.core.product.DealType
+import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductRepository
 import org.springframework.stereotype.Component
@@ -35,4 +39,14 @@ class ProductFinder(
         } else {
             productRepository.countActiveByMarketIds(marketIds, date)
         }
+
+    fun findActiveByCategory(
+        marketId: Long,
+        dealType: DealType,
+        condition: PeriodicProductSearchCondition,
+        date: LocalDate,
+    ): CursorSliceResult<Product> =
+        productRepository
+            .findActiveByMarketIdAndDealTypeAndCategory(marketId, dealType, condition, date, condition.size + 1)
+            .toCursorSlice(condition.size) { it.id }
 }

@@ -257,6 +257,37 @@ class PreparedProductServiceTest :
 
             products.saved.map { it.name } shouldBe listOf("삼겹살 500g")
         }
+
+        test("미리보기 조회: 마트가 없으면 MARKET_NOT_FOUND") {
+            val service = newService()
+
+            val exception = shouldThrow<CoreException> { service.getPreviewDrafts(ownerId, marketId) }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("미리보기 조회: 다른 점주 소유 마트면 MARKET_ACCESS_DENIED") {
+            val markets = PreparedProductFakeMarketRepository().apply { put(marketId, ownerId = 2L) }
+            val service = newService(markets)
+
+            val exception = shouldThrow<CoreException> { service.getPreviewDrafts(ownerId, marketId) }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_ACCESS_DENIED
+        }
+
+        test("미리보기 조회: SUCCESS 상태만 반환하고 FAIL은 제외한다") {
+            val markets = PreparedProductFakeMarketRepository().apply { put(marketId, ownerId) }
+            val preparedProducts =
+                FakePreparedProductRepository().apply {
+                    put(samplePreparedProduct(id = 1L, marketId = marketId, draftStatus = DraftStatus.SUCCESS))
+                    put(samplePreparedProduct(id = 2L, marketId = marketId, draftStatus = DraftStatus.FAIL))
+                }
+            val service = newService(markets, preparedProducts)
+
+            val previewDrafts = service.getPreviewDrafts(ownerId, marketId)
+
+            previewDrafts.map { it.id } shouldBe listOf(1L)
+        }
     })
 
 private fun samplePreparedProduct(
@@ -392,6 +423,11 @@ private class FakePreparedProductRepository : PreparedProductRepository {
 
     override fun findAllByMarketId(marketId: Long): List<PreparedProduct> = alive().filter { it.marketId == marketId }
 
+    override fun findAllByMarketIdAndDraftStatus(
+        marketId: Long,
+        draftStatus: DraftStatus,
+    ): List<PreparedProduct> = alive().filter { it.marketId == marketId && it.draftStatus == draftStatus }
+
     override fun countInMarket(
         ids: List<Long>,
         marketId: Long,
@@ -501,4 +537,12 @@ private class PreparedProductFakeProductRepository : ProductRepository {
         marketIds: List<Long>,
         date: LocalDate,
     ): Map<Long, Int> = emptyMap()
+
+    override fun findActiveByMarketIdAndDealTypeAndCategory(
+        marketId: Long,
+        dealType: DealType,
+        condition: PeriodicProductSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> = emptyList()
 }

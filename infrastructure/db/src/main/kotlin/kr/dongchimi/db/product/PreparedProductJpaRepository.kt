@@ -1,5 +1,6 @@
 package kr.dongchimi.db.product
 
+import kr.dongchimi.core.product.DraftStatus
 import kr.dongchimi.core.product.ProductCategory
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -40,6 +41,11 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
     ): PreparedProductDraftCountProjection
 
     fun findAllByMarketIdAndDeletedAtIsNull(marketId: Long): List<PreparedProductJpaEntity>
+
+    fun findAllByMarketIdAndDraftStatusAndDeletedAtIsNullOrderByCreatedAtDesc(
+        marketId: Long,
+        draftStatus: DraftStatus,
+    ): List<PreparedProductJpaEntity>
 
     fun findAllByIdInAndDeletedAtIsNull(ids: List<Long>): List<PreparedProductJpaEntity>
 

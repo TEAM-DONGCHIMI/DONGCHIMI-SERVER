@@ -3,6 +3,7 @@ package kr.dongchimi.db.product
 import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
+import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductErrorCode
 import kr.dongchimi.core.product.ProductRepository
@@ -125,4 +126,15 @@ class ProductRepositoryImpl(
         productJpaRepository
             .countActiveByMarketIds(marketIds, date)
             .associate { it.marketId to it.productCount.toInt() }
+
+    override fun findActiveByMarketIdAndDealTypeAndCategory(
+        marketId: Long,
+        dealType: DealType,
+        condition: PeriodicProductSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product> =
+        productJpaRepository
+            .findActiveByCategory(marketId, dealType, condition.category, condition.cursor, date, PageRequest.of(0, limit))
+            .map { it.toDomain() }
 }
