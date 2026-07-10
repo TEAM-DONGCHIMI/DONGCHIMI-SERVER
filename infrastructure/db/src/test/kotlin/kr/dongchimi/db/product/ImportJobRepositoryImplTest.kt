@@ -10,14 +10,15 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.core.product.ImportJob
+import kr.dongchimi.core.product.ImportJobRepository
 import kr.dongchimi.core.product.ImportJobResult
 import kr.dongchimi.core.product.ImportJobStatus
 import kr.dongchimi.db.testsupport.TestJpaConfig
 import kr.dongchimi.db.testsupport.TestPostgresContainer
 import org.springframework.test.context.ContextConfiguration
 import java.time.Duration
+import java.util.Collections
 import java.util.UUID
-import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit
 @ContextConfiguration(classes = [TestJpaConfig::class])
 @ApplyExtension(SpringExtension::class)
 class ImportJobRepositoryImplTest(
-    repository: ImportJobRepositoryImpl,
+    repository: ImportJobRepository,
 ) : FunSpec({
         beforeEach {
             TestPostgresContainer.newConnection().use { connection ->
@@ -130,7 +131,7 @@ class ImportJobRepositoryImplTest(
             val job = repository.append(newJob())
             val executor = Executors.newFixedThreadPool(2)
             val startLatch = CountDownLatch(1)
-            val results = ConcurrentLinkedQueue<ImportJob?>()
+            val results = Collections.synchronizedList(mutableListOf<ImportJob?>())
 
             val futures =
                 (1..2).map { i ->

@@ -2,6 +2,7 @@ package kr.dongchimi.api.owner.flyer
 
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.flyer.response.FlyerDailyPreviewResponse
 import kr.dongchimi.api.owner.flyer.response.FlyerPreviewResponse
 import kr.dongchimi.api.owner.flyer.response.FlyerPublishResponse
 import kr.dongchimi.api.owner.flyer.response.FlyerQrResponse
@@ -45,6 +46,16 @@ class FlyerController(
         @PathVariable marketId: Long,
     ): ApiResponse<FlyerPreviewResponse> {
         val response = flyerPreviewQueryFacade.getPeriodicPreview(apiUser.userId, marketId, LocalDateTime.now())
+
+        return ApiResponse.success(response)
+    }
+
+    @GetMapping("/preview/daily")
+    override fun getDailyPreview(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+    ): ApiResponse<FlyerDailyPreviewResponse> {
+        val response = flyerPreviewQueryFacade.getDailyPreview(apiUser.userId, marketId, LocalDateTime.now())
 
         return ApiResponse.success(response)
     }

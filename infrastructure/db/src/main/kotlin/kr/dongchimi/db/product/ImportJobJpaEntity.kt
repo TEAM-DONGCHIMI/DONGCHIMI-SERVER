@@ -15,7 +15,7 @@ import java.time.LocalDateTime
 @Table(name = "product_import_jobs")
 class ImportJobJpaEntity(
     @Id
-    @Column(name = "job_id", nullable = false, columnDefinition = "VARCHAR(32)")
+    @Column(name = "job_id", nullable = false, columnDefinition = "VARCHAR(64)")
     val jobId: String,
     @Column(name = "market_id", nullable = false)
     val marketId: Long,

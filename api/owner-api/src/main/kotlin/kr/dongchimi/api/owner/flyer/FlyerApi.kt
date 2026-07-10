@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.flyer.response.FlyerDailyPreviewResponse
 import kr.dongchimi.api.owner.flyer.response.FlyerPreviewResponse
 import kr.dongchimi.api.owner.flyer.response.FlyerPublishResponse
 import kr.dongchimi.api.owner.flyer.response.FlyerQrResponse
@@ -45,4 +46,14 @@ interface FlyerApi {
         @Parameter(hidden = true) apiUser: OwnerApiUser,
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
     ): ApiResponse<FlyerPreviewResponse>
+
+    @Operation(
+        summary = "오늘의 특가 전단 미리보기 조회",
+        description = "오늘의 특가 수정 후 오늘의 전단을 최종 확인한다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class)
+    fun getDailyPreview(
+        @Parameter(hidden = true) apiUser: OwnerApiUser,
+        @Parameter(description = "마트 ID") @PathVariable marketId: Long,
+    ): ApiResponse<FlyerDailyPreviewResponse>
 }
