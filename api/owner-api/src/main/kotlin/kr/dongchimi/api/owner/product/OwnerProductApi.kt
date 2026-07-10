@@ -7,11 +7,13 @@ import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
+import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
@@ -60,6 +62,17 @@ interface OwnerProductApi {
     ): ApiResponse<Unit>
 
     @Operation(
+        summary = "오늘의 특가 등록",
+        description = "점주가 오늘의 특가(DAILY) 상품을 단건 등록한다. 기간은 오늘을 포함해야 하며, 썸네일 미입력 시 null로 저장한다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class, ProductErrorCode::class)
+    fun registerDailyProduct(
+        @Parameter(hidden = true) apiUser: OwnerApiUser,
+        @Parameter(description = "마트 ID") @PathVariable marketId: Long,
+        request: DailyProductRegisterRequest,
+    ): ApiResponse<Unit>
+
+    @Operation(
         summary = "상품 상세 조회",
         description = "점주가 수정할 때 각 상품 정보를 상세 조회한다.",
     )
@@ -69,6 +82,20 @@ interface OwnerProductApi {
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
         @Parameter(description = "상품 ID") @PathVariable productId: Long,
     ): ApiResponse<OwnerProductDetailResponse>
+
+    @Operation(
+        summary = "상품 수정",
+        description =
+            "점주가 등록한 상품의 판매 정보를 수정한다. 요청 type이 상품의 기존 판매 유형과 일치해야 하며, " +
+                "DAILY는 정가·할인가를 모두 받고 기간이 오늘을 포함해야 한다. PERIODIC은 판매가만 받는다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class, ProductErrorCode::class)
+    fun updateProduct(
+        @Parameter(hidden = true) apiUser: OwnerApiUser,
+        @Parameter(description = "마트 ID") @PathVariable marketId: Long,
+        @Parameter(description = "상품 ID") @PathVariable productId: Long,
+        request: ProductUpdateRequest,
+    ): ApiResponse<Unit>
 
     @Operation(
         summary = "상품 삭제",

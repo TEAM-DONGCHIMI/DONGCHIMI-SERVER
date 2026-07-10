@@ -21,7 +21,7 @@ data class PreparedProduct(
             marketId = marketId,
             name = name!!,
             dealType = dealType,
-            thumbnailUrl = thumbnailUrl!!,
+            thumbnailUrl = thumbnailUrl,
             price = price!!,
             category = category!!,
             promotionalPhrase = promotionalPhrase,

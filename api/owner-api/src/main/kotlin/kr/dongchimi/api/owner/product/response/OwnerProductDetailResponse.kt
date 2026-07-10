@@ -14,8 +14,8 @@ data class OwnerProductDetailResponse(
     val name: String,
     @Schema(description = "PERIODIC(기간 할인) / DAILY(오늘의 특가)")
     val dealType: DealType,
-    @Schema(description = "상품 썸네일 이미지 URL")
-    val thumbnailUrl: String,
+    @Schema(description = "상품 썸네일 이미지 URL (없으면 null)")
+    val thumbnailUrl: String?,
     @Schema(description = "정가")
     val originalPrice: BigDecimal,
     @Schema(description = "할인가")

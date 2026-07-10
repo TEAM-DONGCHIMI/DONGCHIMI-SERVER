@@ -4,13 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.core.product.Product
 import java.math.BigDecimal
 
-data class DailyDealProductResponse(
+data class DailyProductResponse(
     @Schema(description = "상품 id")
     val productId: Long,
     @Schema(description = "상품명")
     val name: String,
-    @Schema(description = "상품 썸네일 이미지 URL")
-    val thumbnailUrl: String,
+    @Schema(description = "상품 썸네일 이미지 URL (없으면 null)")
+    val thumbnailUrl: String?,
     @Schema(description = "정가")
     val originalPrice: BigDecimal,
     @Schema(description = "할인가")

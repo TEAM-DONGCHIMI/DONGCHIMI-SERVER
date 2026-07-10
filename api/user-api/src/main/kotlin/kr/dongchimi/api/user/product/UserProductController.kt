@@ -4,7 +4,7 @@ import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.CursorSliceResponse
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.api.user.product.request.PeriodicProductListRequest
-import kr.dongchimi.api.user.product.response.DailyDealListResponse
+import kr.dongchimi.api.user.product.response.DailyProductListResponse
 import kr.dongchimi.api.user.product.response.PeriodicProductResponse
 import kr.dongchimi.api.user.product.response.ProductDetailResponse
 import kr.dongchimi.core.product.DealType
@@ -22,13 +22,13 @@ class UserProductController(
     private val productDetailQueryFacade: ProductDetailQueryFacade,
 ) : UserProductApi {
     @GetMapping("/daily")
-    override fun getDailyDeals(
+    override fun getDailyProducts(
         apiUser: UserApiUser,
         @PathVariable marketId: Long,
-    ): ApiResponse<DailyDealListResponse> {
+    ): ApiResponse<DailyProductListResponse> {
         val products = productService.getAllActiveProducts(marketId, DealType.DAILY, LocalDate.now())
 
-        return ApiResponse.success(DailyDealListResponse(products))
+        return ApiResponse.success(DailyProductListResponse(products))
     }
 
     @GetMapping("/{productId}")

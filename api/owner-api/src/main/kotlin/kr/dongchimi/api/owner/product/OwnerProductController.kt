@@ -3,11 +3,13 @@ package kr.dongchimi.api.owner.product
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
+import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
+import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.core.product.PreparedProductService
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/v1/owners/markets/{marketId}/products")
@@ -65,6 +68,17 @@ class OwnerProductController(
         return ApiResponse.success()
     }
 
+    @PostMapping("/daily")
+    override fun registerDailyProduct(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @RequestBody request: DailyProductRegisterRequest,
+    ): ApiResponse<Unit> {
+        productService.registerDailyProduct(apiUser.userId, marketId, request.toCommand(), LocalDate.now())
+
+        return ApiResponse.success()
+    }
+
     @GetMapping("/{productId}")
     override fun getDetail(
         apiUser: OwnerApiUser,
@@ -74,6 +88,18 @@ class OwnerProductController(
         val product = productService.getProduct(apiUser.userId, marketId, productId)
 
         return ApiResponse.success(OwnerProductDetailResponse(product))
+    }
+
+    @PutMapping("/{productId}")
+    override fun updateProduct(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @PathVariable productId: Long,
+        @RequestBody request: ProductUpdateRequest,
+    ): ApiResponse<Unit> {
+        productService.updateProduct(apiUser.userId, marketId, productId, request.toCommand(), LocalDate.now())
+
+        return ApiResponse.success()
     }
 
     @DeleteMapping("/{productId}")

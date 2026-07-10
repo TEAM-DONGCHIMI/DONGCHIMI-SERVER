@@ -1,9 +1,11 @@
 package kr.dongchimi.db.product
 
+import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
+import kr.dongchimi.core.product.ProductErrorCode
 import kr.dongchimi.core.product.ProductRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Repository
@@ -28,6 +30,14 @@ class ProductRepositoryImpl(
 
     override fun saveAll(products: List<Product>): List<Product> =
         productJpaRepository.saveAll(products.map { ProductJpaEntity(it) }).map { it.toDomain() }
+
+    @Transactional
+    override fun update(product: Product) {
+        val entity =
+            productJpaRepository.findByIdAndDeletedAtIsNull(product.id)
+                ?: throw CoreException(ProductErrorCode.PRODUCT_NOT_FOUND)
+        entity.update(product)
+    }
 
     @Transactional
     override fun softDeleteByIds(ids: List<Long>) {

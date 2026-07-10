@@ -1,6 +1,7 @@
 package kr.dongchimi.core.product
 
 import kr.dongchimi.core.common.CursorSliceResult
+import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.market.MarketValidator
 import kr.dongchimi.core.market.ProductFinder
 import org.springframework.stereotype.Service
@@ -14,7 +15,23 @@ class ProductService(
     private val productRemover: ProductRemover,
     private val productUpdater: ProductUpdater,
     private val productFinder: ProductFinder,
+    private val productAppender: ProductAppender,
 ) {
+    fun registerDailyProduct(
+        ownerId: Long,
+        marketId: Long,
+        command: DailyProductRegisterCommand,
+        today: LocalDate,
+    ) {
+        marketValidator.validateOwnership(marketId, ownerId)
+
+        if (!command.discountPeriod.includes(today)) {
+            throw CoreException(ProductErrorCode.INVALID_DISCOUNT_PERIOD)
+        }
+
+        productAppender.append(command.toProduct(marketId))
+    }
+
     fun getProduct(
         ownerId: Long,
         marketId: Long,
@@ -26,6 +43,28 @@ class ProductService(
         productValidator.validateBelongsToMarket(product, marketId)
 
         return product
+    }
+
+    fun updateProduct(
+        ownerId: Long,
+        marketId: Long,
+        productId: Long,
+        command: ProductUpdateCommand,
+        today: LocalDate,
+    ) {
+        marketValidator.validateOwnership(marketId, ownerId)
+
+        val product = productReader.read(productId)
+        productValidator.validateBelongsToMarket(product, marketId)
+
+        if (command.dealType != product.dealType) {
+            throw CoreException(ProductErrorCode.TYPE_MISMATCH)
+        }
+        if (command.dealType == DealType.DAILY && !command.discountPeriod.includes(today)) {
+            throw CoreException(ProductErrorCode.INVALID_DISCOUNT_PERIOD)
+        }
+
+        productUpdater.update(command.applyTo(product))
     }
 
     fun getDetail(

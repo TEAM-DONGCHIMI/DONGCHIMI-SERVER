@@ -31,7 +31,7 @@ class UserProductControllerTest :
                 .thenReturn(listOf(sampleProduct(1L), sampleProduct(2L)))
             val controller = UserProductController(productService, productDetailQueryFacade)
 
-            val response = controller.getDailyDeals(apiUser, marketId)
+            val response = controller.getDailyProducts(apiUser, marketId)
 
             response.success shouldBe true
             response.data!!.totalCount shouldBe 2
@@ -50,7 +50,7 @@ class UserProductControllerTest :
                 .thenReturn(emptyList())
             val controller = UserProductController(productService, productDetailQueryFacade)
 
-            val response = controller.getDailyDeals(apiUser, marketId)
+            val response = controller.getDailyProducts(apiUser, marketId)
 
             response.data!!.totalCount shouldBe 0
             response.data!!.products shouldBe emptyList()

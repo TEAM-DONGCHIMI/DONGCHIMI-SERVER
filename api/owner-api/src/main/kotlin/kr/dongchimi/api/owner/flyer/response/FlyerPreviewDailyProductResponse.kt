@@ -10,7 +10,7 @@ data class FlyerPreviewDailyProductResponse(
     @Schema(description = "상품명")
     val name: String,
     @Schema(description = "상품 썸네일 이미지 URL")
-    val thumbnailUrl: String,
+    val thumbnailUrl: String?,
     @Schema(description = "정가")
     val originalPrice: BigDecimal,
     @Schema(description = "할인가")
