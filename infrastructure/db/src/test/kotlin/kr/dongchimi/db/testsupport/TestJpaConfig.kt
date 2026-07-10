@@ -1,5 +1,6 @@
 package kr.dongchimi.db.testsupport
 
+import kr.dongchimi.db.common.config.JpaAuditingConfig
 import kr.dongchimi.db.product.ImportJobRepositoryImpl
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -26,7 +27,7 @@ import javax.sql.DataSource
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = ["kr.dongchimi.db.product"])
-@Import(ImportJobRepositoryImpl::class)
+@Import(ImportJobRepositoryImpl::class, JpaAuditingConfig::class)
 class TestJpaConfig {
     @Bean
     fun dataSource(): DataSource =
@@ -43,7 +44,13 @@ class TestJpaConfig {
             this.dataSource = dataSource
             setPackagesToScan("kr.dongchimi.db.product")
             jpaVendorAdapter = HibernateJpaVendorAdapter()
-            setJpaPropertyMap(mapOf("hibernate.hbm2ddl.auto" to "validate"))
+            setJpaPropertyMap(
+                mapOf(
+                    "hibernate.hbm2ddl.auto" to "validate",
+                    "hibernate.physical_naming_strategy" to "org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy",
+                    "hibernate.implicit_naming_strategy" to "org.springframework.boot.hibernate.SpringImplicitNamingStrategy",
+                ),
+            )
         }
 
     @Bean

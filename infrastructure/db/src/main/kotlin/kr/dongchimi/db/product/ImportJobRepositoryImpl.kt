@@ -31,16 +31,19 @@ class ImportJobRepositoryImpl(
         return importJobJpaRepository.findByIdOrNull(jobId)?.toDomain()
     }
 
+    @Transactional
     override fun renewLease(
         jobId: String,
         instanceId: String,
         lease: Duration,
     ): Boolean = importJobJpaRepository.renewLease(jobId, instanceId, LocalDateTime.now().plus(lease)) > 0
 
+    @Transactional
     override fun releaseLeases(instanceId: String) {
         importJobJpaRepository.releaseLeases(instanceId)
     }
 
+    @Transactional
     override fun compareAndFinish(
         jobId: String,
         status: ImportJobStatus,
