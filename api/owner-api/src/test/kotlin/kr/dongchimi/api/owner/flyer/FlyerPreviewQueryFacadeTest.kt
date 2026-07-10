@@ -86,6 +86,32 @@ class FlyerPreviewQueryFacadeTest :
             response.isOpenNow shouldBe false
             response.top3 shouldBe emptyList()
         }
+
+        test("마트/인기상품/오늘의특가를 조합해 오늘의 특가 미리보기 응답을 만든다") {
+            val marketService = Mockito.mock(MarketService::class.java)
+            val productService = Mockito.mock(ProductService::class.java)
+            val preparedProductService = Mockito.mock(PreparedProductService::class.java)
+            Mockito.`when`(marketService.getByIdForOwner(ownerId, marketId)).thenReturn(market())
+            Mockito
+                .`when`(productService.getPopularActiveProducts(marketId, now.toLocalDate(), 3))
+                .thenReturn(listOf(product(101L)))
+            Mockito
+                .`when`(productService.getAllActiveProducts(marketId, DealType.DAILY, now.toLocalDate()))
+                .thenReturn(listOf(product(201L)))
+
+            val facade = FlyerPreviewQueryFacade(marketService, productService, preparedProductService)
+
+            val response = facade.getDailyPreview(ownerId, marketId, now)
+
+            response.marketId shouldBe marketId
+            response.address shouldBe "서울시 마포구 망원동"
+            response.isOpenNow shouldBe true
+            response.businessHours.first().days shouldBe listOf("MONDAY", "TUESDAY")
+            response.businessHours.first().open shouldBe "10:00"
+            response.top3.map { it.productId } shouldBe listOf(101L)
+            response.daily.totalCount shouldBe 1
+            response.daily.products.map { it.productId } shouldBe listOf(201L)
+        }
     })
 
 private fun market() =
