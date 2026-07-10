@@ -1,6 +1,9 @@
 package kr.dongchimi.api.owner.flyer.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.dongchimi.core.market.Market
+import kr.dongchimi.core.product.Product
+import java.time.LocalDateTime
 
 data class FlyerDailyPreviewResponse(
     @Schema(description = "마트 id")
@@ -25,4 +28,23 @@ data class FlyerDailyPreviewResponse(
     val top3: List<FlyerPreviewProductResponse>,
     @Schema(description = "오늘의 특가")
     val daily: FlyerPreviewDailyResponse,
-)
+) {
+    constructor(
+        market: Market,
+        now: LocalDateTime,
+        top3: List<Product>,
+        dailyProducts: List<Product>,
+    ) : this(
+        marketId = market.id,
+        name = market.info.name,
+        thumbnailUrl = market.info.thumbnailUrl,
+        address = market.info.address.substringBefore("|"),
+        isOpenNow = market.businessHours.isOpenAt(now),
+        businessHours = market.businessHours.slots.map { FlyerPreviewBusinessHourResponse(it) },
+        marketPhone1 = market.phoneNumber.marketPhone1,
+        marketPhone2 = market.phoneNumber.marketPhone2,
+        ownerPhone = market.phoneNumber.ownerPhone,
+        top3 = top3.map { FlyerPreviewProductResponse(it) },
+        daily = FlyerPreviewDailyResponse(dailyProducts),
+    )
+}
