@@ -2,7 +2,7 @@ package kr.dongchimi.client.ai
 
 import kotlinx.coroutines.delay
 import kr.dongchimi.core.product.ProductCategory
-import kr.dongchimi.core.product.ProductCategoryClassifier
+import kr.dongchimi.core.product.import.ProductCategoryClassifier
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
