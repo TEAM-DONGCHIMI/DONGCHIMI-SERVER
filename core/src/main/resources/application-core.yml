@@ -1,0 +1,7 @@
+import:
+  job:
+    lease: ${IMPORT_JOB_LEASE:PT5M}
+    poll-interval: ${IMPORT_JOB_POLL_INTERVAL:PT1S}
+    slots-per-instance: ${IMPORT_JOB_SLOTS_PER_INSTANCE:4}
+    max-attempts: ${IMPORT_JOB_MAX_ATTEMPTS:5}
+    ai-concurrency: ${IMPORT_JOB_AI_CONCURRENCY:10}
