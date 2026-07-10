@@ -17,6 +17,7 @@ import kr.dongchimi.core.market.NearbyMarketSearchCondition
 import kr.dongchimi.core.market.ProductFinder
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class ProductServiceTest :
     FunSpec({
@@ -461,6 +462,60 @@ class ProductServiceTest :
             result.hasNext shouldBe false
             result.nextCursor shouldBe null
         }
+
+        test("상품 목록 조회(점주): 마트가 없으면 MARKET_NOT_FOUND") {
+            val (service, _, _) = newService()
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.getOwnerProducts(ownerId, marketId, ownerProductListCondition(), LocalDate.now())
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_NOT_FOUND
+        }
+
+        test("상품 목록 조회(점주): 다른 점주 소유 마트면 MARKET_ACCESS_DENIED") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId = 2L) }
+            val (service, _, _) = newService(markets)
+
+            val exception =
+                shouldThrow<CoreException> {
+                    service.getOwnerProducts(ownerId, marketId, ownerProductListCondition(), LocalDate.now())
+                }
+
+            exception.errorCode shouldBe MarketErrorCode.MARKET_ACCESS_DENIED
+        }
+
+        test("상품 목록 조회(점주): size보다 많이 조회되면 hasNext가 true이고 마지막 상품 id가 nextCursor다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products =
+                FakeProductRepository().apply {
+                    put(sampleProduct(id = 1L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 2L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                    put(sampleProduct(id = 3L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                }
+            val (service, _, _) = newService(markets, products)
+
+            val result = service.getOwnerProducts(ownerId, marketId, ownerProductListCondition(size = 2), LocalDate.now())
+
+            result.content.map { it.product.id } shouldBe listOf(3L, 2L)
+            result.hasNext shouldBe true
+            result.nextCursor shouldBe 2L
+        }
+
+        test("상품 목록 조회(점주): size 이하로 조회되면 hasNext가 false이고 nextCursor는 null이다") {
+            val markets = FakeMarketRepository().apply { put(marketId, ownerId) }
+            val products =
+                FakeProductRepository().apply {
+                    put(sampleProduct(id = 1L, marketId = marketId, discountPeriod = ongoingDiscount()))
+                }
+            val (service, _, _) = newService(markets, products)
+
+            val result = service.getOwnerProducts(ownerId, marketId, ownerProductListCondition(size = 2), LocalDate.now())
+
+            result.hasNext shouldBe false
+            result.nextCursor shouldBe null
+        }
     })
 
 private fun periodicCondition(
@@ -468,6 +523,15 @@ private fun periodicCondition(
     cursor: Long? = null,
     size: Int = 12,
 ): PeriodicProductSearchCondition = PeriodicProductSearchCondition(category = category, cursor = cursor, size = size)
+
+private fun ownerProductListCondition(
+    dealType: DealType = DealType.PERIODIC,
+    category: ProductCategory? = null,
+    sort: ProductSortType = ProductSortType.LATEST,
+    cursor: Long? = null,
+    size: Int = 12,
+): ProductListSearchCondition =
+    ProductListSearchCondition(dealType = dealType, category = category, sort = sort, cursor = cursor, size = size)
 
 private fun updateCommand(
     dealType: DealType,
@@ -691,6 +755,57 @@ private class FakeProductRepository : ProductRepository {
                     (condition.cursor == null || it.id < condition.cursor)
             }.sortedByDescending { it.id }
             .take(limit)
+
+    override fun findActiveByLatest(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<ProductListItem> =
+        activeListItems(marketId, condition, date)
+            .sortedByDescending { it.product.id }
+            .take(limit)
+
+    override fun findActiveByViewCount(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorViewCount: Int?,
+        limit: Int,
+    ): List<ProductListItem> =
+        activeListItems(marketId, condition, date)
+            .sortedWith(compareByDescending<ProductListItem> { it.viewCount }.thenByDescending { it.product.id })
+            .take(limit)
+
+    override fun findActiveByCategoryOrder(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorCategoryOrder: Int?,
+        limit: Int,
+    ): List<ProductListItem> =
+        activeListItems(marketId, condition, date)
+            .sortedWith(compareBy<ProductListItem> { it.product.category.ordinal }.thenByDescending { it.product.id })
+            .take(limit)
+
+    override fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor? = store[cursor]?.let { ProductListCursorAnchor(categoryOrder = it.category.ordinal, viewCount = 0) }
+
+    private fun activeListItems(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+    ): List<ProductListItem> =
+        store.values
+            .filter {
+                it.marketId == marketId &&
+                    it.dealType == condition.dealType &&
+                    isActiveOn(it, date) &&
+                    (condition.category == null || it.category == condition.category) &&
+                    (condition.cursor == null || it.id < condition.cursor)
+            }.map { ProductListItem(it, viewCount = 0, createdAt = LocalDateTime.of(2025, 1, 1, 0, 0)) }
 
     private fun isActiveOn(
         product: Product,

@@ -1,9 +1,11 @@
 package kr.dongchimi.api.owner.product
 
 import kr.dongchimi.api.core.common.dto.ApiResponse
+import kr.dongchimi.api.core.common.dto.CursorSliceResponse
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
 import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
+import kr.dongchimi.api.owner.product.request.OwnerProductListRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
@@ -12,6 +14,7 @@ import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
+import kr.dongchimi.api.owner.product.response.OwnerProductListItemResponse
 import kr.dongchimi.core.product.PreparedProductService
 import kr.dongchimi.core.product.ProductService
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -77,6 +80,23 @@ class OwnerProductController(
         productService.registerDailyProduct(apiUser.userId, marketId, request.toCommand(), LocalDate.now())
 
         return ApiResponse.success()
+    }
+
+    @GetMapping
+    override fun getProducts(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @ModelAttribute request: OwnerProductListRequest,
+    ): ApiResponse<CursorSliceResponse<OwnerProductListItemResponse>> {
+        val slice = productService.getOwnerProducts(apiUser.userId, marketId, request.toSearchCondition(), LocalDate.now())
+
+        return ApiResponse.success(
+            CursorSliceResponse(
+                content = slice.content.map { OwnerProductListItemResponse(it.product, it.viewCount, it.createdAt) },
+                hasNext = slice.hasNext,
+                nextCursor = slice.nextCursor,
+            ),
+        )
     }
 
     @GetMapping("/{productId}")

@@ -6,6 +6,9 @@ import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductErrorCode
+import kr.dongchimi.core.product.ProductListCursorAnchor
+import kr.dongchimi.core.product.ProductListItem
+import kr.dongchimi.core.product.ProductListSearchCondition
 import kr.dongchimi.core.product.ProductRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Repository
@@ -137,4 +140,64 @@ class ProductRepositoryImpl(
         productJpaRepository
             .findActiveByCategory(marketId, dealType, condition.category, condition.cursor, date, PageRequest.of(0, limit))
             .map { it.toDomain() }
+
+    override fun findActiveByLatest(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<ProductListItem> =
+        productJpaRepository
+            .findActiveByLatest(
+                marketId,
+                condition.dealType,
+                condition.category,
+                condition.cursor,
+                date,
+                PageRequest.of(0, limit),
+            ).map { it.toListItem() }
+
+    override fun findActiveByViewCount(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorViewCount: Int?,
+        limit: Int,
+    ): List<ProductListItem> =
+        productJpaRepository
+            .findActiveByViewCount(
+                marketId,
+                condition.dealType,
+                condition.category,
+                condition.cursor,
+                cursorViewCount,
+                date,
+                PageRequest.of(0, limit),
+            ).map { it.toListItem() }
+
+    override fun findActiveByCategoryOrder(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorCategoryOrder: Int?,
+        limit: Int,
+    ): List<ProductListItem> =
+        productJpaRepository
+            .findActiveByCategoryOrder(
+                marketId,
+                condition.dealType,
+                condition.category,
+                condition.cursor,
+                cursorCategoryOrder,
+                date,
+                PageRequest.of(0, limit),
+            ).map { it.toListItem() }
+
+    override fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor? =
+        productJpaRepository.findListCursorAnchor(cursor, marketId)?.let {
+            ProductListCursorAnchor(categoryOrder = it.category.ordinal, viewCount = it.viewCount)
+        }
 }

@@ -166,4 +166,131 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
         @Param("date") date: LocalDate,
         pageable: Pageable,
     ): List<ProductJpaEntity>
+
+    @Query(
+        """
+        select new kr.dongchimi.db.product.OwnerProductRow(p, coalesce(m.viewCount, 0))
+        from ProductJpaEntity p
+            left join ProductMetadataJpaEntity m on m.id = p.id
+        where p.marketId = :marketId
+            and p.dealType = :dealType
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+            and (:category is null or p.category = :category)
+            and (:cursor is null or p.id < :cursor)
+        order by p.id desc
+        """,
+    )
+    fun findActiveByLatest(
+        @Param("marketId") marketId: Long,
+        @Param("dealType") dealType: DealType,
+        @Param("category") category: ProductCategory?,
+        @Param("cursor") cursor: Long?,
+        @Param("date") date: LocalDate,
+        pageable: Pageable,
+    ): List<OwnerProductRow>
+
+    @Query(
+        """
+        select new kr.dongchimi.db.product.OwnerProductRow(p, coalesce(m.viewCount, 0))
+        from ProductJpaEntity p
+            left join ProductMetadataJpaEntity m on m.id = p.id
+        where p.marketId = :marketId
+            and p.dealType = :dealType
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+            and (:category is null or p.category = :category)
+            and (:cursor is null or
+                 coalesce(m.viewCount, 0) < :cursorViewCount or
+                 (coalesce(m.viewCount, 0) = :cursorViewCount and p.id < :cursor))
+        order by coalesce(m.viewCount, 0) desc, p.id desc
+        """,
+    )
+    fun findActiveByViewCount(
+        @Param("marketId") marketId: Long,
+        @Param("dealType") dealType: DealType,
+        @Param("category") category: ProductCategory?,
+        @Param("cursor") cursor: Long?,
+        @Param("cursorViewCount") cursorViewCount: Int?,
+        @Param("date") date: LocalDate,
+        pageable: Pageable,
+    ): List<OwnerProductRow>
+
+    // ProductCategory는 STRING 저장이라 order by p.category는 알파벳순이 되어버린다 — 선언순(ordinal) 강제를 위해 CASE로 매핑한다.
+    // ProductCategory 선언 순서가 바뀌면 이 CASE 매핑도 함께 바꿔야 한다(ProductCategoryOrderTest가 어긋남을 감지한다).
+    @Query(
+        """
+        select new kr.dongchimi.db.product.OwnerProductRow(p, coalesce(m.viewCount, 0))
+        from ProductJpaEntity p
+            left join ProductMetadataJpaEntity m on m.id = p.id
+        where p.marketId = :marketId
+            and p.dealType = :dealType
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+            and (:category is null or p.category = :category)
+            and (:cursor is null or
+                 case p.category
+                     when kr.dongchimi.core.product.ProductCategory.VEGETABLE_FRUIT then 0
+                     when kr.dongchimi.core.product.ProductCategory.MEAT_EGG then 1
+                     when kr.dongchimi.core.product.ProductCategory.SEAFOOD then 2
+                     when kr.dongchimi.core.product.ProductCategory.DAIRY then 3
+                     when kr.dongchimi.core.product.ProductCategory.CONVENIENCE_FOOD then 4
+                     when kr.dongchimi.core.product.ProductCategory.PROCESSED_FOOD then 5
+                     when kr.dongchimi.core.product.ProductCategory.BEVERAGE_ALCOHOL then 6
+                     when kr.dongchimi.core.product.ProductCategory.HOUSEHOLD_GOODS then 7
+                     else 8
+                 end > :cursorCategoryOrder or
+                 (case p.category
+                     when kr.dongchimi.core.product.ProductCategory.VEGETABLE_FRUIT then 0
+                     when kr.dongchimi.core.product.ProductCategory.MEAT_EGG then 1
+                     when kr.dongchimi.core.product.ProductCategory.SEAFOOD then 2
+                     when kr.dongchimi.core.product.ProductCategory.DAIRY then 3
+                     when kr.dongchimi.core.product.ProductCategory.CONVENIENCE_FOOD then 4
+                     when kr.dongchimi.core.product.ProductCategory.PROCESSED_FOOD then 5
+                     when kr.dongchimi.core.product.ProductCategory.BEVERAGE_ALCOHOL then 6
+                     when kr.dongchimi.core.product.ProductCategory.HOUSEHOLD_GOODS then 7
+                     else 8
+                 end = :cursorCategoryOrder and p.id < :cursor))
+        order by
+            case p.category
+                when kr.dongchimi.core.product.ProductCategory.VEGETABLE_FRUIT then 0
+                when kr.dongchimi.core.product.ProductCategory.MEAT_EGG then 1
+                when kr.dongchimi.core.product.ProductCategory.SEAFOOD then 2
+                when kr.dongchimi.core.product.ProductCategory.DAIRY then 3
+                when kr.dongchimi.core.product.ProductCategory.CONVENIENCE_FOOD then 4
+                when kr.dongchimi.core.product.ProductCategory.PROCESSED_FOOD then 5
+                when kr.dongchimi.core.product.ProductCategory.BEVERAGE_ALCOHOL then 6
+                when kr.dongchimi.core.product.ProductCategory.HOUSEHOLD_GOODS then 7
+                else 8
+            end asc,
+            p.id desc
+        """,
+    )
+    fun findActiveByCategoryOrder(
+        @Param("marketId") marketId: Long,
+        @Param("dealType") dealType: DealType,
+        @Param("category") category: ProductCategory?,
+        @Param("cursor") cursor: Long?,
+        @Param("cursorCategoryOrder") cursorCategoryOrder: Int?,
+        @Param("date") date: LocalDate,
+        pageable: Pageable,
+    ): List<OwnerProductRow>
+
+    @Query(
+        """
+        select new kr.dongchimi.db.product.OwnerProductAnchorRow(p.category, coalesce(m.viewCount, 0))
+        from ProductJpaEntity p
+            left join ProductMetadataJpaEntity m on m.id = p.id
+        where p.id = :cursor
+            and p.deletedAt is null
+            and p.marketId = :marketId
+        """,
+    )
+    fun findListCursorAnchor(
+        @Param("cursor") cursor: Long,
+        @Param("marketId") marketId: Long,
+    ): OwnerProductAnchorRow?
 }

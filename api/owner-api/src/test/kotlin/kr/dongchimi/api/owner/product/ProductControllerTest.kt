@@ -5,12 +5,14 @@ import io.kotest.matchers.shouldBe
 import kr.dongchimi.api.core.common.dto.PageOffsetRequest
 import kr.dongchimi.api.owner.OwnerApiUser
 import kr.dongchimi.api.owner.product.request.DailyProductRegisterRequest
+import kr.dongchimi.api.owner.product.request.OwnerProductListRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
+import kr.dongchimi.core.common.CursorSliceResult
 import kr.dongchimi.core.common.PageOffset
 import kr.dongchimi.core.product.DailyProductRegisterCommand
 import kr.dongchimi.core.product.DealType
@@ -24,12 +26,15 @@ import kr.dongchimi.core.product.PreparedProductService
 import kr.dongchimi.core.product.Price
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductCategory
+import kr.dongchimi.core.product.ProductListItem
+import kr.dongchimi.core.product.ProductListSearchCondition
 import kr.dongchimi.core.product.ProductService
 import kr.dongchimi.core.product.ProductUpdateCommand
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class ProductControllerTest :
     FunSpec({
@@ -40,6 +45,45 @@ class ProductControllerTest :
             productService: ProductService = Mockito.mock(ProductService::class.java),
             preparedProductService: PreparedProductService = Mockito.mock(PreparedProductService::class.java),
         ): OwnerProductController = OwnerProductController(productService, preparedProductService)
+
+        test("목록 조회 시 응답 content에 조회수·등록일이 매핑된다") {
+            val productService = Mockito.mock(ProductService::class.java)
+            val condition = OwnerProductListRequest(type = "DAILY").toSearchCondition()
+            val item = ProductListItem(sampleProduct(), viewCount = 5, createdAt = LocalDateTime.of(2025, 8, 15, 10, 0))
+            Mockito
+                .`when`(productService.getOwnerProducts(eqLong(1L), eqLong(marketId), eqListCondition(condition), anyLocalDate()))
+                .thenReturn(CursorSliceResult(content = listOf(item), hasNext = true, nextCursor = 5L))
+            val controller = newController(productService)
+
+            val response = controller.getProducts(apiUser, marketId, OwnerProductListRequest(type = "DAILY"))
+
+            response.success shouldBe true
+            response.data!!
+                .content
+                .single()
+                .viewCount shouldBe 5
+            response.data!!
+                .content
+                .single()
+                .createdAt shouldBe LocalDateTime.of(2025, 8, 15, 10, 0)
+            response.data!!.hasNext shouldBe true
+            response.data!!.nextCursor shouldBe 5L
+        }
+
+        test("목록 조회 시 결과가 없으면 빈 content를 반환한다") {
+            val productService = Mockito.mock(ProductService::class.java)
+            val condition = OwnerProductListRequest(type = "DAILY").toSearchCondition()
+            Mockito
+                .`when`(productService.getOwnerProducts(eqLong(1L), eqLong(marketId), eqListCondition(condition), anyLocalDate()))
+                .thenReturn(CursorSliceResult(content = emptyList(), hasNext = false, nextCursor = null))
+            val controller = newController(productService)
+
+            val response = controller.getProducts(apiUser, marketId, OwnerProductListRequest(type = "DAILY"))
+
+            response.data!!.content shouldBe emptyList()
+            response.data!!.hasNext shouldBe false
+            response.data!!.nextCursor shouldBe null
+        }
 
         test("상세 조회 시 서비스 결과를 응답 data로 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
@@ -206,6 +250,8 @@ private fun eqLong(value: Long): Long = ArgumentMatchers.eq(value)
 private fun eqCommand(value: DailyProductRegisterCommand): DailyProductRegisterCommand = ArgumentMatchers.eq(value) ?: value
 
 private fun eqUpdateCommand(value: ProductUpdateCommand): ProductUpdateCommand = ArgumentMatchers.eq(value) ?: value
+
+private fun eqListCondition(value: ProductListSearchCondition): ProductListSearchCondition = ArgumentMatchers.eq(value) ?: value
 
 private fun anyLocalDate(): LocalDate = Mockito.any(LocalDate::class.java) ?: LocalDate.now()
 

@@ -554,4 +554,32 @@ private class PreparedProductFakeProductRepository : ProductRepository {
         date: LocalDate,
         limit: Int,
     ): List<Product> = emptyList()
+
+    override fun findActiveByLatest(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<ProductListItem> = emptyList()
+
+    override fun findActiveByViewCount(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorViewCount: Int?,
+        limit: Int,
+    ): List<ProductListItem> = emptyList()
+
+    override fun findActiveByCategoryOrder(
+        marketId: Long,
+        condition: ProductListSearchCondition,
+        date: LocalDate,
+        cursorCategoryOrder: Int?,
+        limit: Int,
+    ): List<ProductListItem> = emptyList()
+
+    override fun findListCursorAnchor(
+        cursor: Long,
+        marketId: Long,
+    ): ProductListCursorAnchor? = null
 }
