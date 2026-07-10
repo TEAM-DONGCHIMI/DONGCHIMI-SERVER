@@ -29,6 +29,10 @@ object TestPostgresContainer {
     }
 
     fun newConnection(): Connection = DriverManager.getConnection(container.jdbcUrl, container.username, container.password)
+
+    val jdbcUrl: String get() = container.jdbcUrl
+    val username: String get() = container.username
+    val password: String get() = container.password
 }
 
 fun Connection.truncate(vararg tables: String) {

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
@@ -98,4 +99,19 @@ class S3StorageClient(
     }
 
     override fun resolveAccessUrl(objectKey: String): String = "${storageProperties.cdnBaseUrl.trimEnd('/')}/$objectKey"
+
+    override fun resolveObjectKey(accessUrl: String): String? {
+        val prefix = "${storageProperties.cdnBaseUrl.trimEnd('/')}/"
+        return accessUrl.takeIf { it.startsWith(prefix) }?.removePrefix(prefix)
+    }
+
+    override fun download(objectKey: String): ByteArray =
+        s3Client
+            .getObject(
+                GetObjectRequest
+                    .builder()
+                    .bucket(s3Properties.bucket)
+                    .key(objectKey)
+                    .build(),
+            ).use { it.readAllBytes() }
 }

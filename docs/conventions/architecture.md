@@ -133,6 +133,6 @@ dependencies {
 | `gateway:auth` | `core` + Spring Security / OAuth2 관련 라이브러리 |
 | `gateway:logging` | `core` + `spring-web` + `spring-context` + `slf4j-api` + kotlin-logging + Servlet API |
 | `infrastructure:db` | `core` + 기술 구현 라이브러리 (JPA, H2 Console 등) |
-| `infrastructure:client` | `core` + 외부 통신 라이브러리 (spring-web / RestClient, Jackson 등) |
+| `infrastructure:client` | `core` + 외부 통신 라이브러리 (spring-web / RestClient, Jackson 등) + `poi-ooxml`(엑셀 파싱) |
 | `infrastructure:redis` | `core` + `spring-boot-starter-data-redis` 등 Redis 클라이언트 라이브러리 |
 | `common` | 순수 Kotlin / 유틸리티만 |

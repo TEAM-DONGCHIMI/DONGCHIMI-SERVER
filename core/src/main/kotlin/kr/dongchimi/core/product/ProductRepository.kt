@@ -73,4 +73,12 @@ interface ProductRepository {
         marketIds: List<Long>,
         date: LocalDate,
     ): Map<Long, Int>
+
+    fun findActiveByMarketIdAndDealTypeAndCategory(
+        marketId: Long,
+        dealType: DealType,
+        condition: PeriodicProductSearchCondition,
+        date: LocalDate,
+        limit: Int,
+    ): List<Product>
 }
