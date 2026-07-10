@@ -8,16 +8,16 @@ import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.user.SocialProvider
 
 data class OAuthLoginRequest(
-    @Schema(description = "소셜 제공자로부터 발급받은 access token")
-    val accessToken: String,
+    @Schema(description = "소셜 제공자로부터 발급받은 인가 코드(authorization code)")
+    val code: String,
 ) {
     fun toCommand(provider: String): OAuthLoginCommand {
-        validate(accessToken.isNotBlank()) { "액세스 토큰은 필수로 입력해 주세요." }
+        validate(code.isNotBlank()) { "인가 코드는 필수로 입력해 주세요." }
 
         val socialProvider =
             runCatching { SocialProvider.valueOf(provider.uppercase()) }
                 .getOrElse { throw CoreException(AuthErrorCode.UNSUPPORTED_OAUTH_PROVIDER) }
 
-        return OAuthLoginCommand(socialProvider, accessToken)
+        return OAuthLoginCommand(socialProvider, code)
     }
 }
