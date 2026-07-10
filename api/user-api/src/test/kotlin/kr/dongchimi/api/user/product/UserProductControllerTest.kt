@@ -4,6 +4,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.api.user.product.request.PeriodicProductListRequest
+import kr.dongchimi.api.user.product.response.ProductDetailResponse
 import kr.dongchimi.core.common.CursorSliceResult
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
@@ -24,10 +25,11 @@ class UserProductControllerTest :
 
         test("오늘의 특가 목록 조회 성공 시 totalCount와 매핑된 상품 목록을 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
             Mockito
                 .`when`(productService.getAllActiveProducts(eqLong(marketId), eqDealType(DealType.DAILY), anyLocalDate()))
                 .thenReturn(listOf(sampleProduct(1L), sampleProduct(2L)))
-            val controller = UserProductController(productService)
+            val controller = UserProductController(productService, productDetailQueryFacade)
 
             val response = controller.getDailyDeals(apiUser, marketId)
 
@@ -42,10 +44,11 @@ class UserProductControllerTest :
 
         test("오늘의 특가 상품이 없으면 totalCount 0, 빈 목록을 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
             Mockito
                 .`when`(productService.getAllActiveProducts(eqLong(marketId), eqDealType(DealType.DAILY), anyLocalDate()))
                 .thenReturn(emptyList())
-            val controller = UserProductController(productService)
+            val controller = UserProductController(productService, productDetailQueryFacade)
 
             val response = controller.getDailyDeals(apiUser, marketId)
 
@@ -53,8 +56,24 @@ class UserProductControllerTest :
             response.data!!.products shouldBe emptyList()
         }
 
+        test("상품 상세 조회 성공 시 Facade 응답을 그대로 반환한다") {
+            val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
+            val expected = ProductDetailResponse(sampleProduct(1L), marketName = "망원 신선마트")
+            Mockito
+                .`when`(productDetailQueryFacade.getDetail(marketId, 1L))
+                .thenReturn(expected)
+            val controller = UserProductController(productService, productDetailQueryFacade)
+
+            val response = controller.getDetail(apiUser, marketId, 1L)
+
+            response.success shouldBe true
+            response.data shouldBe expected
+        }
+
         test("행사 할인 상품 목록 조회 성공 시 content와 hasNext, nextCursor를 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
             val condition = PeriodicProductSearchCondition(category = null, cursor = null, size = 12)
             Mockito
                 .`when`(
@@ -71,7 +90,7 @@ class UserProductControllerTest :
                         nextCursor = 2L,
                     ),
                 )
-            val controller = UserProductController(productService)
+            val controller = UserProductController(productService, productDetailQueryFacade)
 
             val response = controller.getPeriodicDeals(apiUser, marketId, PeriodicProductListRequest())
 
@@ -83,6 +102,7 @@ class UserProductControllerTest :
 
         test("행사 할인 상품이 없으면 빈 목록과 hasNext false, nextCursor null을 반환한다") {
             val productService = Mockito.mock(ProductService::class.java)
+            val productDetailQueryFacade = Mockito.mock(ProductDetailQueryFacade::class.java)
             val condition = PeriodicProductSearchCondition(category = null, cursor = null, size = 12)
             Mockito
                 .`when`(
@@ -93,7 +113,7 @@ class UserProductControllerTest :
                         anyLocalDate(),
                     ),
                 ).thenReturn(CursorSliceResult(content = emptyList(), hasNext = false, nextCursor = null))
-            val controller = UserProductController(productService)
+            val controller = UserProductController(productService, productDetailQueryFacade)
 
             val response = controller.getPeriodicDeals(apiUser, marketId, PeriodicProductListRequest())
 

@@ -28,6 +28,16 @@ class ProductService(
         return product
     }
 
+    fun getDetail(
+        marketId: Long,
+        productId: Long,
+    ): Product {
+        val product = productReader.read(productId)
+        productValidator.validateBelongsToMarket(product, marketId)
+
+        return product
+    }
+
     fun delete(
         ownerId: Long,
         marketId: Long,
