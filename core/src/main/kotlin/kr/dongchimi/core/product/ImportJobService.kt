@@ -69,7 +69,7 @@ class ImportJobService(
             ImportJobStatus.CANCELED -> flowOf(ImportJobEvent.Canceled(job.jobId))
             ImportJobStatus.PENDING ->
                 flow {
-                    emit(ImportJobEvent.Progress(pendingSnapshot(job.jobId)))
+                    emit(ImportJobEvent.Progress(pendingSnapshot(job.jobId), status = ImportJobStatus.PENDING))
                     emitAll(importJobEventChannel.subscribe(jobId))
                 }
 
