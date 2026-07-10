@@ -6,6 +6,8 @@ import kr.dongchimi.gateway.auth.filter.HeaderTokenExtractor
 import kr.dongchimi.gateway.auth.filter.JwtAuthFilter
 import kr.dongchimi.gateway.auth.filter.LocalAuthFilter
 import kr.dongchimi.gateway.auth.jwt.JwtProvider
+import kr.dongchimi.gateway.auth.security.DelegatedAccessDeniedHandler
+import kr.dongchimi.gateway.auth.security.DelegatedAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
@@ -26,6 +28,8 @@ class SecurityConfig(
     private val corsProperties: CorsProperties,
     private val environment: Environment,
     private val headerTokenExtractor: HeaderTokenExtractor,
+    private val delegatedAuthenticationEntryPoint: DelegatedAuthenticationEntryPoint,
+    private val delegatedAccessDeniedHandler: DelegatedAccessDeniedHandler,
 ) {
     @Bean
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -37,6 +41,10 @@ class SecurityConfig(
             csrf { disable() }
             sessionManagement {
                 sessionCreationPolicy = SessionCreationPolicy.STATELESS
+            }
+            exceptionHandling {
+                authenticationEntryPoint = delegatedAuthenticationEntryPoint
+                accessDeniedHandler = delegatedAccessDeniedHandler
             }
             authorizeHttpRequests {
                 PublicEndpoints.SWAGGER.forEach { authorize(it, permitAll) }
