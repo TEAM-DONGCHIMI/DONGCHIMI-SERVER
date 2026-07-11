@@ -13,6 +13,8 @@ data class ImportJobProperties(
     val slotsPerInstance: Int,
     /** claim 상한 — 이 값 이상 시도된 작업은 더 이상 집지 않고 FAILED로 남는다. */
     val maxAttempts: Int,
-    /** 카테고리 분류·이미지 매칭 단계에서 동시에 부르는 AI 호출 상한. */
+    /** 카테고리 분류·이미지 매칭 단계에서 동시에 띄우는 배치(청크) 호출 상한. */
     val aiConcurrency: Int,
+    /** 배치 호출 하나에 담는 항목 수 상한. */
+    val aiBatchSize: Int,
 )
