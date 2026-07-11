@@ -3,6 +3,7 @@ package kr.dongchimi.client.ai
 import kotlinx.coroutines.delay
 import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.core.product.importjob.ProductCategoryClassifier
+import kr.dongchimi.core.product.importjob.ProductCategoryClassifyItem
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 
@@ -11,18 +12,22 @@ import org.springframework.stereotype.Component
  * 랜덤이면 테스트가 흔들리고, 항상 성공하면 CATEGORY_MISSING 경로가 한 번도 실행되지 않아
  * 사전에 없는 상품명은 의도적으로 null을 반환한다. ETC는 "그 무엇에도 안 걸림"의 의미라
  * 사전에 넣지 않는다 — 넣으면 미스가 없어져 null 분기가 죽는다.
+ * 배치 시그니처지만 실제 AI가 아니라 항목별로 사전을 룩업할 뿐이다.
  */
 @Component
 @ConditionalOnProperty(name = ["import.ai.provider"], havingValue = "mock", matchIfMissing = true)
 class MockProductCategoryClassifier(
     private val properties: ImportMockProperties,
 ) : ProductCategoryClassifier {
-    override suspend fun classify(productName: String): ProductCategory? {
+    override suspend fun classify(items: List<ProductCategoryClassifyItem>): Map<Int, ProductCategory?> {
         delay(properties.latency.toMillis())
 
-        return CATEGORY_KEYWORDS.entries
-            .firstOrNull { (_, keywords) -> keywords.any { productName.contains(it) } }
-            ?.key
+        return items.associate { item ->
+            item.id to
+                CATEGORY_KEYWORDS.entries
+                    .firstOrNull { (_, keywords) -> keywords.any { item.productName.contains(it) } }
+                    ?.key
+        }
     }
 
     companion object {

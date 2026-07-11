@@ -30,6 +30,8 @@ import kr.dongchimi.core.product.importjob.ImportJobResult
 import kr.dongchimi.core.product.importjob.ImportStep
 import kr.dongchimi.core.product.importjob.ParsedProductRow
 import kr.dongchimi.core.product.importjob.ProductCategoryClassifier
+import kr.dongchimi.core.product.importjob.ProductCategoryClassifyItem
+import kr.dongchimi.core.product.importjob.ProductImageMatchItem
 import kr.dongchimi.core.product.importjob.ProductImageMatcher
 import kr.dongchimi.core.upload.StorageClient
 import org.springframework.stereotype.Component
@@ -128,29 +130,51 @@ class ImportJobProcessor(
         }
     }
 
-    /** 항목 수만큼 AI를 동시에 부르되 [ImportJobProperties.aiConcurrency]로 상한을 건다. 결과는 rows와 같은 순서로 정렬된다. */
-    private suspend fun classifyAll(rows: List<ParsedProductRow>): List<ProductCategory?> =
+    /**
+     * 항목을 [ImportJobProperties.aiBatchSize] 단위 청크로 묶어 AI를 배치 호출하고,
+     * 청크 호출은 [ImportJobProperties.aiConcurrency]로 동시 실행 상한을 건다. 결과는 rows와 같은 순서로 정렬된다.
+     */
+    private suspend fun classifyAll(rows: List<ParsedProductRow>): List<ProductCategory?> {
+        val items =
+            rows.withIndex().mapNotNull { (index, row) ->
+                row.name?.let { ProductCategoryClassifyItem(index, it) }
+            }
+
+        val results = mutableMapOf<Int, ProductCategory?>()
         coroutineScope {
             val semaphore = Semaphore(properties.aiConcurrency)
-            rows
-                .map { row ->
-                    async { row.name?.let { name -> semaphore.withPermit { productCategoryClassifier.classify(name) } } }
-                }.awaitAll()
+            items
+                .chunked(properties.aiBatchSize)
+                .map { chunk -> async { semaphore.withPermit { productCategoryClassifier.classify(chunk) } } }
+                .awaitAll()
+                .forEach { results += it }
         }
+        return rows.indices.map { results[it] }
+    }
 
+    /** 분류 성공(category != null)한 행만, category와 무관하게 batch-size로 청크를 나눠 배치 호출한다. */
     private suspend fun matchAll(
         rows: List<ParsedProductRow>,
         categories: List<ProductCategory?>,
-    ): List<String?> =
+    ): List<String?> {
+        val items =
+            rows.indices.mapNotNull { i ->
+                val name = rows[i].name ?: return@mapNotNull null
+                val category = categories[i] ?: return@mapNotNull null // 분류 실패 행은 매칭 자체를 시도하지 않는다
+                ProductImageMatchItem(i, name, category)
+            }
+
+        val results = mutableMapOf<Int, String?>()
         coroutineScope {
             val semaphore = Semaphore(properties.aiConcurrency)
-            rows.indices
-                .map { i ->
-                    async {
-                        rows[i].name?.let { name -> semaphore.withPermit { productImageMatcher.match(name, categories[i]) } }
-                    }
-                }.awaitAll()
+            items
+                .chunked(properties.aiBatchSize)
+                .map { chunk -> async { semaphore.withPermit { productImageMatcher.match(chunk) } } }
+                .awaitAll()
+                .forEach { results += it }
         }
+        return rows.indices.map { results[it] }
+    }
 
     private fun buildDrafts(
         marketId: Long,
