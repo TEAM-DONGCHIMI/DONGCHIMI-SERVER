@@ -15,10 +15,12 @@ import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
+import kr.dongchimi.api.owner.product.request.ProductSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductListItemResponse
+import kr.dongchimi.api.owner.product.response.ProductSearchResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.market.MarketErrorCode
 import kr.dongchimi.core.product.PreparedProductErrorCode
@@ -87,6 +89,17 @@ interface OwnerProductApi {
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
         request: OwnerProductListRequest,
     ): ApiResponse<CursorSliceResponse<OwnerProductListItemResponse>>
+
+    @Operation(
+        summary = "상품 검색",
+        description = "점주가 상품명으로 마트 내 오늘 할인 진행 중인 상품을 검색한다. 대소문자를 구분하지 않으며, 초성만 입력하면 초성 일치로 검색한다. 최근 등록순으로 최대 size건 반환한다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class)
+    fun search(
+        @Parameter(hidden = true) apiUser: OwnerApiUser,
+        @Parameter(description = "마트 ID") @PathVariable marketId: Long,
+        request: ProductSearchRequest,
+    ): ApiResponse<ProductSearchResponse>
 
     @Operation(
         summary = "상품 상세 조회",

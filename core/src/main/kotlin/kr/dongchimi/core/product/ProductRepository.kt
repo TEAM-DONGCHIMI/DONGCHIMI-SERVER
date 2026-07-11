@@ -111,4 +111,15 @@ interface ProductRepository {
         cursor: Long,
         marketId: Long,
     ): ProductListCursorAnchor?
+
+    fun searchActiveByMarketIdAndKeyword(
+        marketId: Long,
+        condition: ProductKeywordSearchCondition,
+        date: LocalDate,
+    ): List<Product>
+
+    fun findAllActiveByMarketId(
+        marketId: Long,
+        date: LocalDate,
+    ): List<Product>
 }

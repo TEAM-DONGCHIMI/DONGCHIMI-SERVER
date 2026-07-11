@@ -6,6 +6,7 @@ import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
 import kr.dongchimi.core.product.ProductErrorCode
+import kr.dongchimi.core.product.ProductKeywordSearchCondition
 import kr.dongchimi.core.product.ProductListCursorAnchor
 import kr.dongchimi.core.product.ProductListItem
 import kr.dongchimi.core.product.ProductListSearchCondition
@@ -200,4 +201,21 @@ class ProductRepositoryImpl(
         productJpaRepository.findListCursorAnchor(cursor, marketId)?.let {
             ProductListCursorAnchor(categoryOrder = it.category.ordinal, viewCount = it.viewCount)
         }
+
+    override fun searchActiveByMarketIdAndKeyword(
+        marketId: Long,
+        condition: ProductKeywordSearchCondition,
+        date: LocalDate,
+    ): List<Product> =
+        productJpaRepository
+            .searchActive(marketId, condition.keyword, date, PageRequest.of(0, condition.size))
+            .map { it.toDomain() }
+
+    override fun findAllActiveByMarketId(
+        marketId: Long,
+        date: LocalDate,
+    ): List<Product> =
+        productJpaRepository
+            .findAllActiveByMarketId(marketId, date)
+            .map { it.toDomain() }
 }
