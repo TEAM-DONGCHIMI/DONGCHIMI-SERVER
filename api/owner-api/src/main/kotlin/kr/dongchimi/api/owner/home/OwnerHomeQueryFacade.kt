@@ -1,7 +1,9 @@
 package kr.dongchimi.api.owner.home
 
+import kr.dongchimi.api.owner.home.response.HomeFlyerResponse
 import kr.dongchimi.api.owner.home.response.HomeProductResponse
 import kr.dongchimi.api.owner.home.response.OwnerHomeResponse
+import kr.dongchimi.core.market.FlyerService
 import kr.dongchimi.core.market.MarketService
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.ProductService
@@ -13,6 +15,7 @@ import java.time.LocalDate
 class OwnerHomeQueryFacade(
     private val marketService: MarketService,
     private val productService: ProductService,
+    private val flyerService: FlyerService,
 ) {
     @Transactional(readOnly = true)
     fun getHome(ownerId: Long): OwnerHomeResponse {
@@ -24,6 +27,7 @@ class OwnerHomeQueryFacade(
 
         val dailyProducts = productService.getActiveProducts(market.id, DealType.DAILY, today, HOME_PREVIEW_SIZE)
         val periodicProducts = productService.getActiveProducts(market.id, DealType.PERIODIC, today, HOME_PREVIEW_SIZE)
+        val flyer = flyerService.getShareInfoOrNull(market.id)
 
         return OwnerHomeResponse(
             todayRegisteredCount = productService.countRegisteredOn(market.id, today),
@@ -31,6 +35,7 @@ class OwnerHomeQueryFacade(
             dailyProducts = dailyProducts.map { HomeProductResponse(it) },
             periodicCount = productService.countActiveProducts(market.id, DealType.PERIODIC, today),
             periodicProducts = periodicProducts.map { HomeProductResponse(it) },
+            flyer = flyer?.let { HomeFlyerResponse(it) },
         )
     }
 

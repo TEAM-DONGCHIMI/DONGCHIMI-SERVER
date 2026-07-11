@@ -9,5 +9,7 @@ class FlyerReader(
 ) {
     fun readByMarketId(marketId: Long): Flyer = flyerRepository.findById(marketId) ?: throw CoreException(FlyerErrorCode.FLYER_NOT_FOUND)
 
+    fun findByMarketId(marketId: Long): Flyer? = flyerRepository.findById(marketId)
+
     fun findBySlug(slug: String): Flyer? = flyerRepository.findBySlug(slug)
 }

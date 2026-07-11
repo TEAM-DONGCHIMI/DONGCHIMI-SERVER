@@ -13,8 +13,10 @@ data class OwnerHomeResponse(
     val periodicCount: Int,
     @Schema(description = "기간 할인 상품 미리보기 목록")
     val periodicProducts: List<HomeProductResponse>,
+    @Schema(description = "전단 공유 정보 (미발행 시 null)")
+    val flyer: HomeFlyerResponse?,
 ) {
     companion object {
-        val EMPTY = OwnerHomeResponse(0, 0, emptyList(), 0, emptyList())
+        val EMPTY = OwnerHomeResponse(0, 0, emptyList(), 0, emptyList(), null)
     }
 }
