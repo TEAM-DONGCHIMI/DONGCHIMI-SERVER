@@ -200,6 +200,6 @@ class ProductService(
     ): List<Product> {
         marketValidator.validateOwnership(marketId, ownerId)
 
-        return productReader.searchByKeyword(marketId, condition, date)
+        return productFinder.searchByKeyword(marketId, condition, date)
     }
 }

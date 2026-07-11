@@ -1,10 +1,13 @@
 package kr.dongchimi.core.market
 
+import kr.dongchimi.common.utils.HangulUtils.extractChosung
+import kr.dongchimi.common.utils.HangulUtils.isChosungOnly
 import kr.dongchimi.core.common.CursorSliceResult
 import kr.dongchimi.core.common.toCursorSlice
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
+import kr.dongchimi.core.product.ProductKeywordSearchCondition
 import kr.dongchimi.core.product.ProductListCursorAnchor
 import kr.dongchimi.core.product.ProductListItem
 import kr.dongchimi.core.product.ProductListSearchCondition
@@ -53,6 +56,20 @@ class ProductFinder(
         productRepository
             .findActiveByMarketIdAndDealTypeAndCategory(marketId, dealType, condition, date, condition.size + 1)
             .toCursorSlice(condition.size) { it.id }
+
+    fun searchByKeyword(
+        marketId: Long,
+        condition: ProductKeywordSearchCondition,
+        date: LocalDate,
+    ): List<Product> =
+        if (condition.keyword.isChosungOnly()) {
+            productRepository
+                .findAllActiveByMarketId(marketId, date)
+                .filter { it.name.extractChosung().contains(condition.keyword) }
+                .take(condition.size)
+        } else {
+            productRepository.searchActiveByMarketIdAndKeyword(marketId, condition, date)
+        }
 
     fun findActiveProductList(
         marketId: Long,
