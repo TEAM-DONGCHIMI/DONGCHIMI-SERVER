@@ -293,4 +293,39 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
         @Param("cursor") cursor: Long,
         @Param("marketId") marketId: Long,
     ): OwnerProductAnchorRow?
+
+    // 일반 검색: 대소문자 무시 부분 일치. keyword는 호출측에서 이미 소문자화되어 들어온다.
+    @Query(
+        """
+        select p from ProductJpaEntity p
+        where p.marketId = :marketId
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+            and lower(p.name) like concat('%', cast(:keyword as string), '%')
+        order by p.createdAt desc
+        """,
+    )
+    fun searchActive(
+        @Param("marketId") marketId: Long,
+        @Param("keyword") keyword: String,
+        @Param("date") date: LocalDate,
+        pageable: Pageable,
+    ): List<ProductJpaEntity>
+
+    // 초성 검색 후보군: dealType 필터 없이 마트의 오늘 활성 상품 전체. findAllActive와 조건은 같고 dealType만 뺐다.
+    @Query(
+        """
+        select p from ProductJpaEntity p
+        where p.marketId = :marketId
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+        order by p.createdAt desc
+        """,
+    )
+    fun findAllActiveByMarketId(
+        @Param("marketId") marketId: Long,
+        @Param("date") date: LocalDate,
+    ): List<ProductJpaEntity>
 }

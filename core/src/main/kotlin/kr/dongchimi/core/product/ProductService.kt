@@ -191,4 +191,15 @@ class ProductService(
 
         return productFinder.findActiveProductList(marketId, condition, date)
     }
+
+    fun search(
+        ownerId: Long,
+        marketId: Long,
+        condition: ProductKeywordSearchCondition,
+        date: LocalDate,
+    ): List<Product> {
+        marketValidator.validateOwnership(marketId, ownerId)
+
+        return productReader.searchByKeyword(marketId, condition, date)
+    }
 }
