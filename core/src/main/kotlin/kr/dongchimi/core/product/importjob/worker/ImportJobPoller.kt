@@ -1,8 +1,9 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.importjob.worker
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -12,8 +13,11 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.slf4j.MDCContext
 import kotlinx.coroutines.sync.Semaphore
+import kr.dongchimi.core.product.importjob.ImportJobProperties
+import kr.dongchimi.core.product.importjob.ImportJobRepository
 import org.springframework.stereotype.Component
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 
 private val logger = KotlinLogging.logger {}
 
@@ -36,8 +40,14 @@ class ImportJobPoller(
     fun start() {
         scope.launch(MDCContext()) {
             while (isActive) {
-                delay(properties.pollInterval.toMillis())
-                pollOnce()
+                delay(properties.pollInterval.toMillis().milliseconds)
+                try {
+                    pollOnce()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    logger.error(e) { "큐 폴링 실패 — 다음 주기에 재시도" }
+                }
             }
         }
     }
@@ -46,20 +56,23 @@ class ImportJobPoller(
     suspend fun pollOnce() {
         semaphore.acquire()
 
-        val job = importJobRepository.claimNext(instanceId, properties.lease, properties.maxAttempts)
-        if (job == null) {
-            semaphore.release()
-            return
-        }
+        var dispatched = false
+        try {
+            val job = importJobRepository.claimNext(instanceId, properties.lease, properties.maxAttempts) ?: return
 
-        scope.launch(MDCContext()) {
-            try {
-                importJobRunner.run(job, instanceId)
-            } catch (e: Exception) {
-                logger.error(e) { "워커 실행 중 처리되지 않은 예외: jobId=${job.jobId}" }
-            } finally {
-                semaphore.release()
+            scope.launch(MDCContext()) {
+                try {
+                    importJobRunner.run(job, instanceId)
+                } catch (e: Exception) {
+                    logger.error(e) { "워커 실행 중 처리되지 않은 예외: jobId=${job.jobId}" }
+                } finally {
+                    semaphore.release()
+                }
             }
+            dispatched = true
+        } finally {
+            // 워커에게 퍼밋을 넘기지 못한 모든 경로(claim 없음·예외·dispatch 실패)에서 되돌린다.
+            if (!dispatched) semaphore.release()
         }
     }
 
