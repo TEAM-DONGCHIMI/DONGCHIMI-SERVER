@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.importjob
 
 import org.springframework.stereotype.Component
 

@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.importjob
 
 /**
  * 큐의 리스(lockedBy, lockedUntil)는 [ImportJobRepository]의 claim/renew/release 내부에서만

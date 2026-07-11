@@ -5,8 +5,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.withContext
-import kr.dongchimi.core.product.ImportJobEvent
-import kr.dongchimi.core.product.ImportJobEventChannel
+import kr.dongchimi.core.product.importjob.ImportJobEvent
+import kr.dongchimi.core.product.importjob.ImportJobEventChannel
 import org.springframework.data.redis.connection.MessageListener
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.data.redis.listener.ChannelTopic
