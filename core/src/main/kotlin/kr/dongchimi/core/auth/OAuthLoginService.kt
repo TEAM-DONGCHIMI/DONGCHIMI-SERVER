@@ -12,7 +12,7 @@ class OAuthLoginService(
     private val authTokenIssuer: AuthTokenIssuer,
 ) {
     fun login(command: OAuthLoginCommand): AuthTokens {
-        val socialUserInfo = socialUserInfoReader.read(command.provider, command.accessToken)
+        val socialUserInfo = socialUserInfoReader.read(command.provider, command.code)
         val user =
             userReader.readBySocialAccount(socialUserInfo.account)
                 ?: socialUserResolver.resolve(socialUserInfo)

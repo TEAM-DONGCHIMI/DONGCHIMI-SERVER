@@ -1,6 +1,10 @@
 oauth:
   kakao:
     user-info-uri: ${KAKAO_USER_INFO_URI:https://kapi.kakao.com/v2/user/me}
+    token-uri: ${KAKAO_TOKEN_URI:https://kauth.kakao.com/oauth/token}
+    client-id: ${KAKAO_CLIENT_ID}
+    client-secret: ${KAKAO_CLIENT_SECRET:}
+    redirect-uri: ${KAKAO_REDIRECT_URI}
     connect-timeout: ${KAKAO_CONNECT_TIMEOUT:2s}
     read-timeout: ${KAKAO_READ_TIMEOUT:5s}
 

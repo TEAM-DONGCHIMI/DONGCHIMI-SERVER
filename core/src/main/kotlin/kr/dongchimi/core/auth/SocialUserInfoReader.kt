@@ -10,12 +10,12 @@ class SocialUserInfoReader(
 ) {
     fun read(
         provider: SocialProvider,
-        accessToken: String,
+        code: String,
     ): SocialUserInfo {
         val client =
             oAuthUserClients.find { it.provider == provider }
                 ?: throw CoreException(AuthErrorCode.UNSUPPORTED_OAUTH_PROVIDER)
 
-        return client.fetchUserInfo(accessToken)
+        return client.fetchUserInfo(code)
     }
 }
