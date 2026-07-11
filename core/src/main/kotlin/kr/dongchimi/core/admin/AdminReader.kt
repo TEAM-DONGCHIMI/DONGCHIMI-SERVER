@@ -9,4 +9,6 @@ class AdminReader(
     fun existsByEmail(email: String): Boolean = adminRepository.existsByEmail(email)
 
     fun readByEmail(email: String): Admin? = adminRepository.findByEmail(email)
+
+    fun readAllByIds(ids: Set<Long>): List<Admin> = adminRepository.findAllByIdIn(ids)
 }
