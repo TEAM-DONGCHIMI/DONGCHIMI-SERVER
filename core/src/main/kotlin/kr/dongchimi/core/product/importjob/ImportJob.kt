@@ -11,4 +11,8 @@ data class ImportJob(
     val excelObjectKey: String,
     val status: ImportJobStatus,
     val attemptCount: Int = 0,
+    val totalCount: Int? = null,
+    val successCount: Int? = null,
+    val failCount: Int? = null,
+    val errorCode: String? = null,
 )
