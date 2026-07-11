@@ -1,8 +1,11 @@
 package kr.dongchimi.db.admin
 
 import kr.dongchimi.core.admin.DefaultProductThumbnail
+import kr.dongchimi.core.admin.DefaultProductThumbnailErrorCode
 import kr.dongchimi.core.admin.DefaultProductThumbnailRepository
+import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.product.ProductCategory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
@@ -39,4 +42,23 @@ class DefaultProductThumbnailRepositoryImpl(
 
     override fun save(defaultProductThumbnail: DefaultProductThumbnail): DefaultProductThumbnail =
         defaultProductThumbnailJpaRepository.save(DefaultProductThumbnailJpaEntity(defaultProductThumbnail)).toDomain()
+
+    override fun saveAll(defaultProductThumbnails: List<DefaultProductThumbnail>): List<DefaultProductThumbnail> =
+        try {
+            defaultProductThumbnailJpaRepository
+                .saveAll(defaultProductThumbnails.map { DefaultProductThumbnailJpaEntity(it) })
+                .map { it.toDomain() }
+        } catch (exception: DataIntegrityViolationException) {
+            if (exception.isNameUniqueViolation()) {
+                throw CoreException(DefaultProductThumbnailErrorCode.THUMBNAIL_NAME_EXISTS)
+            }
+            throw exception
+        }
+
+    private fun DataIntegrityViolationException.isNameUniqueViolation(): Boolean =
+        mostSpecificCause.message?.contains(THUMBNAIL_NAME_UNIQUE_INDEX) == true
+
+    companion object {
+        private const val THUMBNAIL_NAME_UNIQUE_INDEX = "uq_default_product_thumbnails_name"
+    }
 }
