@@ -44,5 +44,6 @@ class DefaultProductThumbnailJpaEntity(
             thumbnailUrl = thumbnailUrl,
             category = category,
             createdBy = createdBy,
+            createdAt = createdAt,
         )
 }
