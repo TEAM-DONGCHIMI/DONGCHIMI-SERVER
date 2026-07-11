@@ -7,12 +7,14 @@ import kr.dongchimi.core.admin.AdminService
 import kr.dongchimi.core.admin.DefaultProductThumbnailService
 import kr.dongchimi.core.admin.DefaultThumbnailListCondition
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 @Component
 class DefaultThumbnailListQueryFacade(
     private val defaultProductThumbnailService: DefaultProductThumbnailService,
     private val adminService: AdminService,
 ) {
+    @Transactional(readOnly = true)
     fun getList(condition: DefaultThumbnailListCondition): CursorSliceResponse<DefaultThumbnailListItemResponse> {
         val slice = defaultProductThumbnailService.getList(condition)
 
