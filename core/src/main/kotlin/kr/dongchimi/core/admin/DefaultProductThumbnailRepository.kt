@@ -23,4 +23,6 @@ interface DefaultProductThumbnailRepository {
     fun findNameById(id: Long): String?
 
     fun save(defaultProductThumbnail: DefaultProductThumbnail): DefaultProductThumbnail
+
+    fun saveAll(defaultProductThumbnails: List<DefaultProductThumbnail>): List<DefaultProductThumbnail>
 }
