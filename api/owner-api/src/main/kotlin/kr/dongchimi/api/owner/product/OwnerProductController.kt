@@ -11,10 +11,13 @@ import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
+import kr.dongchimi.api.owner.product.request.ProductSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductListItemResponse
+import kr.dongchimi.api.owner.product.response.ProductSearchItemResponse
+import kr.dongchimi.api.owner.product.response.ProductSearchResponse
 import kr.dongchimi.core.product.PreparedProductService
 import kr.dongchimi.core.product.ProductService
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -97,6 +100,17 @@ class OwnerProductController(
                 nextCursor = slice.nextCursor,
             ),
         )
+    }
+
+    @GetMapping("/search")
+    override fun search(
+        apiUser: OwnerApiUser,
+        @PathVariable marketId: Long,
+        @ModelAttribute request: ProductSearchRequest,
+    ): ApiResponse<ProductSearchResponse> {
+        val products = productService.search(apiUser.userId, marketId, request.toSearchCondition(), LocalDate.now())
+
+        return ApiResponse.success(ProductSearchResponse(products.map { ProductSearchItemResponse(it) }))
     }
 
     @GetMapping("/{productId}")
