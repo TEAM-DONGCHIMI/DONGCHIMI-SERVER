@@ -15,6 +15,8 @@ object PublicEndpoints {
             "/v1/auth/token/refresh",
             "/v1/owners/auth/signup",
             "/v1/owners/auth/login",
+            "/v1/admin/signup",
+            "/v1/admin/login",
         )
 
     val LOCAL =
