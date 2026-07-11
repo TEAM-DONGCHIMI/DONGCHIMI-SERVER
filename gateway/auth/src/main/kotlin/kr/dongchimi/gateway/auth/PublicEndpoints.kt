@@ -16,4 +16,9 @@ object PublicEndpoints {
             "/v1/owners/auth/signup",
             "/v1/owners/auth/login",
         )
+
+    val LOCAL =
+        arrayOf(
+            "/v1/auth/local-token",
+        )
 }

@@ -49,6 +49,9 @@ class SecurityConfig(
             authorizeHttpRequests {
                 PublicEndpoints.SWAGGER.forEach { authorize(it, permitAll) }
                 PublicEndpoints.AUTH.forEach { authorize(it, permitAll) }
+                if (environment.activeProfiles.contains("local")) {
+                    PublicEndpoints.LOCAL.forEach { authorize(it, permitAll) }
+                }
                 authorize(OWNER_API_PATTERN, hasAuthority(Role.OWNER.name))
                 authorize(ADMIN_API_PATTERN, hasAuthority(Role.ADMIN.name))
                 authorize(USER_API_PATTERN, hasAuthority(Role.USER.name))
