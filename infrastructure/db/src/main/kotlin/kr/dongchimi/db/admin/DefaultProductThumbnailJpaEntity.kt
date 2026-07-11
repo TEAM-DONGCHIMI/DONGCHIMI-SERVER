@@ -2,11 +2,14 @@ package kr.dongchimi.db.admin
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import kr.dongchimi.core.admin.DefaultProductThumbnail
+import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.db.common.BaseCreatedTimeEntity
 
 @Entity
@@ -20,6 +23,9 @@ class DefaultProductThumbnailJpaEntity(
     val name: String,
     @Column(nullable = false)
     val thumbnailUrl: String,
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    val category: ProductCategory,
     @Column(nullable = false)
     val createdBy: Long,
 ) : BaseCreatedTimeEntity() {
@@ -27,6 +33,7 @@ class DefaultProductThumbnailJpaEntity(
         id = defaultProductThumbnail.id,
         name = defaultProductThumbnail.name,
         thumbnailUrl = defaultProductThumbnail.thumbnailUrl,
+        category = defaultProductThumbnail.category,
         createdBy = defaultProductThumbnail.createdBy,
     )
 
@@ -35,6 +42,7 @@ class DefaultProductThumbnailJpaEntity(
             id = id,
             name = name,
             thumbnailUrl = thumbnailUrl,
+            category = category,
             createdBy = createdBy,
         )
 }
