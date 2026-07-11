@@ -30,3 +30,11 @@ import:
     provider: ${IMPORT_AI_PROVIDER:mock}
   mock:
     latency: ${IMPORT_MOCK_LATENCY:PT0.3S}
+
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.5-flash}
+  base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
+  connect-timeout: ${GEMINI_CONNECT_TIMEOUT:3s}
+  read-timeout: ${GEMINI_READ_TIMEOUT:20s}
+  max-retries: ${GEMINI_MAX_RETRIES:2}
