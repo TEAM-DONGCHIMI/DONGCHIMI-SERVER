@@ -1,8 +1,8 @@
 package kr.dongchimi.core.admin
 
+import kr.dongchimi.core.auth.AuthTokenIssuer
 import kr.dongchimi.core.auth.PasswordEncoder
 import kr.dongchimi.core.auth.Role
-import kr.dongchimi.core.auth.TokenProvider
 import kr.dongchimi.core.common.exception.CoreException
 import org.springframework.stereotype.Service
 
@@ -11,7 +11,7 @@ class AdminAuthService(
     private val adminReader: AdminReader,
     private val adminAppender: AdminAppender,
     private val passwordEncoder: PasswordEncoder,
-    private val tokenProvider: TokenProvider,
+    private val authTokenIssuer: AuthTokenIssuer,
     private val adminSignupCodeVerifier: AdminSignupCodeVerifier,
 ) {
     fun signup(command: AdminSignupCommand): AdminAuthResult {
@@ -23,9 +23,9 @@ class AdminAuthService(
         }
 
         val admin = adminAppender.append(command)
-        val accessToken = tokenProvider.issueAccessToken(admin.id, setOf(Role.ADMIN.name))
+        val tokens = authTokenIssuer.issue(admin.id, setOf(Role.ADMIN.name))
 
-        return AdminAuthResult(accessToken, admin)
+        return AdminAuthResult(tokens, admin, isAutoLogin = true)
     }
 
     fun login(command: AdminLoginCommand): AdminAuthResult {
@@ -37,8 +37,8 @@ class AdminAuthService(
             throw CoreException(AdminErrorCode.ADMIN_PASSWORD_MISMATCH)
         }
 
-        val accessToken = tokenProvider.issueAccessToken(admin.id, setOf(Role.ADMIN.name))
+        val tokens = authTokenIssuer.issue(admin.id, setOf(Role.ADMIN.name))
 
-        return AdminAuthResult(accessToken, admin)
+        return AdminAuthResult(tokens, admin, command.isAutoLogin)
     }
 }

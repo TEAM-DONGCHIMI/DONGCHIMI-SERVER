@@ -7,9 +7,9 @@ import kr.dongchimi.common.utils.RegexPatterns.isEmail
 import kr.dongchimi.core.admin.AdminSignupCommand
 
 data class AdminSignupRequest(
-    @Schema(description = "이름", example = "황수민")
+    @Schema(description = "이름", example = "동치미")
     val name: String,
-    @Schema(description = "이메일", example = "tnals655@dongchimi.kr")
+    @Schema(description = "이메일", example = "dongchimi@gamil.com")
     val email: String,
     @Schema(description = "비밀번호 (6~20자, 공백·한글 불가)", example = "password123!")
     val password: String,
