@@ -36,7 +36,7 @@ class UserProductController(
         apiUser: UserApiUser,
         @PathVariable marketId: Long,
         @PathVariable productId: Long,
-    ): ApiResponse<ProductDetailResponse> = ApiResponse.success(productDetailQueryFacade.getDetail(marketId, productId))
+    ): ApiResponse<ProductDetailResponse> = ApiResponse.success(productDetailQueryFacade.getDetail(marketId, productId, apiUser.userId))
 
     @GetMapping("/periodic")
     override fun getPeriodicDeals(
