@@ -1,5 +1,6 @@
 package kr.dongchimi.core.product
 
+import kr.dongchimi.core.product.importjob.ParsedProductRow
 import org.springframework.stereotype.Component
 
 @Component

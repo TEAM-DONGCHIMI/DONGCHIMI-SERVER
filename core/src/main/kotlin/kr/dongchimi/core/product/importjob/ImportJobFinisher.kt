@@ -1,5 +1,7 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.importjob
 
+import kr.dongchimi.core.product.PreparedProduct
+import kr.dongchimi.core.product.PreparedProductRepository
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 

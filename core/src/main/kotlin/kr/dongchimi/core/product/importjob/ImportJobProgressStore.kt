@@ -1,4 +1,4 @@
-package kr.dongchimi.core.product
+package kr.dongchimi.core.product.importjob
 
 interface ImportJobProgressStore {
     suspend fun save(progress: ImportJobProgress)
