@@ -1,6 +1,7 @@
 package kr.dongchimi.core.product
 
-import kr.dongchimi.common.utils.HangulUtils
+import kr.dongchimi.common.utils.HangulUtils.extractChosung
+import kr.dongchimi.common.utils.HangulUtils.isChosungOnly
 import kr.dongchimi.core.common.exception.CoreException
 import org.springframework.stereotype.Component
 import java.time.LocalDate
@@ -40,10 +41,10 @@ class ProductReader(
         condition: ProductKeywordSearchCondition,
         date: LocalDate,
     ): List<Product> =
-        if (HangulUtils.isChosungOnly(condition.keyword)) {
+        if (condition.keyword.isChosungOnly()) {
             productRepository
                 .findAllActiveByMarketId(marketId, date)
-                .filter { HangulUtils.extractChosung(it.name).contains(condition.keyword) }
+                .filter { it.name.extractChosung().contains(condition.keyword) }
                 .take(condition.size)
         } else {
             productRepository.searchActiveByMarketIdAndKeyword(marketId, condition, date)

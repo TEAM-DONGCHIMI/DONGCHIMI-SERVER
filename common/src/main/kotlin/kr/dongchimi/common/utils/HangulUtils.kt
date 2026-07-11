@@ -29,11 +29,11 @@ object HangulUtils {
         )
     private val CHOSUNG_ONLY_PATTERN = Regex("^[ㄱ-ㅎ]+$")
 
-    fun isChosungOnly(text: String): Boolean = CHOSUNG_ONLY_PATTERN.matches(text)
+    fun String.isChosungOnly(): Boolean = CHOSUNG_ONLY_PATTERN.matches(this)
 
     // 완성형 한글 음절(가~힣)만 초성으로 치환하고, 그 외 문자(숫자/영문/공백)는 그대로 둔다.
-    fun extractChosung(text: String): String =
-        text
+    fun String.extractChosung(): String =
+        this
             .map { ch ->
                 val code = ch.code
                 if (code in HANGUL_BASE..HANGUL_LAST) {
