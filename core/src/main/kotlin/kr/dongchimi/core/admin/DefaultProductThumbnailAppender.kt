@@ -1,6 +1,5 @@
 package kr.dongchimi.core.admin
 
-import kr.dongchimi.core.product.ProductCategory
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,7 +17,7 @@ class DefaultProductThumbnailAppender(
                 DefaultProductThumbnail(
                     name = item.name,
                     thumbnailUrl = item.thumbnailUrl,
-                    category = ProductCategory.ETC,
+                    category = item.category,
                     createdBy = createdBy,
                 )
             }
