@@ -13,7 +13,7 @@ class UserAppender(
     @Transactional
     fun appendSocialUser(info: SocialUserInfo): User {
         val email = info.email ?: throw CoreException(AuthErrorCode.OAUTH_REQUIRED_INFO_MISSING)
-        val gender = info.gender ?: throw CoreException(AuthErrorCode.OAUTH_REQUIRED_INFO_MISSING)
+        val gender = info.gender ?: Gender.UNKNOWN
 
         return userRepository.save(
             User(
