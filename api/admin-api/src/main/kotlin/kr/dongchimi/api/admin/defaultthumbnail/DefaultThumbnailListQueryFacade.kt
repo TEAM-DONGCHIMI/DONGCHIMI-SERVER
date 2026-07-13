@@ -3,7 +3,9 @@ package kr.dongchimi.api.admin.defaultthumbnail
 import kr.dongchimi.api.admin.defaultthumbnail.response.CreatedByResponse
 import kr.dongchimi.api.admin.defaultthumbnail.response.DefaultThumbnailListItemResponse
 import kr.dongchimi.api.core.common.dto.CursorSliceResponse
+import kr.dongchimi.core.admin.Admin
 import kr.dongchimi.core.admin.AdminService
+import kr.dongchimi.core.admin.DefaultProductThumbnail
 import kr.dongchimi.core.admin.DefaultProductThumbnailService
 import kr.dongchimi.core.admin.DefaultThumbnailListCondition
 import org.springframework.stereotype.Component
@@ -23,10 +25,7 @@ class DefaultThumbnailListQueryFacade(
 
         val content =
             slice.content.map { thumbnail ->
-                val admin =
-                    checkNotNull(adminById[thumbnail.createdBy]) {
-                        "썸네일(${thumbnail.id})의 등록자(${thumbnail.createdBy})를 찾을 수 없습니다."
-                    }
+                val admin = resolveAdmin(thumbnail, adminById)
                 DefaultThumbnailListItemResponse(
                     defaultThumbnailId = thumbnail.id,
                     name = thumbnail.name,
@@ -38,4 +37,12 @@ class DefaultThumbnailListQueryFacade(
 
         return CursorSliceResponse(content = content, hasNext = slice.hasNext, nextCursor = slice.nextCursor)
     }
+
+    private fun resolveAdmin(
+        thumbnail: DefaultProductThumbnail,
+        adminById: Map<Long, Admin>,
+    ): Admin =
+        checkNotNull(adminById[thumbnail.createdBy]) {
+            "썸네일(${thumbnail.id})의 등록자(${thumbnail.createdBy})를 찾을 수 없습니다."
+        }
 }
