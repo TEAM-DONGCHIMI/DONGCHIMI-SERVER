@@ -29,5 +29,5 @@ class UserMarketController(
     override fun getDetail(
         apiUser: UserApiUser,
         @PathVariable slug: String,
-    ): ApiResponse<MarketDetailResponse> = ApiResponse.success(marketDetailQueryFacade.getDetail(slug, LocalDateTime.now()))
+    ): ApiResponse<MarketDetailResponse> = ApiResponse.success(marketDetailQueryFacade.getDetail(slug, LocalDateTime.now(), apiUser.userId))
 }
