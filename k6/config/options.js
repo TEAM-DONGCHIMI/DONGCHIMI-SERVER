@@ -35,6 +35,22 @@ export const PROFILES = {
       { duration: '30s', target: 0 },
     ],
   },
+
+  // 엑셀 분석처럼 요청 하나가 수 초~수십 초 걸리고 DB를 변경하는 무거운 작업 전용.
+  // duration 기반(constant/ramping-vus)은 긴 요청과 궁합이 나빠 iteration 수로 표본을 고정한다.
+  // VU·iteration 수는 env로 조정한다 (IMPORT_VUS / IMPORT_ITERATIONS).
+  importLatency: {
+    executor: 'per-vu-iterations',
+    vus: 1,
+    iterations: Number(__ENV.IMPORT_ITERATIONS || 5),
+    maxDuration: '15m',
+  },
+  importThroughput: {
+    executor: 'per-vu-iterations',
+    vus: Number(__ENV.IMPORT_VUS || 5),
+    iterations: Number(__ENV.IMPORT_ITERATIONS || 4),
+    maxDuration: '30m',
+  },
 };
 
 export function resolveProfile(name) {
