@@ -25,5 +25,12 @@ RUN apt-get update \
 
 COPY --from=build /app/bootstrap/build/libs/*.jar app.jar
 
+# 힙 덤프(OOM)/GC 로그 출력 디렉터리 (compose에서 볼륨 마운트해 영속)
+RUN mkdir -p /app/dumps /app/logs
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
+# 메모리/GC 튜닝값(JAVA_OPTS)은 compose에서 주입 → 이미지 리빌드 없이 조정 가능
+# exec로 java를 PID 1로 승격 → SIGTERM이 전달되어 Spring graceful shutdown 동작
+ENV JAVA_OPTS=""
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

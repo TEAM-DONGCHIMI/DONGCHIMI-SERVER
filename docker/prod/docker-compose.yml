@@ -4,6 +4,15 @@ services:
     env_file:
       - path: .env
         required: false # 서버에만 존재, git 미포함
+    environment:
+      # 메모리/GC 튜닝 — 힙 640m + 비힙 상한(Metaspace/CodeCache/Direct)으로 RSS를 mem_limit 안에 고정
+      # 값 조정은 이미지 리빌드 없이 여기서만. 상세 근거는 docs/conventions 또는 튜닝 노트 참고
+      JAVA_OPTS: >-
+        -Xms640m -Xmx640m
+        -XX:MaxMetaspaceSize=224m -XX:ReservedCodeCacheSize=96m -XX:MaxDirectMemorySize=64m
+        -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:+UseContainerSupport
+        -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/dumps/ -XX:+ExitOnOutOfMemoryError
+        -Xlog:gc*:file=/app/logs/gc.log:time,uptime,level,tags:filecount=5,filesize=10m
     expose:
       - "8080"                                            # 내부 네트워크 전용, 호스트 미공개
     healthcheck:                                          # DB가 아닌 app 자체 헬스체크 (actuator)
@@ -13,9 +22,14 @@ services:
       retries: 5
       start_period: 40s                                   # Flyway 마이그레이션 포함 기동 시간 여유
     restart: unless-stopped
+    mem_limit: 1150m                                      # 총 예산: app 1150 + redis 350 + caddy 96 + OS ~350 ≈ 1946/2048 (여유 ~100)
+    memswap_limit: 1150m                                  # = mem_limit → 스왑 차단 (스왑으로 밀려 지연 폭증 방지)
     depends_on:
       redis:
         condition: service_healthy
+    volumes:
+      - app-dumps:/app/dumps                              # OOM 힙 덤프 영속 (재배포에도 보존, 사후 분석용)
+      - app-logs:/app/logs                                # GC 로그(gc.log.*) 영속
 
   redis:
     image: redis:7-alpine
@@ -48,8 +62,12 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+    mem_limit: 96m                                        # Go 바이너리, 실사용 30~60m
+    memswap_limit: 96m                                    # = mem_limit → 스왑 차단
 
 volumes:
   caddy-data:
   caddy-config:
   redis-data:
+  app-dumps:
+  app-logs:
