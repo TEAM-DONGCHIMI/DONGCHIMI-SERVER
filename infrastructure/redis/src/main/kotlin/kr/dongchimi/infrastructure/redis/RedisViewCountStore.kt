@@ -1,5 +1,6 @@
 package kr.dongchimi.infrastructure.redis
 
+import kr.dongchimi.core.viewcount.ViewCountBatch
 import kr.dongchimi.core.viewcount.ViewCountProperties
 import kr.dongchimi.core.viewcount.ViewCountStore
 import kr.dongchimi.core.viewcount.ViewTarget
@@ -30,22 +31,43 @@ class RedisViewCountStore(
         }
     }
 
-    override fun drain(target: ViewTarget): Map<Long, Int> {
+    override fun drain(target: ViewTarget): ViewCountBatch? {
         val pendingKey = ViewCountRedisKeys.pending(target)
-        if (stringRedisTemplate.hasKey(pendingKey) != true) return emptyMap()
+        if (stringRedisTemplate.hasKey(pendingKey) != true) return null
 
         // pending을 고유 키로 원자적으로 옮겨 이 인스턴스만 그 배치를 소유하게 한다.
-        // 여러 인스턴스가 동시에 걷어도 RENAME이 직렬화되어 한쪽만 성공, 나머지는 소스 없음으로 빈 맵.
-        val flushKey = ViewCountRedisKeys.flush(target, UUID.randomUUID().toString())
+        // 여러 인스턴스가 동시에 걷어도 RENAME이 직렬화되어 한쪽만 성공, 나머지는 소스 없음으로 null.
+        val token = UUID.randomUUID().toString()
+        val flushKey = ViewCountRedisKeys.flush(target, token)
         try {
             stringRedisTemplate.rename(pendingKey, flushKey)
         } catch (e: Exception) {
-            return emptyMap()
+            return null
         }
 
+        // DB 반영이 끝날 때까지 flush 키를 지우지 않고 격리 보관한다. commit/restore로 마무리한다.
         val entries = stringRedisTemplate.opsForHash<String, String>().entries(flushKey)
-        stringRedisTemplate.delete(flushKey)
+        if (entries.isEmpty()) {
+            stringRedisTemplate.delete(flushKey)
+            return null
+        }
 
-        return entries.entries.associate { it.key.toLong() to it.value.toInt() }
+        val deltas = entries.entries.associate { it.key.toLong() to it.value.toInt() }
+        return ViewCountBatch(target, token, deltas)
+    }
+
+    override fun commit(batch: ViewCountBatch) {
+        stringRedisTemplate.delete(ViewCountRedisKeys.flush(batch.target, batch.token))
+    }
+
+    override fun restore(batch: ViewCountBatch) {
+        // DB 반영 실패분을 pending에 다시 더해 다음 flush에서 재처리한다. HINCRBY는 원자적·가산적이라
+        // 그 사이 들어온 신규 조회수와 안전하게 합쳐진다. 되돌린 뒤 격리 보관분은 제거한다.
+        val pendingKey = ViewCountRedisKeys.pending(batch.target)
+        val hashOps = stringRedisTemplate.opsForHash<String, String>()
+        batch.deltas.forEach { (targetId, delta) ->
+            hashOps.increment(pendingKey, targetId.toString(), delta.toLong())
+        }
+        stringRedisTemplate.delete(ViewCountRedisKeys.flush(batch.target, batch.token))
     }
 }
