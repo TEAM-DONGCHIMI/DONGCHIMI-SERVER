@@ -29,16 +29,20 @@ class AdminAuthService(
     }
 
     fun login(command: AdminLoginCommand): AdminAuthResult {
-        val admin =
-            adminReader.readByEmail(command.email)
-                ?: throw CoreException(AdminErrorCode.ADMIN_NOT_FOUND)
+        val admin = adminReader.readByEmail(command.email)
+        val passwordMatches =
+            passwordEncoder.matches(command.password, admin?.password ?: DUMMY_PASSWORD_HASH)
 
-        if (!passwordEncoder.matches(command.password, admin.password)) {
-            throw CoreException(AdminErrorCode.ADMIN_PASSWORD_MISMATCH)
+        if (admin == null || !passwordMatches) {
+            throw CoreException(AdminErrorCode.ADMIN_LOGIN_FAILED)
         }
 
         val tokens = authTokenIssuer.issue(admin.id, setOf(Role.ADMIN.name))
 
         return AdminAuthResult(tokens, admin, command.isAutoLogin)
+    }
+
+    companion object {
+        private const val DUMMY_PASSWORD_HASH = "\$2a\$10\$abcdefghijklmnopqrstuv0123456789ABCDEFGHIJKLMNOPQRSTU"
     }
 }
