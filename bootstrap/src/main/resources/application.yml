@@ -11,3 +11,12 @@ spring:
       - classpath:application-infrastructure-storage.yml
       - classpath:application-infrastructure-redis.yml
       - classpath:application-core.yml
+
+# 배포 사이징(t3.small / 동접 100) 튜닝 — 힙·mem_limit(compose)와 함께 배포 조립체인 bootstrap에서 관리
+server:
+  tomcat:
+    threads:
+      max: 150            # 동접 100 블로킹 요청 + 여유 50%. 스레드 스택(스레드수 × ~1MB)이 컨테이너 상한(1150m)을 넘지 않도록 기본 200 → 150으로 억제
+      min-spare: 20       # 상시 유지 워커 → 버스트 초반 스레드 생성 지연 완화
+    accept-count: 100     # 워커 포화 시 OS 백로그 대기 큐 길이 (기본값, 명시)
+    max-connections: 1000 # 동접 100 + SSE(async, 워커 미점유) 유휴 커넥션 여유. 커넥션 메모리 상한도 겸함
