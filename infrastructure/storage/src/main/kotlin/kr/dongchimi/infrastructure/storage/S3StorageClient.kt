@@ -87,16 +87,20 @@ class S3StorageClient(
                 .build(),
         )
         try {
-            s3Client.deleteObject(
-                DeleteObjectRequest
-                    .builder()
-                    .bucket(s3Properties.bucket)
-                    .key(sourceKey)
-                    .build(),
-            )
+            deleteObject(sourceKey)
         } catch (e: S3Exception) {
             logger.warn(e) { "임시 객체 삭제 실패 (복제는 완료됨): $sourceKey -> $destinationKey" }
         }
+    }
+
+    override fun deleteObject(objectKey: String) {
+        s3Client.deleteObject(
+            DeleteObjectRequest
+                .builder()
+                .bucket(s3Properties.bucket)
+                .key(objectKey)
+                .build(),
+        )
     }
 
     override fun resolveAccessUrl(objectKey: String): String = "${storageProperties.cdnBaseUrl.trimEnd('/')}/$objectKey"

@@ -13,4 +13,6 @@ class UploadService(
         commands.map { uploadManager.issuePresignedUpload(it.purpose, it.contentType, it.contentLength) }
 
     fun confirmUpload(tempKey: String): ConfirmedUpload = uploadManager.confirmUpload(tempKey)
+
+    fun deleteObject(objectKey: String) = uploadManager.deleteObject(objectKey)
 }

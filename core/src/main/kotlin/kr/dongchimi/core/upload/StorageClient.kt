@@ -14,6 +14,8 @@ interface StorageClient {
         destinationKey: String,
     )
 
+    fun deleteObject(objectKey: String)
+
     fun resolveAccessUrl(objectKey: String): String
 
     /**

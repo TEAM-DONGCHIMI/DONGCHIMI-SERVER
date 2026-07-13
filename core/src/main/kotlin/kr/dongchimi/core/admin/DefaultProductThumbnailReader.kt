@@ -1,6 +1,7 @@
 package kr.dongchimi.core.admin
 
 import kr.dongchimi.core.common.CursorSliceResult
+import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.common.toCursorSlice
 import org.springframework.stereotype.Component
 
@@ -8,6 +9,10 @@ import org.springframework.stereotype.Component
 class DefaultProductThumbnailReader(
     private val defaultProductThumbnailRepository: DefaultProductThumbnailRepository,
 ) {
+    fun read(id: Long): DefaultProductThumbnail =
+        defaultProductThumbnailRepository.findById(id)
+            ?: throw CoreException(DefaultProductThumbnailErrorCode.THUMBNAIL_NOT_FOUND)
+
     fun findList(condition: DefaultThumbnailListCondition): CursorSliceResult<DefaultProductThumbnail> {
         val rows =
             when (condition.sort) {
