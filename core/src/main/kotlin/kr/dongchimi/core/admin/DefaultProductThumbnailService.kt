@@ -13,9 +13,9 @@ class DefaultProductThumbnailService(
         defaultProductThumbnailReader.findList(condition)
 
     fun create(
-        command: DefaultThumbnailCreateCommand,
+        items: List<DefaultThumbnailCreateItem>,
         createdBy: Long,
-    ): List<DefaultProductThumbnail> = defaultProductThumbnailAppender.appendAll(command, createdBy)
+    ): List<DefaultProductThumbnail> = defaultProductThumbnailAppender.appendAll(items, createdBy)
 
     fun update(command: DefaultThumbnailUpdateCommand) = defaultProductThumbnailUpdater.update(command)
 }

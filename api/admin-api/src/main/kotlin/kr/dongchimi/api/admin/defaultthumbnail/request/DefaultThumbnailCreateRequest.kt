@@ -3,7 +3,6 @@ package kr.dongchimi.api.admin.defaultthumbnail.request
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.api.core.common.exception.InvalidInputException
 import kr.dongchimi.api.core.common.exception.validate
-import kr.dongchimi.core.admin.DefaultThumbnailCreateCommand
 import kr.dongchimi.core.admin.DefaultThumbnailCreateItem
 import kr.dongchimi.core.product.toProductCategoryOrNull
 
@@ -11,10 +10,10 @@ data class DefaultThumbnailCreateRequest(
     @Schema(description = "등록할 기본 이미지 목록")
     val thumbnails: List<DefaultThumbnailCreateItemRequest>,
 ) {
-    fun toCommand(): DefaultThumbnailCreateCommand {
+    fun toCommand(): List<DefaultThumbnailCreateItem> {
         validate(thumbnails.isNotEmpty()) { "등록할 이미지가 없습니다." }
 
-        return DefaultThumbnailCreateCommand(items = thumbnails.map { it.toItem() })
+        return thumbnails.map { it.toItem() }
     }
 }
 

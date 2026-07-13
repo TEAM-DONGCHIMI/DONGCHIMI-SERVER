@@ -9,11 +9,11 @@ class DefaultProductThumbnailAppender(
 ) {
     @Transactional
     fun appendAll(
-        command: DefaultThumbnailCreateCommand,
+        items: List<DefaultThumbnailCreateItem>,
         createdBy: Long,
     ): List<DefaultProductThumbnail> {
         val thumbnails =
-            command.items.map { item ->
+            items.map { item ->
                 DefaultProductThumbnail(
                     name = item.name,
                     thumbnailUrl = item.thumbnailUrl,
