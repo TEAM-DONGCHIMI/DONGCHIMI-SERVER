@@ -7,5 +7,22 @@ interface DefaultProductThumbnailRepository {
 
     fun findAllByCategoryIn(categories: Set<ProductCategory>): List<DefaultProductThumbnail>
 
+    fun findAllByLatest(
+        search: String?,
+        cursor: Long?,
+        limit: Int,
+    ): List<DefaultProductThumbnail>
+
+    fun findAllByName(
+        search: String?,
+        cursor: Long?,
+        cursorName: String?,
+        limit: Int,
+    ): List<DefaultProductThumbnail>
+
+    fun findNameById(id: Long): String?
+
     fun save(defaultProductThumbnail: DefaultProductThumbnail): DefaultProductThumbnail
+
+    fun saveAll(defaultProductThumbnails: List<DefaultProductThumbnail>): List<DefaultProductThumbnail>
 }
