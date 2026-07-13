@@ -9,13 +9,12 @@ import org.springdoc.core.annotations.ParameterObject
 
 @ParameterObject
 data class DefaultThumbnailListRequest(
-    val size: Int? = null,
+    val size: Int = DEFAULT_SIZE,
     val cursor: Long? = null,
     val search: String? = null,
     val sort: String? = null,
 ) {
     fun toCondition(): DefaultThumbnailListCondition {
-        val size = size ?: throw InvalidInputException("조회 개수는 필수입니다.")
         validate(size in 1..MAX_SIZE) { "조회 개수는 1 이상 $MAX_SIZE 이하여야 합니다." }
         validate(cursor == null || cursor > 0) { "cursor는 1 이상이어야 합니다." }
         val sortType =
@@ -28,6 +27,7 @@ data class DefaultThumbnailListRequest(
     }
 
     companion object {
+        private const val DEFAULT_SIZE = 24
         private const val MAX_SIZE = 60
     }
 }
