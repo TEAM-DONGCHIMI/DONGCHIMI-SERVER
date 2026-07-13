@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dongchimi.api.admin.AdminApiUser
 import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailBulkCreateRequest
 import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailListRequest
+import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailUpdateRequest
 import kr.dongchimi.api.admin.defaultthumbnail.response.DefaultThumbnailListItemResponse
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.CursorSliceResponse
@@ -33,5 +34,16 @@ interface DefaultThumbnailApi {
     fun bulkCreate(
         @Parameter(hidden = true) apiUser: AdminApiUser,
         request: DefaultThumbnailBulkCreateRequest,
+    ): ApiResponse<Unit>
+
+    @Operation(
+        summary = "기본 썸네일 수정",
+        description = "기본 이미지 한 건의 이름/이미지 URL/카테고리를 수정한다.",
+    )
+    @ApiErrorCodes(CommonErrorCode::class, DefaultProductThumbnailErrorCode::class)
+    fun update(
+        @Parameter(hidden = true) apiUser: AdminApiUser,
+        @Parameter(description = "기본 썸네일 id") defaultThumbnailId: Long,
+        request: DefaultThumbnailUpdateRequest,
     ): ApiResponse<Unit>
 }
