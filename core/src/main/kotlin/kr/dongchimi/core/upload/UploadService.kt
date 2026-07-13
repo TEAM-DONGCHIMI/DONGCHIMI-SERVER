@@ -11,4 +11,6 @@ class UploadService(
 
     fun createPresignedUploads(commands: List<PresignedUploadCommand>): List<PresignedUpload> =
         commands.map { uploadManager.issuePresignedUpload(it.purpose, it.contentType, it.contentLength) }
+
+    fun confirmUpload(tempKey: String): ConfirmedUpload = uploadManager.confirmUpload(tempKey)
 }
