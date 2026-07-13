@@ -19,8 +19,11 @@ services:
 
   redis:
     image: redis:7-alpine
+    command: redis-server --maxmemory 300mb --maxmemory-policy volatile-lru  # 스왑 차단과 세트(상한 없으면 OOM Kill). TTL 있는 키만 LRU로 정리 → 쓰기 실패 없이 self-healing
     expose:
       - "6379"                                            # 내부 네트워크 전용, 호스트 미공개
+    mem_limit: 350m                                       # 컨테이너 메모리 상한 (maxmemory + RSS 오버헤드 여유)
+    memswap_limit: 350m                                   # mem_limit과 동일 → memory.swap.max=0, redis가 스왑으로 밀리지 않음
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
