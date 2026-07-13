@@ -3,7 +3,6 @@ package kr.dongchimi.core.admin
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kr.dongchimi.core.common.CursorSliceResult
 import kr.dongchimi.core.upload.ConfirmedUpload
-import kr.dongchimi.core.upload.ObjectKeyGenerator
 import kr.dongchimi.core.upload.UploadService
 import org.springframework.stereotype.Service
 
@@ -50,10 +49,7 @@ class DefaultProductThumbnailService(
         thumbnailUrl: String,
         confirmedUploads: MutableList<ConfirmedUpload>,
     ): String {
-        if (!thumbnailUrl.startsWith("${ObjectKeyGenerator.TEMP_PREFIX}/")) {
-            return thumbnailUrl
-        }
-        val confirmed = uploadService.confirmUpload(thumbnailUrl)
+        val confirmed = uploadService.confirmIfTempKey(thumbnailUrl) ?: return thumbnailUrl
         confirmedUploads.add(confirmed)
         return confirmed.accessUrl
     }

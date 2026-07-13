@@ -15,4 +15,11 @@ class UploadService(
     fun confirmUpload(tempKey: String): ConfirmedUpload = uploadManager.confirmUpload(tempKey)
 
     fun deleteObject(objectKey: String) = uploadManager.deleteObject(objectKey)
+
+    fun confirmIfTempKey(url: String): ConfirmedUpload? =
+        if (url.startsWith("${ObjectKeyGenerator.TEMP_PREFIX}/")) {
+            confirmUpload(url)
+        } else {
+            null
+        }
 }
