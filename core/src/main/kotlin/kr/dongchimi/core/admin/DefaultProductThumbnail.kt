@@ -10,4 +10,5 @@ data class DefaultProductThumbnail(
     val category: ProductCategory,
     val createdBy: Long,
     val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 )

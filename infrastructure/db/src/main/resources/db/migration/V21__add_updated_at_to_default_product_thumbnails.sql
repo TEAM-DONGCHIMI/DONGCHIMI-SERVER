@@ -1,0 +1,1 @@
+ALTER TABLE default_product_thumbnails ADD COLUMN updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

@@ -25,12 +25,4 @@ interface DefaultProductThumbnailRepository {
     fun save(defaultProductThumbnail: DefaultProductThumbnail): DefaultProductThumbnail
 
     fun saveAll(defaultProductThumbnails: List<DefaultProductThumbnail>): List<DefaultProductThumbnail>
-
-    /** name/thumbnailUrl/category만 갱신한다(id/createdBy/createdAt은 건드리지 않음). 갱신된 행 수를 반환한다. */
-    fun updateContent(
-        id: Long,
-        name: String,
-        thumbnailUrl: String,
-        category: ProductCategory,
-    ): Int
 }
