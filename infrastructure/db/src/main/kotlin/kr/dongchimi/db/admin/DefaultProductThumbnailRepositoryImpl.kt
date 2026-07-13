@@ -41,7 +41,11 @@ class DefaultProductThumbnailRepositoryImpl(
     override fun findNameById(id: Long): String? = defaultProductThumbnailJpaRepository.findNameById(id)
 
     override fun save(defaultProductThumbnail: DefaultProductThumbnail): DefaultProductThumbnail =
-        defaultProductThumbnailJpaRepository.save(DefaultProductThumbnailJpaEntity(defaultProductThumbnail)).toDomain()
+        try {
+            defaultProductThumbnailJpaRepository.save(DefaultProductThumbnailJpaEntity(defaultProductThumbnail)).toDomain()
+        } catch (exception: DataIntegrityViolationException) {
+            throw exception.toThumbnailNameExistsOrSelf()
+        }
 
     override fun saveAll(defaultProductThumbnails: List<DefaultProductThumbnail>): List<DefaultProductThumbnail> =
         try {
@@ -49,11 +53,11 @@ class DefaultProductThumbnailRepositoryImpl(
                 .saveAll(defaultProductThumbnails.map { DefaultProductThumbnailJpaEntity(it) })
                 .map { it.toDomain() }
         } catch (exception: DataIntegrityViolationException) {
-            if (exception.isNameUniqueViolation()) {
-                throw CoreException(DefaultProductThumbnailErrorCode.THUMBNAIL_NAME_EXISTS)
-            }
-            throw exception
+            throw exception.toThumbnailNameExistsOrSelf()
         }
+
+    private fun DataIntegrityViolationException.toThumbnailNameExistsOrSelf(): Throwable =
+        if (isNameUniqueViolation()) CoreException(DefaultProductThumbnailErrorCode.THUMBNAIL_NAME_EXISTS) else this
 
     private fun DataIntegrityViolationException.isNameUniqueViolation(): Boolean =
         mostSpecificCause.message?.contains(THUMBNAIL_NAME_UNIQUE_INDEX) == true
