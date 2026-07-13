@@ -17,6 +17,11 @@ data class GeminiPart(
 data class GeminiGenerationConfig(
     val responseMimeType: String,
     val responseSchema: GeminiSchema,
-    /** 3.x 모델의 thinking_level enum. null이면 모델 기본값(medium). */
-    val thinkingLevel: String? = null,
+    val thinkingConfig: GeminiThinkingConfig? = null,
+)
+
+/** 3.x 모델의 사고 깊이 설정. `generationConfig.thinkingConfig.thinkingLevel`로 중첩돼야 한다 — 최상위 필드가 아니다. */
+data class GeminiThinkingConfig(
+    /** minimal/low/medium(모델 기본)/high. */
+    val thinkingLevel: String,
 )
