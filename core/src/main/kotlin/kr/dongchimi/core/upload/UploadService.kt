@@ -8,4 +8,7 @@ class UploadService(
 ) {
     fun createPresignedUpload(command: PresignedUploadCommand): PresignedUpload =
         uploadManager.issuePresignedUpload(command.purpose, command.contentType, command.contentLength)
+
+    fun createPresignedUploads(commands: List<PresignedUploadCommand>): List<PresignedUpload> =
+        commands.map { uploadManager.issuePresignedUpload(it.purpose, it.contentType, it.contentLength) }
 }
