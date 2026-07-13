@@ -5,6 +5,8 @@ services:
       - path: .env
         required: false # 서버에만 존재, git 미포함
     environment:
+      # Vertex AI(ADC) 인증용 서비스 계정 키 경로 — CI가 배포 때 ./secrets/gcp-sa.json에 파일화한 것을 마운트한다(volumes 참고)
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp-sa.json
       # 메모리/GC 튜닝 — 힙 640m + 비힙 상한(Metaspace/CodeCache/Direct)으로 RSS를 mem_limit 안에 고정
       # 값 조정은 이미지 리빌드 없이 여기서만. 상세 근거는 docs/conventions 또는 튜닝 노트 참고
       JAVA_OPTS: >-
@@ -28,6 +30,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
+      - ./secrets/gcp-sa.json:/run/secrets/gcp-sa.json:ro # Vertex 서비스 계정 키 (서버에만 존재, CI가 배포 때 생성). up 전에 파일이 있어야 함
       - app-dumps:/app/dumps                              # OOM 힙 덤프 영속 (재배포에도 보존, 사후 분석용)
       - app-logs:/app/logs                                # GC 로그(gc.log.*) 영속
 
