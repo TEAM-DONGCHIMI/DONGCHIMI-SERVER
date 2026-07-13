@@ -1,6 +1,7 @@
 package kr.dongchimi.infrastructure.redis
 
 import kr.dongchimi.core.product.importjob.ImportJobEvent
+import kr.dongchimi.core.product.importjob.ImportJobStatus
 import kr.dongchimi.core.product.importjob.ImportStep
 import kr.dongchimi.core.product.importjob.ImportStepProgress
 
@@ -11,6 +12,7 @@ import kr.dongchimi.core.product.importjob.ImportStepProgress
 internal data class ImportJobEventEnvelope(
     val type: String,
     val jobId: String,
+    val status: ImportJobStatus? = null,
     val progress: Int? = null,
     val remainingSeconds: Int? = null,
     val currentStep: ImportStep? = null,
@@ -26,6 +28,7 @@ internal data class ImportJobEventEnvelope(
             "PROGRESS" ->
                 ImportJobEvent.Progress(
                     jobId = jobId,
+                    status = requireNotNull(status) { "progress 이벤트에 status 필드가 없다" },
                     progress = requireNotNull(progress) { "progress 이벤트에 progress 필드가 없다" },
                     remainingSeconds = remainingSeconds,
                     currentStep = currentStep,
@@ -59,6 +62,7 @@ internal data class ImportJobEventEnvelope(
                     ImportJobEventEnvelope(
                         type = "PROGRESS",
                         jobId = event.jobId,
+                        status = event.status,
                         progress = event.progress,
                         remainingSeconds = event.remainingSeconds,
                         currentStep = event.currentStep,

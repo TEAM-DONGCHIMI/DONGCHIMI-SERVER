@@ -10,13 +10,17 @@ sealed class ImportJobEvent {
 
     data class Progress(
         override val jobId: String,
+        /** 스냅샷은 워커가 도는 동안에만 저장되므로 항상 IN_PROGRESS다. PENDING인 job을 구독할 때만
+         *  ImportJobService가 status=PENDING으로 직접 만든다(스냅샷이 없다). */
+        val status: ImportJobStatus,
         val progress: Int,
         val remainingSeconds: Int?,
         val currentStep: ImportStep?,
         val steps: List<ImportStepProgress>,
     ) : ImportJobEvent() {
-        constructor(snapshot: ImportJobProgress) : this(
+        constructor(snapshot: ImportJobProgress, status: ImportJobStatus = ImportJobStatus.IN_PROGRESS) : this(
             jobId = snapshot.jobId,
+            status = status,
             progress = snapshot.progress,
             remainingSeconds = snapshot.remainingSeconds,
             currentStep = snapshot.currentStep,
