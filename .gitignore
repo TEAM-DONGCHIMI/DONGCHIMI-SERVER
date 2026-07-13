@@ -51,6 +51,9 @@ docs/api
 .env
 .env.local
 
+### Secrets (서버에만 존재, CI가 배포 때 생성) ###
+docker/prod/secrets/
+
 ### k6 ###
 k6/.env.perf
 k6/results/*

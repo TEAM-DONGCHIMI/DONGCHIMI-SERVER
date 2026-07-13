@@ -19,5 +19,8 @@ dependencies {
     // 엑셀 파싱
     implementation("org.apache.poi:poi-ooxml:5.5.1")
 
+    // Gemini 공식 GenAI SDK (generateContent 호출)
+    implementation("com.google.genai:google-genai:1.61.0")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

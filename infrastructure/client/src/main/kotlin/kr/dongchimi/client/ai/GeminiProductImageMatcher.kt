@@ -1,5 +1,7 @@
 package kr.dongchimi.client.ai
 
+import com.google.genai.types.Schema
+import com.google.genai.types.Type
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -83,20 +85,22 @@ class GeminiProductImageMatcher(
         """.trimIndent()
 
     companion object {
-        private val RESPONSE_SCHEMA =
-            GeminiSchema(
-                type = "ARRAY",
-                items =
-                    GeminiSchema(
-                        type = "OBJECT",
-                        properties =
+        private val RESPONSE_SCHEMA: Schema =
+            Schema
+                .builder()
+                .type(Type.Known.ARRAY)
+                .items(
+                    Schema
+                        .builder()
+                        .type(Type.Known.OBJECT)
+                        .properties(
                             mapOf(
-                                "id" to GeminiSchema(type = "INTEGER"),
-                                "candidateId" to GeminiSchema(type = "INTEGER"),
+                                "id" to Schema.builder().type(Type.Known.INTEGER).build(),
+                                "candidateId" to Schema.builder().type(Type.Known.INTEGER).build(),
                             ),
-                        required = listOf("id", "candidateId"),
-                    ),
-            )
+                        ).required("id", "candidateId")
+                        .build(),
+                ).build()
     }
 }
 
