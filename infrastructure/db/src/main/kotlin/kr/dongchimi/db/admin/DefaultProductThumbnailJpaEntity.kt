@@ -35,11 +35,7 @@ class DefaultProductThumbnailJpaEntity(
         thumbnailUrl = defaultProductThumbnail.thumbnailUrl,
         category = defaultProductThumbnail.category,
         createdBy = defaultProductThumbnail.createdBy,
-    ) {
-        // 수정(merge) 경로에서 lateinit createdAt이 비어있으면 merge 시 기존 값이 유실될 수 있어 명시적으로 채운다.
-        // 신규 생성 경로에서는 @CreatedDate 오디팅이 persist 시점에 이 값을 다시 덮어써 영향 없다.
-        createdAt = defaultProductThumbnail.createdAt
-    }
+    )
 
     fun toDomain(): DefaultProductThumbnail =
         DefaultProductThumbnail(

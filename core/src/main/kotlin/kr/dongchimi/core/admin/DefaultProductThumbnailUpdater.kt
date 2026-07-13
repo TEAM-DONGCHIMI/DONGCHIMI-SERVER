@@ -9,18 +9,17 @@ class DefaultProductThumbnailUpdater(
     private val defaultProductThumbnailRepository: DefaultProductThumbnailRepository,
 ) {
     @Transactional
-    fun update(command: DefaultThumbnailUpdateCommand): DefaultProductThumbnail {
-        val thumbnail =
-            defaultProductThumbnailRepository.findById(command.id)
-                ?: throw CoreException(DefaultProductThumbnailErrorCode.THUMBNAIL_NOT_FOUND)
-
-        val updated =
-            thumbnail.copy(
+    fun update(command: DefaultThumbnailUpdateCommand) {
+        val updatedRows =
+            defaultProductThumbnailRepository.updateContent(
+                id = command.id,
                 name = command.name,
                 thumbnailUrl = command.thumbnailUrl,
                 category = command.category,
             )
 
-        return defaultProductThumbnailRepository.save(updated)
+        if (updatedRows == 0) {
+            throw CoreException(DefaultProductThumbnailErrorCode.THUMBNAIL_NOT_FOUND)
+        }
     }
 }

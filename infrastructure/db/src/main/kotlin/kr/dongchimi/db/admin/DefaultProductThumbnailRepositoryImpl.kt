@@ -56,6 +56,18 @@ class DefaultProductThumbnailRepositoryImpl(
             throw exception.toThumbnailNameExistsOrSelf()
         }
 
+    override fun updateContent(
+        id: Long,
+        name: String,
+        thumbnailUrl: String,
+        category: ProductCategory,
+    ): Int =
+        try {
+            defaultProductThumbnailJpaRepository.updateContent(id, name, thumbnailUrl, category)
+        } catch (exception: DataIntegrityViolationException) {
+            throw exception.toThumbnailNameExistsOrSelf()
+        }
+
     private fun DataIntegrityViolationException.toThumbnailNameExistsOrSelf(): Throwable =
         if (isNameUniqueViolation()) CoreException(DefaultProductThumbnailErrorCode.THUMBNAIL_NAME_EXISTS) else this
 

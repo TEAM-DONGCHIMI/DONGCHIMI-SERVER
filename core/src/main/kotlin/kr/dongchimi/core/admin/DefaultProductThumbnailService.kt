@@ -17,5 +17,5 @@ class DefaultProductThumbnailService(
         createdBy: Long,
     ): List<DefaultProductThumbnail> = defaultProductThumbnailAppender.appendAll(command, createdBy)
 
-    fun update(command: DefaultThumbnailUpdateCommand): DefaultProductThumbnail = defaultProductThumbnailUpdater.update(command)
+    fun update(command: DefaultThumbnailUpdateCommand) = defaultProductThumbnailUpdater.update(command)
 }

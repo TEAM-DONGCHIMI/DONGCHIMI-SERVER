@@ -3,6 +3,7 @@ package kr.dongchimi.db.admin
 import kr.dongchimi.core.product.ProductCategory
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
@@ -42,4 +43,19 @@ interface DefaultProductThumbnailJpaRepository : JpaRepository<DefaultProductThu
     fun findNameById(
         @Param("id") id: Long,
     ): String?
+
+    @Modifying
+    @Query(
+        """
+        update DefaultProductThumbnailJpaEntity p
+        set p.name = :name, p.thumbnailUrl = :thumbnailUrl, p.category = :category
+        where p.id = :id
+        """,
+    )
+    fun updateContent(
+        @Param("id") id: Long,
+        @Param("name") name: String,
+        @Param("thumbnailUrl") thumbnailUrl: String,
+        @Param("category") category: ProductCategory,
+    ): Int
 }
