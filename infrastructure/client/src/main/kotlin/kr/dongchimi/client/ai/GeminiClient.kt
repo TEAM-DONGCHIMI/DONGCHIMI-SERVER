@@ -5,9 +5,11 @@ import com.google.genai.errors.ApiException
 import com.google.genai.errors.GenAiIOException
 import com.google.genai.types.Content
 import com.google.genai.types.GenerateContentConfig
+import com.google.genai.types.HttpOptions
 import com.google.genai.types.Part
 import com.google.genai.types.Schema
 import com.google.genai.types.ThinkingConfig
+import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -30,10 +32,25 @@ class GeminiResponseFormatException(
 @Component
 @ConditionalOnProperty(name = ["import.ai.provider"], havingValue = "gemini")
 class GeminiClient(
-    private val genAiClient: Client,
     private val geminiProperties: GeminiProperties,
     private val objectMapper: ObjectMapper,
 ) {
+    /**
+     * SDK Client는 생성 시점에 Vertex ADC 자격증명을 resolve한다. 이를 앱 시작이 아니라 첫 호출로 미뤄서,
+     * 자격증명이 없거나 잘못돼도 애플리케이션 전체 부팅이 막히지 않게 한다 — 그 경우 엑셀 분석 호출만 실패한다.
+     */
+    private val clientDelegate =
+        lazy {
+            Client
+                .builder()
+                .vertexAI(true)
+                .project(geminiProperties.project)
+                .location(geminiProperties.location)
+                .httpOptions(HttpOptions.builder().timeout(geminiProperties.timeout.toMillis().toInt()).build())
+                .build()
+        }
+    private val client: Client by clientDelegate
+
     /**
      * systemInstruction + userContent로 generateContent를 호출하고, [responseSchema]를 만족하는 JSON 응답을 [type]으로 파싱해 돌려준다.
      * HTTP 실패는 [GeminiRequestException], 200이지만 파싱 불가면 [GeminiResponseFormatException]을 던진다.
@@ -69,7 +86,8 @@ class GeminiClient(
                     .build()
 
             try {
-                genAiClient.models
+                // client 최초 접근 시 자격증명 resolve가 일어난다 — 실패하면 아래 catch가 감싸 작업만 실패시킨다.
+                client.models
                     .generateContent(geminiProperties.model, userContent, config)
                     .text()
                     ?: throw GeminiResponseFormatException("Gemini 응답에 text가 없음")
@@ -79,4 +97,9 @@ class GeminiClient(
                 throw GeminiRequestException(e)
             }
         }
+
+    @PreDestroy
+    fun close() {
+        if (clientDelegate.isInitialized()) client.close()
+    }
 }
