@@ -10,5 +10,6 @@ enum class UploadPurpose(
 ) {
     PRODUCT_THUMBNAIL("products/thumbnails", IMAGE_TYPES, 5 * 1024 * 1024L),
     DEFAULT_PRODUCT_THUMBNAIL("admin/default-thumbnails", IMAGE_TYPES, 5 * 1024 * 1024L),
+    MARKET_THUMBNAIL("markets/thumbnails", IMAGE_TYPES, 5 * 1024 * 1024L),
     PRODUCT_IMPORT_EXCEL("products/imports", EXCEL_TYPES, 10 * 1024 * 1024L),
 }
