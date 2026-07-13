@@ -6,11 +6,9 @@ import java.time.Duration
 @ConfigurationProperties(prefix = "gemini")
 data class GeminiProperties(
     val apiKey: String,
-    val model: String = "gemini-2.5-flash",
-    val baseUrl: String = "https://generativelanguage.googleapis.com",
-    val connectTimeout: Duration = Duration.ofSeconds(3),
-    val readTimeout: Duration = Duration.ofSeconds(20),
-    val maxRetries: Int = 2,
-    /** 2.5 계열의 사고 토큰 예산. 0=완전 비활성화, -1=모델 자동(dynamic). 분류·매칭은 추론이 불필요해 0으로 최소화한다. */
-    val thinkingBudget: Int = 0,
+    val model: String = "gemini-3.1-flash-lite",
+    /** 3.x 사고 깊이: minimal/low/medium/high. 미지정 시 모델 기본이 high(가장 느림)라 반드시 낮춰 둔다. */
+    val thinkingLevel: String = "low",
+    /** SDK HTTP 호출 타임아웃. */
+    val timeout: Duration = Duration.ofSeconds(60),
 )

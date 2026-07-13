@@ -1,5 +1,7 @@
 package kr.dongchimi.client.ai
 
+import com.google.genai.types.Schema
+import com.google.genai.types.Type
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.core.product.importjob.ProductCategoryClassifier
@@ -56,24 +58,27 @@ class GeminiProductCategoryClassifier(
             4. 지정된 JSON 스키마만 출력하고, 설명이나 다른 텍스트를 추가하지 마세요.
             """.trimIndent()
 
-        private val RESPONSE_SCHEMA =
-            GeminiSchema(
-                type = "ARRAY",
-                items =
-                    GeminiSchema(
-                        type = "OBJECT",
-                        properties =
+        private val RESPONSE_SCHEMA: Schema =
+            Schema
+                .builder()
+                .type(Type.Known.ARRAY)
+                .items(
+                    Schema
+                        .builder()
+                        .type(Type.Known.OBJECT)
+                        .properties(
                             mapOf(
-                                "id" to GeminiSchema(type = "INTEGER"),
+                                "id" to Schema.builder().type(Type.Known.INTEGER).build(),
                                 "category" to
-                                    GeminiSchema(
-                                        type = "STRING",
-                                        enum = ProductCategory.entries.map { it.name } + "UNKNOWN",
-                                    ),
+                                    Schema
+                                        .builder()
+                                        .type(Type.Known.STRING)
+                                        .enum_(ProductCategory.entries.map { it.name } + "UNKNOWN")
+                                        .build(),
                             ),
-                        required = listOf("id", "category"),
-                    ),
-            )
+                        ).required("id", "category")
+                        .build(),
+                ).build()
     }
 }
 
