@@ -72,7 +72,7 @@ class GeminiClient(
                                     GeminiGenerationConfig(
                                         responseMimeType = "application/json",
                                         responseSchema = responseSchema,
-                                        thinkingConfig = GeminiThinkingConfig(geminiProperties.thinkingLevel),
+                                        thinkingConfig = GeminiThinkingConfig(geminiProperties.thinkingBudget),
                                     ),
                             ),
                         ).retrieve()

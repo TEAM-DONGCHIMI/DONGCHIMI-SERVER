@@ -38,4 +38,4 @@ gemini:
   connect-timeout: ${GEMINI_CONNECT_TIMEOUT:3s}
   read-timeout: ${GEMINI_READ_TIMEOUT:20s}
   max-retries: ${GEMINI_MAX_RETRIES:2}
-  thinking-level: ${GEMINI_THINKING_LEVEL:low}
+  thinking-budget: ${GEMINI_THINKING_BUDGET:0}

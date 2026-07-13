@@ -11,6 +11,6 @@ data class GeminiProperties(
     val connectTimeout: Duration = Duration.ofSeconds(3),
     val readTimeout: Duration = Duration.ofSeconds(20),
     val maxRetries: Int = 2,
-    /** 3.x 모델의 사고 깊이. minimal/low/medium(기본)/high. 분류·매칭은 추론이 얕아도 돼 낮출수록 빠르다. */
-    val thinkingLevel: String = "low",
+    /** 2.5 계열의 사고 토큰 예산. 0=완전 비활성화, -1=모델 자동(dynamic). 분류·매칭은 추론이 불필요해 0으로 최소화한다. */
+    val thinkingBudget: Int = 0,
 )
