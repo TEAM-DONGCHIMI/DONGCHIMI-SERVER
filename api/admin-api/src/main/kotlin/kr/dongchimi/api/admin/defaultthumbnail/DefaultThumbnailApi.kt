@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dongchimi.api.admin.AdminApiUser
-import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailBulkCreateRequest
+import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailCreateRequest
 import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailListRequest
 import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailUpdateRequest
 import kr.dongchimi.api.admin.defaultthumbnail.response.DefaultThumbnailListItemResponse
@@ -27,13 +27,13 @@ interface DefaultThumbnailApi {
     ): ApiResponse<CursorSliceResponse<DefaultThumbnailListItemResponse>>
 
     @Operation(
-        summary = "기본 썸네일 일괄 등록",
-        description = "상품 등록 시 자동 매칭에 쓰이는 기본 이미지를 여러 건 한 번에 등록한다.",
+        summary = "기본 썸네일 등록",
+        description = "상품 등록 시 자동 매칭에 쓰이는 기본 이미지를 한 건 또는 여러 건 등록한다.",
     )
     @ApiErrorCodes(CommonErrorCode::class, DefaultProductThumbnailErrorCode::class)
-    fun bulkCreate(
+    fun create(
         @Parameter(hidden = true) apiUser: AdminApiUser,
-        request: DefaultThumbnailBulkCreateRequest,
+        request: DefaultThumbnailCreateRequest,
     ): ApiResponse<Unit>
 
     @Operation(

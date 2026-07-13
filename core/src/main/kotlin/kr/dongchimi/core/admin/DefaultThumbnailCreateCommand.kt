@@ -1,5 +1,5 @@
 package kr.dongchimi.core.admin
 
-data class DefaultThumbnailBulkCreateCommand(
+data class DefaultThumbnailCreateCommand(
     val items: List<DefaultThumbnailCreateItem>,
 )

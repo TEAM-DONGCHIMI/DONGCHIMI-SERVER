@@ -9,7 +9,7 @@ class DefaultProductThumbnailAppender(
 ) {
     @Transactional
     fun appendAll(
-        command: DefaultThumbnailBulkCreateCommand,
+        command: DefaultThumbnailCreateCommand,
         createdBy: Long,
     ): List<DefaultProductThumbnail> {
         val thumbnails =

@@ -1,7 +1,7 @@
 package kr.dongchimi.api.admin.defaultthumbnail
 
 import kr.dongchimi.api.admin.AdminApiUser
-import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailBulkCreateRequest
+import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailCreateRequest
 import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailListRequest
 import kr.dongchimi.api.admin.defaultthumbnail.request.DefaultThumbnailUpdateRequest
 import kr.dongchimi.api.admin.defaultthumbnail.response.DefaultThumbnailListItemResponse
@@ -30,11 +30,11 @@ class DefaultThumbnailController(
         ApiResponse.success(defaultThumbnailListQueryFacade.getList(request.toCondition()))
 
     @PostMapping
-    override fun bulkCreate(
+    override fun create(
         apiUser: AdminApiUser,
-        @RequestBody request: DefaultThumbnailBulkCreateRequest,
+        @RequestBody request: DefaultThumbnailCreateRequest,
     ): ApiResponse<Unit> {
-        defaultProductThumbnailService.bulkCreate(request.toCommand(), apiUser.userId)
+        defaultProductThumbnailService.create(request.toCommand(), apiUser.userId)
         return ApiResponse.success()
     }
 

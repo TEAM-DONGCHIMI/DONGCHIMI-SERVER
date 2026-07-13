@@ -12,8 +12,8 @@ class DefaultProductThumbnailService(
     fun getList(condition: DefaultThumbnailListCondition): CursorSliceResult<DefaultProductThumbnail> =
         defaultProductThumbnailReader.findList(condition)
 
-    fun bulkCreate(
-        command: DefaultThumbnailBulkCreateCommand,
+    fun create(
+        command: DefaultThumbnailCreateCommand,
         createdBy: Long,
     ): List<DefaultProductThumbnail> = defaultProductThumbnailAppender.appendAll(command, createdBy)
 
