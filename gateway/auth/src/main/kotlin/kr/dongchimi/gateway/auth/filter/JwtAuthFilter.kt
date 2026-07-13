@@ -11,6 +11,9 @@ class JwtAuthFilter(
     private val jwtProvider: JwtProvider,
     private val headerTokenExtractor: HeaderTokenExtractor,
 ) : OncePerRequestFilter() {
+    /** SSE 등 비동기 응답이 완료될 때의 ASYNC dispatch에서도 SecurityContext를 다시 채워야 AuthorizationFilter가 통과한다. */
+    override fun shouldNotFilterAsyncDispatch(): Boolean = false
+
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
