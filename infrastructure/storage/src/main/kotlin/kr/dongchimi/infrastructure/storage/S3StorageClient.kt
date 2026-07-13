@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import software.amazon.awssdk.services.s3.model.S3Exception
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest
+import java.net.URLDecoder
 
 private val logger = KotlinLogging.logger {}
 
@@ -102,7 +103,10 @@ class S3StorageClient(
 
     override fun resolveObjectKey(accessUrl: String): String? {
         val prefix = "${storageProperties.cdnBaseUrl.trimEnd('/')}/"
-        return accessUrl.takeIf { it.startsWith(prefix) }?.removePrefix(prefix)
+        return accessUrl
+            .takeIf { it.startsWith(prefix) }
+            ?.removePrefix(prefix)
+            ?.let { URLDecoder.decode(it, Charsets.UTF_8) }
     }
 
     override fun download(objectKey: String): ByteArray =
