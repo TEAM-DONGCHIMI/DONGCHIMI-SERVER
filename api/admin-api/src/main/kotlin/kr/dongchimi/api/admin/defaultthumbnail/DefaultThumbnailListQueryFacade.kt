@@ -33,6 +33,7 @@ class DefaultThumbnailListQueryFacade(
                     defaultThumbnailId = thumbnail.id,
                     name = thumbnail.name,
                     thumbnailUrl = thumbnail.thumbnailUrl,
+                    category = thumbnail.category,
                     createdBy = admin?.let { CreatedByResponse(it.id, it.name, it.email) },
                     createdAt = thumbnail.createdAt,
                 )
