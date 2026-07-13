@@ -16,6 +16,8 @@ class JwtAuthFilter(
         response: HttpServletResponse,
         filterChain: FilterChain,
     ) {
+        if (response.isCommitted) return
+
         val extractToken = headerTokenExtractor.extractToken(request)
 
         extractToken?.let { token ->
