@@ -47,6 +47,7 @@ class SecurityConfig(
                 accessDeniedHandler = delegatedAccessDeniedHandler
             }
             authorizeHttpRequests {
+                PublicEndpoints.ACTUATOR.forEach { authorize(it, permitAll) }
                 PublicEndpoints.SWAGGER.forEach { authorize(it, permitAll) }
                 PublicEndpoints.AUTH.forEach { authorize(it, permitAll) }
                 if (environment.activeProfiles.contains("local")) {

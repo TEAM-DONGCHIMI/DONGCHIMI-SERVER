@@ -21,4 +21,10 @@ object PublicEndpoints {
         arrayOf(
             "/v1/auth/local-token",
         )
+
+    val ACTUATOR =
+        arrayOf(
+            "/actuator/health",
+            "/actuator/health/**",
+        )
 }
