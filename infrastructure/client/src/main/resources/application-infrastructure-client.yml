@@ -32,7 +32,8 @@ import:
     latency: ${IMPORT_MOCK_LATENCY:PT0.3S}
 
 gemini:
-  api-key: ${GEMINI_API_KEY:}
+  project: ${GEMINI_PROJECT:}
+  location: ${GEMINI_LOCATION:global}
   model: ${GEMINI_MODEL:gemini-3.1-flash-lite}
   thinking-level: ${GEMINI_THINKING_LEVEL:low}
   timeout: ${GEMINI_TIMEOUT:60s}

@@ -11,12 +11,18 @@ import org.springframework.context.annotation.Configuration
 class GeminiClientConfig(
     private val geminiProperties: GeminiProperties,
 ) {
-    /** Gemini Developer API(API key) 기반 SDK 클라이언트. 스레드 안전해 싱글턴으로 재사용한다. */
+    /**
+     * Vertex AI 기반 SDK 클라이언트. 스레드 안전해 싱글턴으로 재사용한다.
+     * 인증은 credentials를 명시하지 않고 ADC(Application Default Credentials)에 맡긴다 —
+     * GOOGLE_APPLICATION_CREDENTIALS(서비스 계정 JSON), gcloud 사용자 자격증명, GCP 메타데이터 순으로 해석된다.
+     */
     @Bean
     fun genAiClient(): Client =
         Client
             .builder()
-            .apiKey(geminiProperties.apiKey)
+            .vertexAI(true)
+            .project(geminiProperties.project)
+            .location(geminiProperties.location)
             .httpOptions(HttpOptions.builder().timeout(geminiProperties.timeout.toMillis().toInt()).build())
             .build()
 }
