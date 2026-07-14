@@ -11,4 +11,15 @@ class UploadService(
 
     fun createPresignedUploads(commands: List<PresignedUploadCommand>): List<PresignedUpload> =
         commands.map { uploadManager.issuePresignedUpload(it.purpose, it.contentType, it.contentLength) }
+
+    fun confirmUpload(tempKey: String): ConfirmedUpload = uploadManager.confirmUpload(tempKey)
+
+    fun deleteObject(objectKey: String) = uploadManager.deleteObject(objectKey)
+
+    fun confirmIfTempKey(url: String): ConfirmedUpload? =
+        if (url.startsWith("${ObjectKeyGenerator.TEMP_PREFIX}/")) {
+            confirmUpload(url)
+        } else {
+            null
+        }
 }

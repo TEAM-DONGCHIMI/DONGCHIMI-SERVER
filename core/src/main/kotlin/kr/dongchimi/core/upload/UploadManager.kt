@@ -39,4 +39,6 @@ class UploadManager(
 
         return ConfirmedUpload(permanentKey, storageClient.resolveAccessUrl(permanentKey))
     }
+
+    fun deleteObject(objectKey: String) = storageClient.deleteObject(objectKey)
 }
