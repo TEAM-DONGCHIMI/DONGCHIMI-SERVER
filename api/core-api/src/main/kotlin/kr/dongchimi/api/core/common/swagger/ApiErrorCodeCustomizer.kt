@@ -13,17 +13,17 @@ import org.springframework.web.method.HandlerMethod
 import io.swagger.v3.oas.models.responses.ApiResponse as OpenApiResponse
 
 @Component
-class ApiErrorCodesCustomizer : OperationCustomizer {
+class ApiErrorCodeCustomizer : OperationCustomizer {
     override fun customize(
         operation: Operation,
         handlerMethod: HandlerMethod,
     ): Operation {
-        val annotation = handlerMethod.getMethodAnnotation(ApiErrorCodes::class.java) ?: return operation
+        val annotations = handlerMethod.method.getAnnotationsByType(ApiErrorCode::class.java)
+        if (annotations.isEmpty()) return operation
 
         operation.responses = operation.responses ?: ApiResponses()
 
-        val errorCodes: List<ErrorCode> =
-            annotation.value.flatMap { it.java.enumConstants?.toList() ?: emptyList() }
+        val errorCodes: List<ErrorCode> = annotations.flatMap { it.resolve() }
 
         errorCodes.groupBy { it.status }.forEach { (status, codes) ->
             val mediaType = MediaType()
@@ -58,5 +58,15 @@ class ApiErrorCodesCustomizer : OperationCustomizer {
             }
         }
         return operation
+    }
+
+    private fun ApiErrorCode.resolve(): List<ErrorCode> {
+        val constants =
+            type.java.enumConstants
+                ?: error("@ApiErrorCode의 type(${type.simpleName})은 enum 이어야 합니다")
+        return codes.map { code ->
+            constants.firstOrNull { it.name == code }
+                ?: error("@ApiErrorCode: ${type.simpleName}에 '$code' 코드가 존재하지 않습니다")
+        }
     }
 }

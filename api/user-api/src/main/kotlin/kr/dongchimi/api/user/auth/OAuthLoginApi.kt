@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletResponse
 import kr.dongchimi.api.core.common.dto.ApiResponse
-import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.swagger.ApiErrorCode
 import kr.dongchimi.api.user.auth.request.OAuthLoginRequest
 import kr.dongchimi.api.user.auth.response.OAuthLoginResponse
 import kr.dongchimi.core.auth.AuthErrorCode
@@ -19,7 +19,9 @@ interface OAuthLoginApi {
         summary = "소셜 로그인",
         description = "소셜 제공자의 인가 코드(authorization code)로 로그인한다. 처음 로그인하는 사용자는 자동으로 회원가입 처리된다.",
     )
-    @ApiErrorCodes(CommonErrorCode::class, AuthErrorCode::class, UserErrorCode::class)
+    @ApiErrorCode(CommonErrorCode::class, "INVALID_INPUT")
+    @ApiErrorCode(AuthErrorCode::class, "UNSUPPORTED_OAUTH_PROVIDER", "OAUTH_AUTHENTICATION_FAILED", "OAUTH_REQUIRED_INFO_MISSING")
+    @ApiErrorCode(UserErrorCode::class, "DUPLICATE_SOCIAL_ACCOUNT")
     fun login(
         @Parameter(description = "소셜 로그인 제공자", example = "kakao")
         @PathVariable provider: String,

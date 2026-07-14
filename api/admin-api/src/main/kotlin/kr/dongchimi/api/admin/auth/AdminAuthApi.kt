@@ -8,7 +8,7 @@ import kr.dongchimi.api.admin.auth.request.AdminLoginRequest
 import kr.dongchimi.api.admin.auth.request.AdminSignupRequest
 import kr.dongchimi.api.admin.auth.response.AdminAuthResponse
 import kr.dongchimi.api.core.common.dto.ApiResponse
-import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.swagger.ApiErrorCode
 import kr.dongchimi.core.admin.AdminErrorCode
 import kr.dongchimi.core.common.exception.CommonErrorCode
 
@@ -18,7 +18,8 @@ interface AdminAuthApi {
         summary = "관리자 회원가입",
         description = "이름/이메일/비밀번호 + 가입 인증 코드로 회원가입한다. 가입과 동시에 access token(바디)/refresh token(쿠키)이 발급된다.",
     )
-    @ApiErrorCodes(CommonErrorCode::class, AdminErrorCode::class)
+    @ApiErrorCode(CommonErrorCode::class, "INVALID_INPUT")
+    @ApiErrorCode(AdminErrorCode::class, "VERIFICATION_CODE_MISMATCH", "DUPLICATE_EMAIL")
     fun signup(
         request: AdminSignupRequest,
         @Parameter(hidden = true) response: HttpServletResponse,
@@ -28,7 +29,8 @@ interface AdminAuthApi {
         summary = "관리자 로그인",
         description = "이메일/비밀번호로 로그인한다. access token은 바디, refresh token은 쿠키로 내려준다.",
     )
-    @ApiErrorCodes(CommonErrorCode::class, AdminErrorCode::class)
+    @ApiErrorCode(CommonErrorCode::class, "INVALID_INPUT")
+    @ApiErrorCode(AdminErrorCode::class, "ADMIN_LOGIN_FAILED")
     fun login(
         request: AdminLoginRequest,
         @Parameter(hidden = true) response: HttpServletResponse,

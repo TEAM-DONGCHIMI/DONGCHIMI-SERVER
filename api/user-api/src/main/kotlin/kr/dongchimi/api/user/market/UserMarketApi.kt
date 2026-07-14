@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.core.common.dto.CursorSliceResponse
-import kr.dongchimi.api.core.common.swagger.ApiErrorCodes
+import kr.dongchimi.api.core.common.swagger.ApiErrorCode
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.api.user.market.request.NearbyMarketSearchRequest
 import kr.dongchimi.api.user.market.response.MarketDetailResponse
@@ -20,7 +20,7 @@ interface UserMarketApi {
         summary = "위치 기준 마트 목록 조회",
         description = "기준 좌표에서 반경 내 마트를 거리순으로 조회한다. 전단이 발행된 마트만 노출된다.",
     )
-    @ApiErrorCodes(CommonErrorCode::class)
+    @ApiErrorCode(CommonErrorCode::class, "INVALID_INPUT")
     fun getNearbyMarkets(
         @Parameter(hidden = true) apiUser: UserApiUser,
         request: NearbyMarketSearchRequest,
@@ -30,7 +30,7 @@ interface UserMarketApi {
         summary = "마트 상세 조회",
         description = "전단 slug로 마트 상세 정보(마트 기본 정보, 영업시간, 현재 영업중 여부, 인기 상품 TOP3)를 조회한다.",
     )
-    @ApiErrorCodes(CommonErrorCode::class, MarketErrorCode::class)
+    @ApiErrorCode(MarketErrorCode::class, "MARKET_NOT_FOUND")
     fun getDetail(
         @Parameter(hidden = true) apiUser: UserApiUser,
         @Parameter(description = "전단 slug") @PathVariable slug: String,
