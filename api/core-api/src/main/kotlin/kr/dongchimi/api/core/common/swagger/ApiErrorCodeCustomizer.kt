@@ -7,14 +7,16 @@ import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.responses.ApiResponses
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.core.common.exception.ErrorCode
-import org.springdoc.core.customizers.OperationCustomizer
+import org.springdoc.core.customizers.GlobalOperationCustomizer
 import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import io.swagger.v3.oas.models.responses.ApiResponse as OpenApiResponse
 
+// GroupedOpenApi(그룹별 문서)에도 적용되려면 GlobalOperationCustomizer여야 한다.
+// 일반 OperationCustomizer 빈은 그룹 없는 기본 /api-docs에만 적용되고 swagger-ui가 보여주는 그룹 문서에는 빠진다.
 @Component
-class ApiErrorCodeCustomizer : OperationCustomizer {
+class ApiErrorCodeCustomizer : GlobalOperationCustomizer {
     override fun customize(
         operation: Operation,
         handlerMethod: HandlerMethod,
