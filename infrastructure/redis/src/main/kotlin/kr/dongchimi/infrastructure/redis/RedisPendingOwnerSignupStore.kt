@@ -21,15 +21,11 @@ class RedisPendingOwnerSignupStore(
             .set(OwnerSignupRedisKeys.pending(signupToken), objectMapper.writeValueAsString(pending), PENDING_SIGNUP_TTL)
     }
 
-    override fun find(signupToken: String): PendingOwnerSignup? =
+    override fun consume(signupToken: String): PendingOwnerSignup? =
         stringRedisTemplate
             .opsForValue()
-            .get(OwnerSignupRedisKeys.pending(signupToken))
+            .getAndDelete(OwnerSignupRedisKeys.pending(signupToken))
             ?.let { objectMapper.readValue(it, PendingOwnerSignup::class.java) }
-
-    override fun delete(signupToken: String) {
-        stringRedisTemplate.delete(OwnerSignupRedisKeys.pending(signupToken))
-    }
 
     companion object {
         private val PENDING_SIGNUP_TTL = Duration.ofMinutes(30)

@@ -21,7 +21,5 @@ class PendingOwnerSignupManager(
         return signupToken
     }
 
-    fun find(signupToken: String): PendingOwnerSignup? = pendingOwnerSignupStore.find(signupToken)
-
-    fun remove(signupToken: String) = pendingOwnerSignupStore.delete(signupToken)
+    fun consume(signupToken: String): PendingOwnerSignup? = pendingOwnerSignupStore.consume(signupToken)
 }

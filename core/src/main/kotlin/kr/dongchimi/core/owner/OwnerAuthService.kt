@@ -27,11 +27,10 @@ class OwnerAuthService(
         marketCommand: MarketRegisterCommand,
     ): OwnerSignupCompletionResult {
         val pending =
-            pendingOwnerSignupManager.find(signupToken)
+            pendingOwnerSignupManager.consume(signupToken)
                 ?: throw CoreException(OwnerErrorCode.SIGNUP_SESSION_NOT_FOUND)
 
         val completion = ownerSignupFinisher.finish(pending, marketCommand)
-        pendingOwnerSignupManager.remove(signupToken)
 
         val tokens = authTokenIssuer.issue(completion.owner.id, setOf(Role.OWNER.name))
         return OwnerSignupCompletionResult(tokens, completion.owner, completion.market)
