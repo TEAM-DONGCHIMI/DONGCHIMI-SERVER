@@ -1,12 +1,8 @@
 package kr.dongchimi.core.admin
 
-import io.github.oshai.kotlinlogging.KotlinLogging
 import kr.dongchimi.core.common.CursorSliceResult
-import kr.dongchimi.core.upload.ConfirmedUpload
 import kr.dongchimi.core.upload.UploadService
 import org.springframework.stereotype.Service
-
-private val logger = KotlinLogging.logger {}
 
 @Service
 class DefaultProductThumbnailService(
@@ -22,43 +18,16 @@ class DefaultProductThumbnailService(
         items: List<DefaultThumbnailCreateItem>,
         createdBy: Long,
     ): List<DefaultProductThumbnail> =
-        withUploadRollback { confirmedUploads ->
-            val confirmedItems = items.map { it.copy(thumbnailUrl = confirmIfTempKey(it.thumbnailUrl, confirmedUploads)) }
+        uploadService.withConfirmRollback { confirm ->
+            val confirmedItems = items.map { it.copy(thumbnailUrl = confirm(it.thumbnailUrl)) }
             defaultProductThumbnailAppender.appendAll(confirmedItems, createdBy)
         }
 
     fun update(command: DefaultThumbnailUpdateCommand) {
         defaultProductThumbnailReader.read(command.id)
 
-        withUploadRollback { confirmedUploads ->
-            val confirmedUrl = confirmIfTempKey(command.thumbnailUrl, confirmedUploads)
-            defaultProductThumbnailUpdater.update(command.copy(thumbnailUrl = confirmedUrl))
-        }
-    }
-
-    private fun <T> withUploadRollback(action: (confirmedUploads: MutableList<ConfirmedUpload>) -> T): T {
-        val confirmedUploads = mutableListOf<ConfirmedUpload>()
-        return try {
-            action(confirmedUploads)
-        } catch (e: Exception) {
-            rollback(confirmedUploads)
-            throw e
-        }
-    }
-
-    private fun confirmIfTempKey(
-        thumbnailUrl: String,
-        confirmedUploads: MutableList<ConfirmedUpload>,
-    ): String {
-        val confirmed = uploadService.confirmIfTempKey(thumbnailUrl) ?: return thumbnailUrl
-        confirmedUploads.add(confirmed)
-        return confirmed.accessUrl
-    }
-
-    private fun rollback(confirmedUploads: List<ConfirmedUpload>) {
-        confirmedUploads.forEach { confirmed ->
-            runCatching { uploadService.deleteObject(confirmed.objectKey) }
-                .onFailure { logger.warn(it) { "confirm 롤백 실패, 고아 객체 수동 정리 필요: ${confirmed.objectKey}" } }
+        uploadService.withConfirmRollback { confirm ->
+            defaultProductThumbnailUpdater.update(command.copy(thumbnailUrl = confirm(command.thumbnailUrl)))
         }
     }
 }
