@@ -5,6 +5,8 @@ import kotlin.reflect.KClass
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)
-annotation class ApiErrorCodes(
-    vararg val value: KClass<out ErrorCode>,
+@Repeatable
+annotation class ApiErrorCode(
+    val type: KClass<out ErrorCode>,
+    vararg val codes: String,
 )

@@ -1,4 +1,5 @@
 springdoc:
+  default-produces-media-type: application/json
   api-docs:
     path: /api-docs
   swagger-ui:
