@@ -21,24 +21,25 @@ class DefaultProductThumbnailService(
     fun create(
         items: List<DefaultThumbnailCreateItem>,
         createdBy: Long,
-    ): List<DefaultProductThumbnail> {
-        val confirmedUploads = mutableListOf<ConfirmedUpload>()
-        return try {
+    ): List<DefaultProductThumbnail> =
+        withUploadRollback { confirmedUploads ->
             val confirmedItems = items.map { it.copy(thumbnailUrl = confirmIfTempKey(it.thumbnailUrl, confirmedUploads)) }
             defaultProductThumbnailAppender.appendAll(confirmedItems, createdBy)
-        } catch (e: Exception) {
-            rollback(confirmedUploads)
-            throw e
         }
-    }
 
     fun update(command: DefaultThumbnailUpdateCommand) {
         defaultProductThumbnailReader.read(command.id)
 
-        val confirmedUploads = mutableListOf<ConfirmedUpload>()
-        try {
+        withUploadRollback { confirmedUploads ->
             val confirmedUrl = confirmIfTempKey(command.thumbnailUrl, confirmedUploads)
             defaultProductThumbnailUpdater.update(command.copy(thumbnailUrl = confirmedUrl))
+        }
+    }
+
+    private fun <T> withUploadRollback(action: (confirmedUploads: MutableList<ConfirmedUpload>) -> T): T {
+        val confirmedUploads = mutableListOf<ConfirmedUpload>()
+        return try {
+            action(confirmedUploads)
         } catch (e: Exception) {
             rollback(confirmedUploads)
             throw e
