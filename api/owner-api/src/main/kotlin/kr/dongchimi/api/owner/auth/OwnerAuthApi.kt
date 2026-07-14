@@ -9,7 +9,6 @@ import kr.dongchimi.api.core.common.swagger.ApiErrorCode
 import kr.dongchimi.api.owner.auth.request.OwnerLoginRequest
 import kr.dongchimi.api.owner.auth.request.OwnerSignupRequest
 import kr.dongchimi.api.owner.auth.response.OwnerLoginResponse
-import kr.dongchimi.api.owner.auth.response.OwnerSignupResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.owner.OwnerErrorCode
 
@@ -17,11 +16,14 @@ import kr.dongchimi.core.owner.OwnerErrorCode
 interface OwnerAuthApi {
     @Operation(
         summary = "점주 회원가입",
-        description = "이메일/비밀번호 기반 점주 전용 회원가입 API",
+        description = "이메일/비밀번호로 회원가입과 동시에 로그인 처리한다. access token은 바디, refresh token은 쿠키로 내려준다.",
     )
     @ApiErrorCode(CommonErrorCode::class, "INVALID_INPUT")
     @ApiErrorCode(OwnerErrorCode::class, "DUPLICATE_EMAIL")
-    fun signup(request: OwnerSignupRequest): ApiResponse<OwnerSignupResponse>
+    fun signup(
+        request: OwnerSignupRequest,
+        @Parameter(hidden = true) response: HttpServletResponse,
+    ): ApiResponse<OwnerLoginResponse>
 
     @Operation(
         summary = "점주 로그인",
