@@ -2,6 +2,7 @@ package kr.dongchimi.core.market
 
 import kr.dongchimi.core.common.CursorSliceResult
 import kr.dongchimi.core.common.exception.CoreException
+import kr.dongchimi.core.upload.UploadService
 import org.springframework.stereotype.Service
 
 @Service
@@ -12,6 +13,7 @@ class MarketService(
     private val marketUpdater: MarketUpdater,
     private val marketValidator: MarketValidator,
     private val flyerReader: FlyerReader,
+    private val uploadService: UploadService,
 ) {
     fun findByOwnerId(ownerId: Long): Market? = marketReader.readByOwnerId(ownerId)
 
@@ -39,14 +41,17 @@ class MarketService(
     ): Market {
         marketValidator.validateNotDuplicatedOnRegister(ownerId, command.info.name)
 
-        return marketAppender.append(
-            ownerId = ownerId,
-            info = command.info,
-            location = command.location,
-            businessHours = command.businessHours,
-            phoneNumber = command.phoneNumber,
-            brn = command.brn,
-        )
+        return uploadService.withConfirmRollback { confirm ->
+            val confirmedInfo = command.info.copy(thumbnailUrl = command.info.thumbnailUrl?.let(confirm))
+            marketAppender.append(
+                ownerId = ownerId,
+                info = confirmedInfo,
+                location = command.location,
+                businessHours = command.businessHours,
+                phoneNumber = command.phoneNumber,
+                brn = command.brn,
+            )
+        }
     }
 
     fun update(
@@ -58,14 +63,17 @@ class MarketService(
         marketValidator.validateOwnership(market, ownerId)
         marketValidator.validateNotDuplicatedOnUpdate(ownerId, command.info.name, marketId)
 
-        return marketUpdater.update(
-            marketId = marketId,
-            ownerId = ownerId,
-            info = command.info,
-            location = command.location,
-            businessHours = command.businessHours,
-            phoneNumber = command.phoneNumber,
-            brn = command.brn,
-        )
+        return uploadService.withConfirmRollback { confirm ->
+            val confirmedInfo = command.info.copy(thumbnailUrl = command.info.thumbnailUrl?.let(confirm))
+            marketUpdater.update(
+                marketId = marketId,
+                ownerId = ownerId,
+                info = confirmedInfo,
+                location = command.location,
+                businessHours = command.businessHours,
+                phoneNumber = command.phoneNumber,
+                brn = command.brn,
+            )
+        }
     }
 }
