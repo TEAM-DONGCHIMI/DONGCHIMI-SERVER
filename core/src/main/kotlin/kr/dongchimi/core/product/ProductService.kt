@@ -4,6 +4,7 @@ import kr.dongchimi.core.common.CursorSliceResult
 import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.market.MarketValidator
 import kr.dongchimi.core.market.ProductFinder
+import kr.dongchimi.core.upload.UploadService
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
@@ -16,6 +17,7 @@ class ProductService(
     private val productUpdater: ProductUpdater,
     private val productFinder: ProductFinder,
     private val productAppender: ProductAppender,
+    private val uploadService: UploadService,
 ) {
     fun registerDailyProduct(
         ownerId: Long,
@@ -29,7 +31,10 @@ class ProductService(
             throw CoreException(ProductErrorCode.INVALID_DISCOUNT_PERIOD)
         }
 
-        productAppender.append(command.toProduct(marketId))
+        uploadService.withConfirmRollback { confirm ->
+            val confirmedUrl = command.thumbnailUrl?.let(confirm)
+            productAppender.append(command.toProduct(marketId).copy(thumbnailUrl = confirmedUrl))
+        }
     }
 
     fun getProduct(
@@ -64,7 +69,10 @@ class ProductService(
             throw CoreException(ProductErrorCode.INVALID_DISCOUNT_PERIOD)
         }
 
-        productUpdater.update(command.applyTo(product))
+        uploadService.withConfirmRollback { confirm ->
+            val confirmedUrl = command.thumbnailUrl?.let(confirm)
+            productUpdater.update(command.applyTo(product).copy(thumbnailUrl = confirmedUrl))
+        }
     }
 
     fun getDetail(
