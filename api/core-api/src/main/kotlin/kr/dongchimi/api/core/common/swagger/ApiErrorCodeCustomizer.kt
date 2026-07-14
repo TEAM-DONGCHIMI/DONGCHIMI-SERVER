@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.responses.ApiResponses
 import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.core.common.exception.ErrorCode
 import org.springdoc.core.customizers.OperationCustomizer
+import org.springframework.core.annotation.AnnotatedElementUtils
 import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 import io.swagger.v3.oas.models.responses.ApiResponse as OpenApiResponse
@@ -18,7 +19,10 @@ class ApiErrorCodeCustomizer : OperationCustomizer {
         operation: Operation,
         handlerMethod: HandlerMethod,
     ): Operation {
-        val annotations = handlerMethod.method.getAnnotationsByType(ApiErrorCode::class.java)
+        // @ApiErrorCode는 인터페이스 메서드에 선언되므로, 인터페이스까지 탐색하는 Spring 유틸을 쓴다.
+        // (순수 리플렉션 getAnnotationsByType은 구현 클래스 메서드만 봐서 인터페이스 애노테이션을 놓친다)
+        val annotations =
+            AnnotatedElementUtils.findMergedRepeatableAnnotations(handlerMethod.method, ApiErrorCode::class.java)
         if (annotations.isEmpty()) return operation
 
         operation.responses = operation.responses ?: ApiResponses()
