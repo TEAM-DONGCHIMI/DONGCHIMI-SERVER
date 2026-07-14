@@ -16,6 +16,7 @@ abstract class RoleApiUserArgumentResolver<T : ApiUser>(
     private val role: Role,
     private val userType: Class<T>,
     private val factory: (Long, Set<String>) -> T,
+    private val validateAccount: (Long) -> Unit,
 ) : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean = parameter.parameterType == userType
 
@@ -26,6 +27,8 @@ abstract class RoleApiUserArgumentResolver<T : ApiUser>(
         binderFactory: WebDataBinderFactory?,
     ): T {
         if (role.name !in principalProvider.roles) throw CoreException(CommonErrorCode.FORBIDDEN)
+
+        validateAccount(principalProvider.userId)
 
         return factory(principalProvider.userId, principalProvider.roles)
     }
