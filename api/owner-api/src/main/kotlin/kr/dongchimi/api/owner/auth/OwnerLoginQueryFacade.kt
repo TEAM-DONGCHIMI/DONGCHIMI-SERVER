@@ -17,15 +17,7 @@ class OwnerLoginQueryFacade(
         val result = ownerAuthService.login(command)
         val market = marketService.findByOwnerId(result.owner.id)
 
-        val response =
-            OwnerLoginResponse(
-                accessToken = result.tokens.accessToken,
-                ownerId = result.owner.id,
-                email = result.owner.email,
-                marketId = market?.id,
-                marketName = market?.info?.name,
-                marketThumbnailUrl = market?.info?.thumbnailUrl,
-            )
+        val response = OwnerLoginResponse(result.tokens.accessToken, result.owner, market)
 
         return OwnerLoginResult(
             response = response,
