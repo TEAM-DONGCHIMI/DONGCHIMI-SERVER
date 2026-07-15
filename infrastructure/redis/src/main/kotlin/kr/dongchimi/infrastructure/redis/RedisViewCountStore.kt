@@ -1,7 +1,6 @@
 package kr.dongchimi.infrastructure.redis
 
 import kr.dongchimi.core.viewcount.ViewCountBatch
-import kr.dongchimi.core.viewcount.ViewCountProperties
 import kr.dongchimi.core.viewcount.ViewCountStore
 import kr.dongchimi.core.viewcount.ViewTarget
 import org.springframework.data.redis.core.StringRedisTemplate

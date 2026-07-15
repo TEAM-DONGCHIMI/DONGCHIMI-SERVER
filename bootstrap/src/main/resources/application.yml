@@ -12,6 +12,18 @@ spring:
       - classpath:application-infrastructure-redis.yml
       - classpath:application-core.yml
 
+# import.job 워커 설정 — 소비처(Poller/Processor/SyncImportJobService)는 core에 있으나 core를 spring-free로
+# 두기 위해 @ConfigurationProperties 바인딩(ImportJobPropertiesBinding)을 bootstrap이 소유한다.
+# slots-per-instance·ai-concurrency 등 인스턴스 사이징 성격도 겸해 배포 조립체인 bootstrap에 둔다.
+import:
+  job:
+    lease: ${IMPORT_JOB_LEASE:PT5M}
+    poll-interval: ${IMPORT_JOB_POLL_INTERVAL:PT1S}
+    slots-per-instance: ${IMPORT_JOB_SLOTS_PER_INSTANCE:4}
+    max-attempts: ${IMPORT_JOB_MAX_ATTEMPTS:5}
+    ai-concurrency: ${IMPORT_JOB_AI_CONCURRENCY:10}
+    ai-batch-size: ${IMPORT_JOB_AI_BATCH_SIZE:50}
+
 # 배포 사이징(t3.small / 동접 100) 튜닝 — 힙·mem_limit(compose)와 함께 배포 조립체인 bootstrap에서 관리
 server:
   tomcat:
