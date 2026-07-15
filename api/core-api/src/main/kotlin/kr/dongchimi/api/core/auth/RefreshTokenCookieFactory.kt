@@ -29,4 +29,14 @@ class RefreshTokenCookieFactory(
 
         return builder.build()
     }
+
+    fun createExpired(): ResponseCookie =
+        ResponseCookie
+            .from(properties.name, "")
+            .httpOnly(true)
+            .secure(properties.secure)
+            .sameSite(properties.sameSite)
+            .path(properties.path)
+            .maxAge(0)
+            .build()
 }
