@@ -7,5 +7,7 @@ interface OwnerRepository {
 
     fun existsByEmail(email: String): Boolean
 
+    fun existsById(id: Long): Boolean
+
     fun save(owner: Owner): Owner
 }

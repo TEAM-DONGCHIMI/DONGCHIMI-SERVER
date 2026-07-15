@@ -169,6 +169,22 @@ interface ProductJpaRepository : JpaRepository<ProductJpaEntity, Long> {
 
     @Query(
         """
+        select distinct p.category from ProductJpaEntity p
+        where p.marketId = :marketId
+            and p.dealType = :dealType
+            and p.discountStartDate <= :date
+            and p.discountEndDate >= :date
+            and p.deletedAt is null
+        """,
+    )
+    fun findActiveCategories(
+        @Param("marketId") marketId: Long,
+        @Param("dealType") dealType: DealType,
+        @Param("date") date: LocalDate,
+    ): List<ProductCategory>
+
+    @Query(
+        """
         select new kr.dongchimi.db.product.OwnerProductRow(p, coalesce(m.viewCount, 0))
         from ProductJpaEntity p
             left join ProductMetadataJpaEntity m on m.id = p.id

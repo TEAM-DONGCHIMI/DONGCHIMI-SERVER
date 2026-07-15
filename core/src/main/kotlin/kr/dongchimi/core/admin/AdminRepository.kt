@@ -7,6 +7,8 @@ interface AdminRepository {
 
     fun existsByEmail(email: String): Boolean
 
+    fun existsById(id: Long): Boolean
+
     fun findAllByIdIn(ids: Set<Long>): List<Admin>
 
     fun save(admin: Admin): Admin

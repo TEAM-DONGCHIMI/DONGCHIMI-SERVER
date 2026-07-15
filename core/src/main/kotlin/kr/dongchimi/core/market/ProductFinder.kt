@@ -7,6 +7,7 @@ import kr.dongchimi.core.common.toCursorSlice
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
+import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.core.product.ProductKeywordSearchCondition
 import kr.dongchimi.core.product.ProductListCursorAnchor
 import kr.dongchimi.core.product.ProductListItem
@@ -56,6 +57,12 @@ class ProductFinder(
         productRepository
             .findActiveByMarketIdAndDealTypeAndCategory(marketId, dealType, condition, date, condition.size + 1)
             .toCursorSlice(condition.size) { it.id }
+
+    fun findActiveCategories(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<ProductCategory> = productRepository.findActiveCategories(marketId, dealType, date)
 
     fun searchByKeyword(
         marketId: Long,

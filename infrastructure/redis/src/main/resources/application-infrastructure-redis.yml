@@ -6,3 +6,6 @@ spring:
 
 view-count:
   dedup-ttl: ${VIEW_COUNT_DEDUP_TTL:PT24H}
+
+account-cache:
+  ttl: ${ACCOUNT_CACHE_TTL:PT10M}
