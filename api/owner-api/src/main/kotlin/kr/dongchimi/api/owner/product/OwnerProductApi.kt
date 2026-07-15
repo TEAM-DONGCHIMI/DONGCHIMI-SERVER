@@ -13,6 +13,7 @@ import kr.dongchimi.api.owner.product.request.OwnerProductListRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
+import kr.dongchimi.api.owner.product.request.ProductDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductSearchRequest
@@ -139,19 +140,20 @@ interface OwnerProductApi {
 
     @Operation(
         summary = "상품 삭제",
-        description = "점주가 등록된 상품을 삭제한다.",
+        description = "점주가 등록된 상품을 삭제한다. 기본적으로 할인 기간 중인 상품은 삭제할 수 없으며, forceDelete가 true면 할인 기간 중에도 삭제한다.",
     )
     @ApiErrorCode(MarketErrorCode::class, "MARKET_NOT_FOUND", "MARKET_ACCESS_DENIED")
-    @ApiErrorCode(ProductErrorCode::class, "PRODUCT_NOT_FOUND")
+    @ApiErrorCode(ProductErrorCode::class, "PRODUCT_NOT_FOUND", "DISCOUNT_NOT_ENDED")
     fun delete(
         @Parameter(hidden = true) apiUser: OwnerApiUser,
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
         @Parameter(description = "상품 ID") @PathVariable productId: Long,
+        request: ProductDeleteRequest,
     ): ApiResponse<Unit>
 
     @Operation(
         summary = "상품 일괄 삭제",
-        description = "점주가 등록된 상품을 여러 개 한번에 삭제한다.",
+        description = "점주가 등록된 상품을 여러 개 한번에 삭제한다. 기본적으로 할인 기간 중인 상품이 포함되면 삭제할 수 없으며, forceDelete가 true면 할인 기간 중에도 삭제한다.",
     )
     @ApiErrorCode(MarketErrorCode::class, "MARKET_NOT_FOUND", "MARKET_ACCESS_DENIED")
     @ApiErrorCode(ProductErrorCode::class, "PRODUCT_NOT_FOUND", "DISCOUNT_NOT_ENDED")
@@ -176,7 +178,7 @@ interface OwnerProductApi {
 
     @Operation(
         summary = "상품 초기화",
-        description = "점주가 등록한 상품들을 할인 유형별로 초기화(전부 삭제)한다.",
+        description = "점주가 등록한 상품들을 할인 유형별로 초기화(전부 삭제)한다. 기본적으로 할인 기간 중인 상품이 있으면 초기화할 수 없으며, forceDelete가 true면 할인 기간 중에도 삭제한다.",
     )
     @ApiErrorCode(MarketErrorCode::class, "MARKET_NOT_FOUND", "MARKET_ACCESS_DENIED")
     @ApiErrorCode(ProductErrorCode::class, "DISCOUNT_NOT_ENDED")

@@ -9,6 +9,7 @@ import kr.dongchimi.api.owner.product.request.OwnerProductListRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSaveRequest
 import kr.dongchimi.api.owner.product.request.PreparedProductDraftSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductBulkDeleteRequest
+import kr.dongchimi.api.owner.product.request.ProductDeleteRequest
 import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductSearchRequest
@@ -141,8 +142,9 @@ class OwnerProductController(
         apiUser: OwnerApiUser,
         @PathVariable marketId: Long,
         @PathVariable productId: Long,
+        @RequestBody request: ProductDeleteRequest,
     ): ApiResponse<Unit> {
-        productService.delete(apiUser.userId, marketId, productId)
+        productService.delete(apiUser.userId, marketId, productId, request.forceDelete)
 
         return ApiResponse.success()
     }
@@ -153,7 +155,7 @@ class OwnerProductController(
         @PathVariable marketId: Long,
         @RequestBody request: ProductBulkDeleteRequest,
     ): ApiResponse<Unit> {
-        productService.deleteAll(apiUser.userId, marketId, request.productIds)
+        productService.deleteAll(apiUser.userId, marketId, request.productIds, request.forceDelete)
 
         return ApiResponse.success()
     }
@@ -175,7 +177,7 @@ class OwnerProductController(
         @PathVariable marketId: Long,
         @RequestBody request: ProductResetRequest,
     ): ApiResponse<Unit> {
-        productService.reset(apiUser.userId, marketId, request.dealType)
+        productService.reset(apiUser.userId, marketId, request.dealType, request.forceDelete)
 
         return ApiResponse.success()
     }
