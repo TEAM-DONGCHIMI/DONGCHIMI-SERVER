@@ -17,6 +17,8 @@ class OwnerRepositoryImpl(
 
     override fun existsByEmail(email: String): Boolean = ownerJpaRepository.existsByEmailAndDeletedAtIsNull(email)
 
+    override fun existsById(id: Long): Boolean = ownerJpaRepository.existsByIdAndDeletedAtIsNull(id)
+
     override fun save(owner: Owner): Owner =
         try {
             ownerJpaRepository.save(OwnerJpaEntity(owner)).toDomain()

@@ -18,6 +18,8 @@ class AdminRepositoryImpl(
 
     override fun existsByEmail(email: String): Boolean = adminJpaRepository.existsByEmail(email)
 
+    override fun existsById(id: Long): Boolean = adminJpaRepository.existsById(id)
+
     override fun findAllByIdIn(ids: Set<Long>): List<Admin> = adminJpaRepository.findAllById(ids).map { it.toDomain() }
 
     override fun save(admin: Admin): Admin =

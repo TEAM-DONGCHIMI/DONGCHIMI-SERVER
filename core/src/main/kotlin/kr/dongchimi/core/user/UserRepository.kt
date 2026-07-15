@@ -5,5 +5,7 @@ interface UserRepository {
 
     fun findBySocialAccount(account: SocialAccount): User?
 
+    fun existsById(id: Long): Boolean
+
     fun save(user: User): User
 }

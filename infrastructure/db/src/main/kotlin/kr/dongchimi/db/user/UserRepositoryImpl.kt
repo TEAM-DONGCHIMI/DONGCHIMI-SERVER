@@ -16,6 +16,8 @@ class UserRepositoryImpl(
     override fun findBySocialAccount(account: SocialAccount): User? =
         userJpaRepository.findBySocialProviderAndSocialIdAndDeletedAtIsNull(account.provider, account.socialId)?.toDomain()
 
+    override fun existsById(id: Long): Boolean = userJpaRepository.existsByIdAndDeletedAtIsNull(id)
+
     override fun save(user: User): User =
         try {
             userJpaRepository.save(UserJpaEntity(user)).toDomain()
