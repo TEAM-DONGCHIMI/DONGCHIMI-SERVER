@@ -4,12 +4,11 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dongchimi.api.core.common.dto.ApiResponse
-import kr.dongchimi.api.core.common.dto.CursorSliceResponse
 import kr.dongchimi.api.core.common.swagger.ApiErrorCode
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.api.user.product.request.PeriodicProductListRequest
 import kr.dongchimi.api.user.product.response.DailyProductListResponse
-import kr.dongchimi.api.user.product.response.PeriodicProductResponse
+import kr.dongchimi.api.user.product.response.PeriodicProductListResponse
 import kr.dongchimi.api.user.product.response.ProductDetailResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.market.MarketErrorCode
@@ -42,7 +41,9 @@ interface UserProductApi {
 
     @Operation(
         summary = "행사 할인 상품 목록 조회",
-        description = "마트의 기간 할인(PERIODIC) 상품을 카테고리(선택)로 필터링해 최근 등록순 커서 기반 무한스크롤로 조회한다.",
+        description =
+            "마트의 기간 할인(PERIODIC) 상품을 카테고리(선택)로 필터링해 최근 등록순 커서 기반 무한스크롤로 조회한다. " +
+                "현재 활성화된 상품이 존재하는 카테고리 목록을 함께 내려준다.",
     )
     @ApiErrorCode(CommonErrorCode::class, "INVALID_INPUT")
     @ApiErrorCode(MarketErrorCode::class, "MARKET_NOT_FOUND")
@@ -50,5 +51,5 @@ interface UserProductApi {
         @Parameter(hidden = true) apiUser: UserApiUser,
         @Parameter(description = "마트 id") @PathVariable marketId: Long,
         request: PeriodicProductListRequest,
-    ): ApiResponse<CursorSliceResponse<PeriodicProductResponse>>
+    ): ApiResponse<PeriodicProductListResponse>
 }

@@ -1,10 +1,10 @@
 package kr.dongchimi.api.user.product
 
 import kr.dongchimi.api.core.common.dto.ApiResponse
-import kr.dongchimi.api.core.common.dto.CursorSliceResponse
 import kr.dongchimi.api.user.UserApiUser
 import kr.dongchimi.api.user.product.request.PeriodicProductListRequest
 import kr.dongchimi.api.user.product.response.DailyProductListResponse
+import kr.dongchimi.api.user.product.response.PeriodicProductListResponse
 import kr.dongchimi.api.user.product.response.PeriodicProductResponse
 import kr.dongchimi.api.user.product.response.ProductDetailResponse
 import kr.dongchimi.core.product.DealType
@@ -43,14 +43,17 @@ class UserProductController(
         apiUser: UserApiUser,
         @PathVariable marketId: Long,
         request: PeriodicProductListRequest,
-    ): ApiResponse<CursorSliceResponse<PeriodicProductResponse>> {
-        val slice = productService.getActiveProductsByCategory(marketId, DealType.PERIODIC, request.toSearchCondition(), LocalDate.now())
+    ): ApiResponse<PeriodicProductListResponse> {
+        val today = LocalDate.now()
+        val slice = productService.getActiveProductsByCategory(marketId, DealType.PERIODIC, request.toSearchCondition(), today)
+        val availableCategories = productService.getActiveCategories(marketId, DealType.PERIODIC, today)
 
         return ApiResponse.success(
-            CursorSliceResponse(
+            PeriodicProductListResponse(
                 content = slice.content.map { PeriodicProductResponse(it) },
                 hasNext = slice.hasNext,
                 nextCursor = slice.nextCursor,
+                availableCategories = availableCategories.map { it.name },
             ),
         )
     }
