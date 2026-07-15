@@ -26,6 +26,10 @@ class ProductValidator(
         }
     }
 
+    fun validateDiscountEnded(product: Product) {
+        validateDiscountEnded(listOf(product))
+    }
+
     fun validateAllDiscountEnded(productIds: List<Long>) {
         validateDiscountEnded(productRepository.findAllByIds(productIds))
     }

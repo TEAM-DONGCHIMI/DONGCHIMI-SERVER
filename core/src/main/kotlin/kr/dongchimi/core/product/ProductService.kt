@@ -89,11 +89,15 @@ class ProductService(
         ownerId: Long,
         marketId: Long,
         productId: Long,
+        force: Boolean,
     ) {
         marketValidator.validateOwnership(marketId, ownerId)
 
         val product = productReader.read(productId)
         productValidator.validateBelongsToMarket(product, marketId)
+        if (!force) {
+            productValidator.validateDiscountEnded(product)
+        }
 
         productRemover.remove(productId)
     }
@@ -102,10 +106,13 @@ class ProductService(
         ownerId: Long,
         marketId: Long,
         productIds: List<Long>,
+        force: Boolean,
     ) {
         marketValidator.validateOwnership(marketId, ownerId)
         productValidator.validateAllInMarket(productIds, marketId)
-        productValidator.validateAllDiscountEnded(productIds)
+        if (!force) {
+            productValidator.validateAllDiscountEnded(productIds)
+        }
 
         productRemover.removeAll(productIds)
     }
@@ -126,9 +133,12 @@ class ProductService(
         ownerId: Long,
         marketId: Long,
         dealType: DealType,
+        force: Boolean,
     ) {
         marketValidator.validateOwnership(marketId, ownerId)
-        productValidator.validateDiscountEndedByDealType(marketId, dealType)
+        if (!force) {
+            productValidator.validateDiscountEndedByDealType(marketId, dealType)
+        }
 
         productRemover.resetByDealType(marketId, dealType)
     }
