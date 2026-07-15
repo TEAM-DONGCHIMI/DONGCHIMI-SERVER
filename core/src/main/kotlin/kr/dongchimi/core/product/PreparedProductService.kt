@@ -40,7 +40,7 @@ class PreparedProductService(
         marketValidator.validateOwnership(marketId, ownerId)
         preparedProductValidator.validateAllInMarket(commands.map { it.id }, marketId)
 
-        preparedProductUpdater.updateDrafts(commands)
+        preparedProductUpdater.syncDrafts(marketId, commands)
     }
 
     fun confirmDrafts(
