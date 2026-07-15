@@ -24,16 +24,16 @@ class ProductService(
         marketId: Long,
         command: DailyProductRegisterCommand,
         today: LocalDate,
-    ) {
+    ): Long {
         marketValidator.validateOwnership(marketId, ownerId)
 
         if (!command.discountPeriod.includes(today)) {
             throw CoreException(ProductErrorCode.INVALID_DISCOUNT_PERIOD)
         }
 
-        uploadService.withConfirmRollback { confirm ->
+        return uploadService.withConfirmRollback { confirm ->
             val confirmedUrl = command.thumbnailUrl?.let(confirm)
-            productAppender.append(command.toProduct(marketId).copy(thumbnailUrl = confirmedUrl))
+            productAppender.append(command.toProduct(marketId).copy(thumbnailUrl = confirmedUrl)).id
         }
     }
 

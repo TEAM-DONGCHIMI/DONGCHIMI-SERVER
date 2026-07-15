@@ -14,6 +14,7 @@ import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
+import kr.dongchimi.api.owner.product.response.DailyProductRegisterResponse
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductListItemResponse
@@ -80,10 +81,10 @@ class OwnerProductController(
         apiUser: OwnerApiUser,
         @PathVariable marketId: Long,
         @RequestBody request: DailyProductRegisterRequest,
-    ): ApiResponse<Unit> {
-        productService.registerDailyProduct(apiUser.userId, marketId, request.toCommand(), LocalDate.now())
+    ): ApiResponse<DailyProductRegisterResponse> {
+        val productId = productService.registerDailyProduct(apiUser.userId, marketId, request.toCommand(), LocalDate.now())
 
-        return ApiResponse.success()
+        return ApiResponse.success(DailyProductRegisterResponse(productId))
     }
 
     @GetMapping
