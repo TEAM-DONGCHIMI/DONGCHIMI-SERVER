@@ -8,7 +8,6 @@ import kr.dongchimi.api.core.common.swagger.ApiErrorCode
 import kr.dongchimi.api.owner.OwnerApiUser
 import kr.dongchimi.api.owner.market.request.MarketRegisterRequest
 import kr.dongchimi.api.owner.market.request.MarketUpdateRequest
-import kr.dongchimi.api.owner.market.response.MarketRegisterResponse
 import kr.dongchimi.api.owner.market.response.OwnerMarketDetailResponse
 import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.market.MarketErrorCode
@@ -25,7 +24,7 @@ interface OwnerMarketApi {
     fun register(
         @Parameter(hidden = true) apiUser: OwnerApiUser,
         request: MarketRegisterRequest,
-    ): ApiResponse<MarketRegisterResponse>
+    ): ApiResponse<OwnerMarketDetailResponse>
 
     @Operation(
         summary = "마트 정보 상세 조회",

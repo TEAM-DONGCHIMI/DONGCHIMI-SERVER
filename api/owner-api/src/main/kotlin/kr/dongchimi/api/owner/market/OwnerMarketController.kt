@@ -4,7 +4,6 @@ import kr.dongchimi.api.core.common.dto.ApiResponse
 import kr.dongchimi.api.owner.OwnerApiUser
 import kr.dongchimi.api.owner.market.request.MarketRegisterRequest
 import kr.dongchimi.api.owner.market.request.MarketUpdateRequest
-import kr.dongchimi.api.owner.market.response.MarketRegisterResponse
 import kr.dongchimi.api.owner.market.response.OwnerMarketDetailResponse
 import kr.dongchimi.core.market.MarketService
 import org.springframework.web.bind.annotation.GetMapping
@@ -24,10 +23,10 @@ class OwnerMarketController(
     override fun register(
         apiUser: OwnerApiUser,
         @RequestBody request: MarketRegisterRequest,
-    ): ApiResponse<MarketRegisterResponse> {
+    ): ApiResponse<OwnerMarketDetailResponse> {
         val market = marketService.register(apiUser.userId, request.toCommand())
 
-        return ApiResponse.success(MarketRegisterResponse(market.id))
+        return ApiResponse.success(OwnerMarketDetailResponse(market))
     }
 
     @GetMapping("/{marketId}")
