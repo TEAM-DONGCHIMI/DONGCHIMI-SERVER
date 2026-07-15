@@ -1,4 +1,4 @@
-package kr.dongchimi.core.auth
+package kr.dongchimi.infrastructure.redis
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.time.Duration

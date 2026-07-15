@@ -1,7 +1,6 @@
 package kr.dongchimi.infrastructure.redis
 
 import kr.dongchimi.core.auth.AccountCache
-import kr.dongchimi.core.auth.AccountCacheProperties
 import kr.dongchimi.core.auth.Role
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Component
