@@ -42,6 +42,17 @@ interface PreparedProductJpaRepository : JpaRepository<PreparedProductJpaEntity,
 
     fun findAllByMarketIdAndDeletedAtIsNull(marketId: Long): List<PreparedProductJpaEntity>
 
+    @Query(
+        """
+        select p.id from PreparedProductJpaEntity p
+        where p.marketId = :marketId
+            and p.deletedAt is null
+        """,
+    )
+    fun findAllIdsByMarketIdAndDeletedAtIsNull(
+        @Param("marketId") marketId: Long,
+    ): List<Long>
+
     fun findAllByMarketIdAndDraftStatusAndDeletedAtIsNullOrderByCreatedAtDesc(
         marketId: Long,
         draftStatus: DraftStatus,
