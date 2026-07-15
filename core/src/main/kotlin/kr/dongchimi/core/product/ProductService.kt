@@ -199,6 +199,16 @@ class ProductService(
         return productFinder.findActiveByCategory(marketId, dealType, condition, date)
     }
 
+    fun getActiveCategories(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<ProductCategory> {
+        marketValidator.validateExists(marketId)
+
+        return productFinder.findActiveCategories(marketId, dealType, date)
+    }
+
     fun getOwnerProducts(
         ownerId: Long,
         marketId: Long,

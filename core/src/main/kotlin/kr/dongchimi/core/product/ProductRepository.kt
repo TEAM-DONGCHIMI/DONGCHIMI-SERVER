@@ -122,4 +122,10 @@ interface ProductRepository {
         marketId: Long,
         date: LocalDate,
     ): List<Product>
+
+    fun findActiveCategories(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<ProductCategory>
 }
