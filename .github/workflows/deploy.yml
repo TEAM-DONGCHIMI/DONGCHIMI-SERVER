@@ -8,6 +8,15 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
+      - name: Discord 알림 - 배포 시작
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "🚀 배포 시작"
+          description: "`${{ github.ref_name }}` 브랜치 배포를 시작합니다."
+          color: 0x5865F2
+          nofail: true
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-java@v4
@@ -62,3 +71,27 @@ jobs:
             chmod 600 secrets/gcp-sa.json
             docker compose pull
             docker compose up -d
+
+  notify:
+    needs: [build-and-push, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 배포 결과 판정
+        id: result
+        run: |
+          if [ "${{ needs.build-and-push.result }}" = "success" ] && [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          elif [ "${{ needs.build-and-push.result }}" = "cancelled" ] || [ "${{ needs.deploy.result }}" = "cancelled" ]; then
+            echo "status=cancelled" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Discord 알림 - 배포 결과
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: ${{ steps.result.outputs.status }}
+          title: "배포 결과"
+          nofail: true
