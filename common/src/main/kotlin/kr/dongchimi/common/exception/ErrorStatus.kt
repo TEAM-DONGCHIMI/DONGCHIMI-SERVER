@@ -7,4 +7,6 @@ object ErrorStatus {
     const val BAD_REQUEST = 400
     const val CONFLICT = 409
     const val FORBIDDEN = 403
+    const val METHOD_NOT_ALLOWED = 405
+    const val UNSUPPORTED_MEDIA_TYPE = 415
 }
