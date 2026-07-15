@@ -5,6 +5,7 @@ import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.DiscountPeriod
 import kr.dongchimi.core.product.PeriodicProductSearchCondition
 import kr.dongchimi.core.product.Product
+import kr.dongchimi.core.product.ProductCategory
 import kr.dongchimi.core.product.ProductErrorCode
 import kr.dongchimi.core.product.ProductKeywordSearchCondition
 import kr.dongchimi.core.product.ProductListCursorAnchor
@@ -141,6 +142,12 @@ class ProductRepositoryImpl(
         productJpaRepository
             .findActiveByCategory(marketId, dealType, condition.category, condition.cursor, date, PageRequest.of(0, limit))
             .map { it.toDomain() }
+
+    override fun findActiveCategories(
+        marketId: Long,
+        dealType: DealType,
+        date: LocalDate,
+    ): List<ProductCategory> = productJpaRepository.findActiveCategories(marketId, dealType, date)
 
     override fun findActiveByLatest(
         marketId: Long,
