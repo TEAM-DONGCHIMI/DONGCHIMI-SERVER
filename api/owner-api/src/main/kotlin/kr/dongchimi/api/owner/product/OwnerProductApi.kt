@@ -18,6 +18,7 @@ import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
+import kr.dongchimi.api.owner.product.response.DailyProductRegisterResponse
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductListItemResponse
@@ -82,7 +83,7 @@ interface OwnerProductApi {
         @Parameter(hidden = true) apiUser: OwnerApiUser,
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
         request: DailyProductRegisterRequest,
-    ): ApiResponse<Unit>
+    ): ApiResponse<DailyProductRegisterResponse>
 
     @Operation(
         summary = "상품 목록 조회",
