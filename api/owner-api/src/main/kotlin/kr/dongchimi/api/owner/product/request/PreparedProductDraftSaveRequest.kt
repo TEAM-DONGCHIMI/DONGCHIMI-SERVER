@@ -30,17 +30,17 @@ data class PreparedProductDraftSaveRequest(
         val name: String? = null,
         @Schema(description = "썸네일 이미지 URL (미입력이면 null)")
         val thumbnailUrl: String? = null,
-        @Schema(description = "정가 (discountedPrice와 함께 보내야 한다)")
+        @Schema(description = "정가 (미입력 시 판매 가격으로 채운다)")
         val originalPrice: BigDecimal? = null,
-        @Schema(description = "판매(할인) 가격 (originalPrice와 함께 보내야 한다)")
+        @Schema(description = "판매(할인) 가격 (미입력 시 정가로 채운다)")
         val discountedPrice: BigDecimal? = null,
         @Schema(description = "카테고리 코드 (미선택이면 null)")
         val category: ProductCategory? = null,
         @Schema(description = "홍보 문구 (선택)")
         val promotionalPhrase: String? = null,
-        @Schema(description = "할인 시작일 (discountEndDate와 함께 보내야 한다)", example = "2025-08-01")
+        @Schema(description = "할인 시작일 (종료일과 둘 다 있을 때만 기간으로 저장)", example = "2025-08-01")
         val discountStartDate: LocalDate? = null,
-        @Schema(description = "할인 종료일 (discountStartDate와 함께 보내야 한다)", example = "2025-08-16")
+        @Schema(description = "할인 종료일 (시작일과 둘 다 있을 때만 기간으로 저장)", example = "2025-08-16")
         val discountEndDate: LocalDate? = null,
         @Schema(description = "할인 유형 (미지정이면 PERIODIC)")
         val dealType: DealType? = null,
@@ -62,24 +62,25 @@ data class PreparedProductDraftSaveRequest(
         }
 
         /**
-         * 정가·판매가는 한쪽만 채워도 [Price]를 만들 수 없어 저장 시 통째로 사라진다. 명시적으로 거부한다.
+         * 임시저장이므로 한쪽만 입력돼도 거부하지 않는다. 빈 쪽은 반대쪽 값으로 채우고, 둘 다 없으면 저장하지 않는다.
          */
         private fun toPrice(): Price? {
-            validate((originalPrice == null) == (discountedPrice == null)) { "정가와 판매 가격은 함께 입력해 주세요." }
-
-            if (originalPrice == null || discountedPrice == null) {
+            val original = originalPrice ?: discountedPrice
+            val discounted = discountedPrice ?: originalPrice
+            if (original == null || discounted == null) {
                 return null
             }
 
-            validate(originalPrice.signum() >= 0 && discountedPrice.signum() >= 0) { "가격은 0원 이상이어야 합니다." }
-            validate(originalPrice >= discountedPrice) { "판매 가격은 정가보다 클 수 없습니다." }
+            validate(original.signum() >= 0 && discounted.signum() >= 0) { "가격은 0원 이상이어야 합니다." }
+            validate(original >= discounted) { "판매 가격은 정가보다 클 수 없습니다." }
 
-            return Price(originalPrice, discountedPrice)
+            return Price(original, discounted)
         }
 
+        /**
+         * 임시저장이므로 한쪽 날짜만 입력돼도 거부하지 않고, 둘 다 있을 때만 기간으로 저장한다.
+         */
         private fun toDiscountPeriod(): DiscountPeriod? {
-            validate((discountStartDate == null) == (discountEndDate == null)) { "할인 시작일과 종료일은 함께 입력해 주세요." }
-
             if (discountStartDate == null || discountEndDate == null) {
                 return null
             }
