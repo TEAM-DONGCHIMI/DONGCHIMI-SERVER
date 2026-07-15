@@ -3,3 +3,6 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+
+view-count:
+  dedup-ttl: ${VIEW_COUNT_DEDUP_TTL:PT24H}
