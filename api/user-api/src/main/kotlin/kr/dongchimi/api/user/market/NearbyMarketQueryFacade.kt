@@ -47,6 +47,6 @@ class NearbyMarketQueryFacade(
     }
 
     companion object {
-        private const val PREVIEW_PRODUCT_SIZE = 3
+        private const val PREVIEW_PRODUCT_SIZE = 6
     }
 }
