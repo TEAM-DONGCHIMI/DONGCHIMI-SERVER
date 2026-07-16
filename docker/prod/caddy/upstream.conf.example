@@ -1,0 +1,8 @@
+# 활성 색을 가리키는 업스트림 한 줄. Caddyfile이 이 파일을 import 한다.
+#
+# 실제 런타임 파일 upstream.conf 는 gitignore 대상이며, 배포 스크립트(deploy.sh)가 갱신한다.
+# EC2 최초 기동(cold start) 시 이 파일을 복사해 만든다:
+#   cp caddy/upstream.conf.example caddy/upstream.conf
+#
+# 이후 배포마다 deploy.sh가 app-blue / app-green 중 활성 색으로 이 줄을 바꾸고 caddy reload 한다.
+reverse_proxy app-blue:8080
