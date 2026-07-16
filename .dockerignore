@@ -1,6 +1,11 @@
-# 빌드 산출물 / 캐시
-build/
-**/build/
+# 빌드 산출물 / 캐시 (bootstrap/build/libs/*.jar는 이미지에 필요하므로 build/ 전체를 제외하지 않는다)
+**/build/classes/
+**/build/generated/
+**/build/kotlin/
+**/build/reports/
+**/build/resources/
+**/build/test-results/
+**/build/tmp/
 .gradle/
 .kotlin/
 

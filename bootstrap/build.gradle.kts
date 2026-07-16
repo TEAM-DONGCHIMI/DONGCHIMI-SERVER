@@ -3,6 +3,11 @@ plugins {
     id("org.springframework.boot")
 }
 
+// CI에서 build/libs/*.jar를 그대로 Docker 이미지에 COPY하므로 plain jar는 만들지 않는다.
+tasks.named("jar") {
+    enabled = false
+}
+
 dependencies {
     implementation(project(":core"))
     implementation(project(":api:core-api"))
