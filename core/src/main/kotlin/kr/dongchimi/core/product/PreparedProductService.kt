@@ -22,7 +22,9 @@ class PreparedProductService(
     ): List<PreparedProduct> {
         marketValidator.validateOwnership(marketId, ownerId)
 
-        return preparedProductFinder.findDrafts(marketId, condition, pageOffset)
+        return preparedProductFinder
+            .findDrafts(marketId, condition, pageOffset)
+            .map { it.copy(thumbnailUrl = uploadService.resolvePreviewUrl(it.thumbnailUrl)) }
     }
 
     fun getDraftCounts(
@@ -63,6 +65,8 @@ class PreparedProductService(
         marketId: Long,
     ): List<PreparedProduct> {
         marketValidator.validateOwnership(marketId, ownerId)
-        return preparedProductFinder.findAllByMarketIdAndDraftStatus(marketId, DraftStatus.SUCCESS)
+        return preparedProductFinder
+            .findAllByMarketIdAndDraftStatus(marketId, DraftStatus.SUCCESS)
+            .map { it.copy(thumbnailUrl = uploadService.resolvePreviewUrl(it.thumbnailUrl)) }
     }
 }
