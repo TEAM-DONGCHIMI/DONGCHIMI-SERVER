@@ -7,7 +7,6 @@ import kr.dongchimi.core.market.MarketService
 import kr.dongchimi.core.market.NearbyMarketSearchCondition
 import kr.dongchimi.core.product.ProductService
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Component
@@ -16,7 +15,6 @@ class NearbyMarketQueryFacade(
     private val productService: ProductService,
     private val holidayService: HolidayService,
 ) {
-    @Transactional(readOnly = true)
     fun getNearbyMarkets(
         condition: NearbyMarketSearchCondition,
         now: LocalDateTime,

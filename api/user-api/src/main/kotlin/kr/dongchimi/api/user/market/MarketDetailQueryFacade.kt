@@ -10,7 +10,6 @@ import kr.dongchimi.core.viewcount.EntityViewedEvent
 import kr.dongchimi.core.viewcount.ViewTarget
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Component
@@ -20,7 +19,6 @@ class MarketDetailQueryFacade(
     private val holidayService: HolidayService,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-    @Transactional(readOnly = true)
     fun getDetail(
         slug: String,
         now: LocalDateTime,

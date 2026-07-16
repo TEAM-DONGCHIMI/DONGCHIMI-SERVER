@@ -8,7 +8,6 @@ import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.PreparedProductService
 import kr.dongchimi.core.product.ProductService
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Component
@@ -18,7 +17,6 @@ class FlyerPreviewQueryFacade(
     private val preparedProductService: PreparedProductService,
     private val holidayService: HolidayService,
 ) {
-    @Transactional(readOnly = true)
     fun getPeriodicPreview(
         ownerId: Long,
         marketId: Long,
@@ -35,7 +33,6 @@ class FlyerPreviewQueryFacade(
         return FlyerPreviewResponse(market, now, holidays, top3, dailyProducts, preparedProducts)
     }
 
-    @Transactional(readOnly = true)
     fun getDailyPreview(
         ownerId: Long,
         marketId: Long,
