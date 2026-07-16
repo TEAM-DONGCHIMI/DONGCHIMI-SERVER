@@ -1,41 +1,61 @@
+# 공통 app 설정 (YAML 앵커) — app-blue / app-green 두 서비스가 이 설정을 상속한다.
+# 블루그린 배포: 평소엔 한 색만 실행하고, 배포 순간에만 반대 색을 잠깐 함께 띄웠다가
+# Caddy를 무중단 전환한 뒤 이전 색을 정지한다. (docs/plans/blue-green-implementation.md)
+x-app-common: &app-common
+  image: ${IMAGE_REPO}/dongchimi:${IMAGE_TAG:-latest}   # CI가 Docker Hub에 push한 이미지, 태그는 .env/deploy.sh에서 주입
+  env_file:
+    - path: .env
+      required: false # 서버에만 존재, git 미포함
+  environment:
+    # Vertex AI(ADC) 인증용 서비스 계정 키 경로 — CI가 배포 때 ./secrets/gcp-sa.json에 파일화한 것을 마운트한다(volumes 참고)
+    GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp-sa.json
+    # 메모리/GC 튜닝 — 힙 640m + 비힙 상한(Metaspace/CodeCache/Direct)으로 RSS를 스스로 제어
+    # 값 조정은 이미지 리빌드 없이 여기서만. 상세 근거는 docs/conventions 또는 튜닝 노트 참고
+    JAVA_OPTS: >-
+      -Xms640m -Xmx640m
+      -XX:MaxMetaspaceSize=224m -XX:ReservedCodeCacheSize=96m -XX:MaxDirectMemorySize=64m
+      -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:+UseContainerSupport
+      -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/dumps/ -XX:+ExitOnOutOfMemoryError
+      -Xlog:gc*:file=/app/logs/gc.log:time,uptime,level,tags:filecount=5,filesize=10m
+  expose:
+    - "8080"                                            # 내부 네트워크 전용, 호스트 미공개
+  healthcheck:                                          # DB가 아닌 app 자체 헬스체크 (actuator)
+    test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 40s                                   # Flyway 마이그레이션 포함 기동 시간 여유
+  restart: unless-stopped
+  # app 메모리 상한 없음 (의도된 결정): mem_limit/memswap_limit을 app엔 두지 않는다.
+  #  - app은 JVM 옵션(-Xmx640m 등)으로 스스로 상한을 걸어, 평상시 1벌은 안정적으로 유지된다.
+  #  - 배포 겹침 순간의 초과분은 호스트 스왑파일(1GB)이 완충한다.
+  #  - ⚠ 상한이 없으므로 스왑파일이 없으면 겹침 순간 호스트 OOM Kill이 임의 프로세스를 죽인다 → 스왑파일과 반드시 세트.
+  depends_on:
+    redis:
+      condition: service_healthy
+
 services:
-  app:
-    image: ${IMAGE_REPO}/dongchimi:${IMAGE_TAG:-latest}   # CI가 Docker Hub에 push한 이미지, 태그는 .env에서 주입 (롤백 시 이전 SHA로 변경)
-    env_file:
-      - path: .env
-        required: false # 서버에만 존재, git 미포함
-    environment:
-      # Vertex AI(ADC) 인증용 서비스 계정 키 경로 — CI가 배포 때 ./secrets/gcp-sa.json에 파일화한 것을 마운트한다(volumes 참고)
-      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp-sa.json
-      # 메모리/GC 튜닝 — 힙 640m + 비힙 상한(Metaspace/CodeCache/Direct)으로 RSS를 mem_limit 안에 고정
-      # 값 조정은 이미지 리빌드 없이 여기서만. 상세 근거는 docs/conventions 또는 튜닝 노트 참고
-      JAVA_OPTS: >-
-        -Xms640m -Xmx640m
-        -XX:MaxMetaspaceSize=224m -XX:ReservedCodeCacheSize=96m -XX:MaxDirectMemorySize=64m
-        -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:+UseContainerSupport
-        -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/dumps/ -XX:+ExitOnOutOfMemoryError
-        -Xlog:gc*:file=/app/logs/gc.log:time,uptime,level,tags:filecount=5,filesize=10m
-    expose:
-      - "8080"                                            # 내부 네트워크 전용, 호스트 미공개
-    healthcheck:                                          # DB가 아닌 app 자체 헬스체크 (actuator)
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 40s                                   # Flyway 마이그레이션 포함 기동 시간 여유
-    restart: unless-stopped
-    mem_limit: 1150m                                      # 총 예산: app 1150 + redis 350 + caddy 96 + OS ~350 ≈ 1946/2048 (여유 ~100)
-    memswap_limit: 1150m                                  # = mem_limit → 스왑 차단 (스왑으로 밀려 지연 폭증 방지)
-    depends_on:
-      redis:
-        condition: service_healthy
+  app-blue:
+    <<: *app-common
+    container_name: dongchimi-app-blue                  # inspect로 헬스 상태를 조회하려면 이름 고정이 필수
+    profiles: ["blue"]                                  # 이름을 명시할 때만 뜬다 → 맨몸 up으로 둘 다 뜨는 사고 방지
     volumes:
-      - ./secrets/gcp-sa.json:/run/secrets/gcp-sa.json:ro # Vertex 서비스 계정 키 (서버에만 존재, CI가 배포 때 생성). up 전에 파일이 있어야 함
-      - app-dumps:/app/dumps                              # OOM 힙 덤프 영속 (재배포에도 보존, 사후 분석용)
-      - app-logs:/app/logs                                # GC 로그(gc.log.*) 영속
+      - ./secrets/gcp-sa.json:/run/secrets/gcp-sa.json:ro # Vertex 서비스 계정 키 (읽기 전용, 두 색이 공유 안전)
+      - app-blue-dumps:/app/dumps                        # 색별로 분리 → gc.log/heap dump 파일 충돌 방지
+      - app-blue-logs:/app/logs
+
+  app-green:
+    <<: *app-common
+    container_name: dongchimi-app-green
+    profiles: ["green"]
+    volumes:
+      - ./secrets/gcp-sa.json:/run/secrets/gcp-sa.json:ro
+      - app-green-dumps:/app/dumps
+      - app-green-logs:/app/logs
 
   redis:
     image: redis:7-alpine
+    container_name: dongchimi-redis
     command: redis-server --maxmemory 300mb --maxmemory-policy volatile-lru  # 스왑 차단과 세트(상한 없으면 OOM Kill). TTL 있는 키만 LRU로 정리 → 쓰기 실패 없이 self-healing
     expose:
       - "6379"                                            # 내부 네트워크 전용, 호스트 미공개
@@ -52,6 +72,7 @@ services:
 
   caddy:
     image: caddy:2-alpine
+    container_name: dongchimi-caddy
     ports:
       - "80:80"
       - "443:443"
@@ -60,17 +81,19 @@ services:
       ACME_EMAIL: ${ACME_EMAIL}
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/upstream.conf:/etc/caddy/upstream.conf:ro # 활성 색 한 줄. 배포 스크립트가 호스트에서 갱신 후 caddy reload로 반영
       - caddy-data:/data                                  # 인증서/ACME 계정 상태 영속 (필수)
       - caddy-config:/config
-    depends_on:
-      - app
     restart: unless-stopped
     mem_limit: 96m                                        # Go 바이너리, 실사용 30~60m
     memswap_limit: 96m                                    # = mem_limit → 스왑 차단
+    # depends_on: [app] 제거 — caddy는 특정 색에 묶이면 안 된다. 독립적으로 뜨고, 업스트림은 reload로 바꾼다.
 
 volumes:
   caddy-data:
   caddy-config:
   redis-data:
-  app-dumps:
-  app-logs:
+  app-blue-dumps:
+  app-blue-logs:
+  app-green-dumps:
+  app-green-logs:
