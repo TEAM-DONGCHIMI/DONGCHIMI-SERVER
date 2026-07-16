@@ -7,6 +7,7 @@ import kr.dongchimi.core.common.exception.CommonErrorCode
 import kr.dongchimi.core.common.exception.CoreException
 import kr.dongchimi.core.common.exception.ErrorCode
 import kr.dongchimi.core.monitoring.ErrorContext
+import kr.dongchimi.core.monitoring.ErrorNotificationDispatcher
 import kr.dongchimi.gateway.logging.MdcFilter.Companion.REQUEST_ID
 import kr.dongchimi.gateway.logging.MdcFilter.Companion.USER_ID
 import org.slf4j.MDC

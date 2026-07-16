@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import kr.dongchimi.core.monitoring.ErrorNotificationDispatcher
 import kr.dongchimi.core.product.DraftFailReasonResolver
 import kr.dongchimi.core.product.DraftStatus
 import kr.dongchimi.core.product.PreparedProduct
@@ -55,6 +56,7 @@ class ImportJobProcessor(
     private val importJobCancelSignal: ImportJobCancelSignal,
     private val importJobFinisher: ImportJobFinisher,
     private val draftFailReasonResolver: DraftFailReasonResolver,
+    private val errorNotificationDispatcher: ErrorNotificationDispatcher,
     private val properties: ImportJobProperties,
 ) : ImportJobRunner {
     override suspend fun run(
@@ -86,6 +88,7 @@ class ImportJobProcessor(
                     ),
                 )
             }
+            errorNotificationDispatcher.dispatchJob(e, job.jobId)
         } finally {
             leaseRenewal.cancel()
         }
