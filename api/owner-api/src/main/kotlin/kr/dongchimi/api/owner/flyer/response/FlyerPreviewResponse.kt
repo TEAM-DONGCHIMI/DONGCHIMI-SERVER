@@ -19,6 +19,8 @@ data class FlyerPreviewResponse(
     val isOpenNow: Boolean,
     @Schema(description = "영업시간 (요일 묶음 배열)")
     val businessHours: List<FlyerPreviewBusinessHourResponse>,
+    @Schema(description = "공휴일 휴무 여부")
+    val isHolidayClosed: Boolean,
     @Schema(description = "마트 대표 전화번호 1")
     val marketPhone1: String,
     @Schema(description = "마트 전화번호 2 (없으면 null)")
@@ -45,6 +47,7 @@ data class FlyerPreviewResponse(
         address = market.info.address.substringBefore("|"),
         isOpenNow = market.businessHours.isOpenAt(now),
         businessHours = market.businessHours.slots.map { FlyerPreviewBusinessHourResponse(it) },
+        isHolidayClosed = market.businessHours.isHolidayClosed,
         marketPhone1 = market.phoneNumber.marketPhone1,
         marketPhone2 = market.phoneNumber.marketPhone2,
         ownerPhone = market.phoneNumber.ownerPhone,

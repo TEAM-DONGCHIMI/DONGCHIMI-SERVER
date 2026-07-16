@@ -36,6 +36,7 @@ class MarketDetailQueryFacade(
             address = market.info.address.substringBefore("|"),
             isOpenNow = market.businessHours.isOpenAt(now),
             businessHours = market.businessHours.slots.map { BusinessHourResponse(it) },
+            isHolidayClosed = market.businessHours.isHolidayClosed,
             marketPhone1 = market.phoneNumber.marketPhone1,
             marketPhone2 = market.phoneNumber.marketPhone2,
             ownerPhone = market.phoneNumber.ownerPhone,

@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 
 data class BusinessHours(
     val slots: List<BusinessHourSlot>,
+    val isHolidayClosed: Boolean = false,
 ) {
     fun isOpenAt(dateTime: LocalDateTime): Boolean {
         val time = dateTime.toLocalTime()
