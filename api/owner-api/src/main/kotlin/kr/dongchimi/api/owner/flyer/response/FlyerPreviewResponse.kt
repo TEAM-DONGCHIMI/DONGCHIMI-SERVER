@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.core.market.Market
 import kr.dongchimi.core.product.PreparedProduct
 import kr.dongchimi.core.product.Product
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class FlyerPreviewResponse(
@@ -37,6 +38,7 @@ data class FlyerPreviewResponse(
     constructor(
         market: Market,
         now: LocalDateTime,
+        holidays: Set<LocalDate>,
         top3: List<Product>,
         dailyProducts: List<Product>,
         preparedProducts: List<PreparedProduct>,
@@ -45,7 +47,7 @@ data class FlyerPreviewResponse(
         name = market.info.name,
         thumbnailUrl = market.info.thumbnailUrl,
         address = market.info.address.substringBefore("|"),
-        isOpenNow = market.businessHours.isOpenAt(now),
+        isOpenNow = market.businessHours.isOpenAt(now, holidays),
         businessHours = market.businessHours.slots.map { FlyerPreviewBusinessHourResponse(it) },
         isHolidayClosed = market.businessHours.isHolidayClosed,
         marketPhone1 = market.phoneNumber.marketPhone1,

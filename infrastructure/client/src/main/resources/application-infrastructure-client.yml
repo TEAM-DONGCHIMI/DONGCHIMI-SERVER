@@ -20,6 +20,13 @@ monitoring:
     environment: ${SENTRY_ENVIRONMENT:local}
     traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.0}
 
+holiday:
+  api:
+    base-url: ${HOLIDAY_API_BASE_URL:https://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService}
+    service-key: ${HOLIDAY_API_SERVICE_KEY:}
+    connect-timeout: ${HOLIDAY_API_CONNECT_TIMEOUT:2s}
+    read-timeout: ${HOLIDAY_API_READ_TIMEOUT:3s}
+
 qr:
   base-url: ${FLYER_BASE_URL:https://app.dongchiimi.com}
   size: ${QR_SIZE:183}

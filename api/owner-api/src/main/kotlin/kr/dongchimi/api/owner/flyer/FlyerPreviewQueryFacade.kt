@@ -2,6 +2,7 @@ package kr.dongchimi.api.owner.flyer
 
 import kr.dongchimi.api.owner.flyer.response.FlyerDailyPreviewResponse
 import kr.dongchimi.api.owner.flyer.response.FlyerPreviewResponse
+import kr.dongchimi.core.holiday.HolidayService
 import kr.dongchimi.core.market.MarketService
 import kr.dongchimi.core.product.DealType
 import kr.dongchimi.core.product.PreparedProductService
@@ -15,6 +16,7 @@ class FlyerPreviewQueryFacade(
     private val marketService: MarketService,
     private val productService: ProductService,
     private val preparedProductService: PreparedProductService,
+    private val holidayService: HolidayService,
 ) {
     @Transactional(readOnly = true)
     fun getPeriodicPreview(
@@ -28,8 +30,9 @@ class FlyerPreviewQueryFacade(
         val top3 = productService.getPopularActiveProducts(marketId, today, TOP_PRODUCTS_LIMIT)
         val dailyProducts = productService.getAllActiveProducts(marketId, DealType.DAILY, today)
         val preparedProducts = preparedProductService.getPreviewDrafts(ownerId, marketId)
+        val holidays = holidayService.getHolidays(today)
 
-        return FlyerPreviewResponse(market, now, top3, dailyProducts, preparedProducts)
+        return FlyerPreviewResponse(market, now, holidays, top3, dailyProducts, preparedProducts)
     }
 
     @Transactional(readOnly = true)
@@ -43,8 +46,9 @@ class FlyerPreviewQueryFacade(
 
         val top3 = productService.getPopularActiveProducts(marketId, today, TOP_PRODUCTS_LIMIT)
         val dailyProducts = productService.getAllActiveProducts(marketId, DealType.DAILY, today)
+        val holidays = holidayService.getHolidays(today)
 
-        return FlyerDailyPreviewResponse(market, now, top3, dailyProducts)
+        return FlyerDailyPreviewResponse(market, now, holidays, top3, dailyProducts)
     }
 
     companion object {

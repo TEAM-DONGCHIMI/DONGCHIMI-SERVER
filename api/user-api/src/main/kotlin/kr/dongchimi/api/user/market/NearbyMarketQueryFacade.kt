@@ -2,6 +2,7 @@ package kr.dongchimi.api.user.market
 
 import kr.dongchimi.api.core.common.dto.CursorSliceResponse
 import kr.dongchimi.api.user.market.response.NearbyMarketResponse
+import kr.dongchimi.core.holiday.HolidayService
 import kr.dongchimi.core.market.MarketService
 import kr.dongchimi.core.market.NearbyMarketSearchCondition
 import kr.dongchimi.core.product.ProductService
@@ -13,6 +14,7 @@ import java.time.LocalDateTime
 class NearbyMarketQueryFacade(
     private val marketService: MarketService,
     private val productService: ProductService,
+    private val holidayService: HolidayService,
 ) {
     @Transactional(readOnly = true)
     fun getNearbyMarkets(
@@ -28,6 +30,7 @@ class NearbyMarketQueryFacade(
                 .getLatestActiveProducts(marketIds, today, PREVIEW_PRODUCT_SIZE)
                 .groupBy { it.marketId }
         val productCounts = productService.countActiveProductsByMarketIds(marketIds, today)
+        val holidays = holidayService.getHolidays(today)
 
         return CursorSliceResponse(
             content =
@@ -37,6 +40,7 @@ class NearbyMarketQueryFacade(
                         productCount = productCounts[nearbyMarket.market.id] ?: 0,
                         previewProducts = previewProducts[nearbyMarket.market.id].orEmpty(),
                         now = now,
+                        holidays = holidays,
                     )
                 },
             hasNext = slice.hasNext,
