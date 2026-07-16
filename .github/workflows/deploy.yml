@@ -45,20 +45,23 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy on EC2
+      - name: Deploy on EC2 (blue-green switch)
         uses: appleboy/ssh-action@v1
         env:
           GCP_SA_KEY_BASE64: ${{ secrets.GCP_SA_KEY_BASE64 }}
+          IMAGE_TAG: ${{ github.sha }}       # 새 이미지 태그(=커밋 SHA)를 원격 배포 스크립트에 전달
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: GCP_SA_KEY_BASE64            # Vertex 서비스 계정 키(base64)를 원격 스크립트로 전달
+          envs: GCP_SA_KEY_BASE64,IMAGE_TAG  # Vertex 서비스 계정 키(base64) + 이미지 태그를 원격 스크립트로 전달
           script: |
             cd /opt/dongchimi/docker/prod
             # 서비스 계정 키를 EC2에서 파일화 (compose가 마운트하므로 up 전에 존재해야 함)
             mkdir -p secrets
             echo "$GCP_SA_KEY_BASE64" | base64 -d > secrets/gcp-sa.json
             chmod 600 secrets/gcp-sa.json
-            docker compose pull
-            docker compose up -d
+            # 최신 compose/Caddyfile/deploy.sh 반영 (런타임 파일 upstream.conf·active_color는 gitignore라 충돌 없음)
+            git -C /opt/dongchimi pull --ff-only
+            # 블루그린 전환: 반대 색으로 새 이미지 기동 → healthy 시 무중단 전환 → 이전 색 정지
+            IMAGE_TAG="$IMAGE_TAG" bash deploy.sh
