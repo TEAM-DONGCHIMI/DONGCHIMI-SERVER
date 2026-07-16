@@ -9,7 +9,9 @@ plugins {
 
 tasks.register<Exec>("installGitHooks") {
     // git 저장소가 아닌 환경(Docker 이미지 빌드 등)에서는 스킵한다.
-    onlyIf { rootProject.file(".git").exists() }
+    // configuration cache 호환을 위해 Project 참조 대신 구성 시점에 평가한 값을 캡처한다.
+    val isGitRepo = rootProject.file(".git").exists()
+    onlyIf { isGitRepo }
     commandLine("git", "config", "core.hooksPath", ".githooks")
 }
 
