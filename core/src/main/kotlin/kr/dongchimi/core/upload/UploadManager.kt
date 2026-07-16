@@ -41,4 +41,6 @@ class UploadManager(
     }
 
     fun deleteObject(objectKey: String) = storageClient.deleteObject(objectKey)
+
+    fun resolveAccessUrl(objectKey: String): String = storageClient.resolveAccessUrl(objectKey)
 }
