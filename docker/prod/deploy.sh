@@ -27,7 +27,7 @@ IMAGE_TAG="$IMAGE_TAG" docker compose up -d --no-deps "app-$NEW"
 echo "▶ app-$NEW 헬스체크 대기..."
 status=starting
 for i in $(seq 1 30); do
-  status=$(docker inspect -f '{{.State.Health.Status}}' "dongchimi-app-$NEW" 2>/dev/null || echo starting)
+  status=$(docker inspect -f '{{.State.Health.Status}}' "app-$NEW" 2>/dev/null || echo starting)
   echo "   [$i] $status"
   [ "$status" = healthy ] && break
   sleep 5

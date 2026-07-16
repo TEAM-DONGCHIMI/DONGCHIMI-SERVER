@@ -37,7 +37,7 @@ x-app-common: &app-common
 services:
   app-blue:
     <<: *app-common
-    container_name: dongchimi-app-blue                  # inspect로 헬스 상태를 조회하려면 이름 고정이 필수
+    container_name: app-blue                            # inspect로 헬스 상태를 조회하려면 이름 고정이 필수
     profiles: ["blue"]                                  # 이름을 명시할 때만 뜬다 → 맨몸 up으로 둘 다 뜨는 사고 방지
     volumes:
       - ./secrets/gcp-sa.json:/run/secrets/gcp-sa.json:ro # Vertex 서비스 계정 키 (읽기 전용, 두 색이 공유 안전)
@@ -46,7 +46,7 @@ services:
 
   app-green:
     <<: *app-common
-    container_name: dongchimi-app-green
+    container_name: app-green
     profiles: ["green"]
     volumes:
       - ./secrets/gcp-sa.json:/run/secrets/gcp-sa.json:ro
@@ -55,7 +55,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: dongchimi-redis
+    container_name: redis
     command: redis-server --maxmemory 300mb --maxmemory-policy volatile-lru  # 스왑 차단과 세트(상한 없으면 OOM Kill). TTL 있는 키만 LRU로 정리 → 쓰기 실패 없이 self-healing
     expose:
       - "6379"                                            # 내부 네트워크 전용, 호스트 미공개
@@ -72,7 +72,7 @@ services:
 
   caddy:
     image: caddy:2-alpine
-    container_name: dongchimi-caddy
+    container_name: caddy
     ports:
       - "80:80"
       - "443:443"
