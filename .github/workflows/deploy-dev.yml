@@ -1,0 +1,99 @@
+name: deploy-dev
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Discord 알림 - 배포 시작
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          title: "🚀 [dev] 배포 시작"
+          description: "`${{ github.ref_name }}` 브랜치 배포를 시작합니다."
+          color: 0x5865F2
+          nofail: true
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build (테스트 제외 - 컴파일/ktlint 게이트)
+        run: ./gradlew build -x test
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/dongchimi:dev
+            ${{ secrets.DOCKERHUB_USERNAME }}/dongchimi:dev-${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Deploy on EC2
+        uses: appleboy/ssh-action@v1
+        env:
+          GCP_SA_KEY_BASE64: ${{ secrets.GCP_SA_KEY_BASE64 }}
+        with:
+          host: ${{ secrets.DEV_EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: GCP_SA_KEY_BASE64            # Vertex 서비스 계정 키(base64)를 원격 스크립트로 전달
+          script: |
+            cd /opt/dongchimi/docker/dev
+            # 서비스 계정 키를 EC2에서 파일화 (compose가 마운트하므로 up 전에 존재해야 함)
+            mkdir -p secrets
+            echo "$GCP_SA_KEY_BASE64" | base64 -d > secrets/gcp-sa.json
+            chmod 600 secrets/gcp-sa.json
+            docker compose pull
+            docker compose up -d
+
+  notify:
+    needs: [build-and-push, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: 배포 결과 판정
+        id: result
+        run: |
+          if [ "${{ needs.build-and-push.result }}" = "success" ] && [ "${{ needs.deploy.result }}" = "success" ]; then
+            echo "status=success" >> "$GITHUB_OUTPUT"
+          elif [ "${{ needs.build-and-push.result }}" = "cancelled" ] || [ "${{ needs.deploy.result }}" = "cancelled" ]; then
+            echo "status=cancelled" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failure" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Discord 알림 - 배포 결과
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          status: ${{ steps.result.outputs.status }}
+          title: "[dev] 배포 결과"
+          nofail: true

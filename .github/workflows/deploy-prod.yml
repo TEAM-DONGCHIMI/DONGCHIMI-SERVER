@@ -1,19 +1,20 @@
-name: deploy
+name: deploy-prod
 
 on:
-  push:
-    branches: [main]
+  release:
+    types: [published]
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - name: Discord 알림 - 배포 시작
         uses: sarisia/actions-status-discord@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          title: "🚀 배포 시작"
-          description: "`${{ github.ref_name }}` 브랜치 배포를 시작합니다."
+          title: "🚀 [prod] 배포 시작"
+          description: "릴리스 `${{ github.event.release.tag_name }}` 배포를 시작합니다."
           color: 0x5865F2
           nofail: true
 
@@ -46,6 +47,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/dongchimi:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/dongchimi:${{ github.event.release.tag_name }}
             ${{ secrets.DOCKERHUB_USERNAME }}/dongchimi:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -53,6 +55,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    environment: prod
     steps:
       - name: Deploy on EC2
         uses: appleboy/ssh-action@v1
@@ -93,5 +96,5 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
           status: ${{ steps.result.outputs.status }}
-          title: "배포 결과"
+          title: "[prod] 배포 결과"
           nofail: true
