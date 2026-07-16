@@ -9,3 +9,7 @@ view-count:
 
 account-cache:
   ttl: ${ACCOUNT_CACHE_TTL:PT10M}
+
+holiday-cache:
+  ttl: ${HOLIDAY_CACHE_TTL:P1D}
+  fallback-ttl: ${HOLIDAY_CACHE_FALLBACK_TTL:PT10M}

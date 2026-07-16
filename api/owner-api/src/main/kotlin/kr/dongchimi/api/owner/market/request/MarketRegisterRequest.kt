@@ -21,6 +21,8 @@ data class MarketRegisterRequest(
     val longitude: Double,
     @Schema(description = "영업시간 (요일 묶음 배열)")
     val businessHours: List<BusinessHourSlotRequest>,
+    @Schema(description = "공휴일 휴무 여부. 생략 시 false")
+    val isHolidayClosed: Boolean?,
     @Schema(description = "마트 대표 전화번호 1")
     val marketPhone1: String,
     @Schema(description = "마트 전화번호 2 (추가 등록 시)")
@@ -49,7 +51,7 @@ data class MarketRegisterRequest(
         return MarketRegisterCommand(
             info = MarketInfo(name = name, address = mergeAddress(address, detailAddress), thumbnailUrl = thumbnailUrl),
             location = LocationPoint(longitude = longitude, latitude = latitude),
-            businessHours = businessHours.toBusinessHours(),
+            businessHours = businessHours.toBusinessHours(isHolidayClosed),
             phoneNumber = MarketPhoneNumber(marketPhone1, marketPhone2, marketPhonePrimary, ownerPhone),
             brn = brn,
         )
