@@ -42,5 +42,5 @@ gemini:
   project: ${GEMINI_PROJECT:}
   location: ${GEMINI_LOCATION:global}
   model: ${GEMINI_MODEL:gemini-3.1-flash-lite}
-  thinking-level: ${GEMINI_THINKING_LEVEL:low}
+  thinking-level: ${GEMINI_THINKING_LEVEL:minimal}
   timeout: ${GEMINI_TIMEOUT:60s}
