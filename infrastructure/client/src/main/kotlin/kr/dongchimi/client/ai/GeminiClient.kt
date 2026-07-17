@@ -8,6 +8,7 @@ import com.google.genai.types.GenerateContentConfig
 import com.google.genai.types.Part
 import com.google.genai.types.Schema
 import com.google.genai.types.ThinkingConfig
+import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -15,6 +16,12 @@ import org.springframework.stereotype.Component
 import tools.jackson.core.JacksonException
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.ObjectMapper
+import java.util.concurrent.atomic.AtomicInteger
+
+private val logger = KotlinLogging.logger {}
+
+/** 애플리케이션 전체에서 generateContent를 실제로 몇 번 호출했는지 세는 카운터 — 로그의 호출 순번(callNo)으로 쓴다. */
+private val callCounter = AtomicInteger(0)
 
 /** 일시적 HTTP 실패(타임아웃·5xx·429) — 호출부가 작업 전체를 실패시키고 큐 재시도에 맡긴다. */
 class GeminiRequestException(
@@ -68,14 +75,31 @@ class GeminiClient(
                     .thinkingConfig(ThinkingConfig.builder().thinkingLevel(geminiProperties.thinkingLevel).build())
                     .build()
 
+            val callNo = callCounter.incrementAndGet()
+            logger.info {
+                "[Gemini] call #$callNo 요청 — model=${geminiProperties.model}\n" +
+                    "--- systemInstruction ---\n$systemInstruction\n" +
+                    "--- userContent ---\n$userContent"
+            }
+
+            val startedAt = System.currentTimeMillis()
             try {
-                genAiClient.models
-                    .generateContent(geminiProperties.model, userContent, config)
-                    .text()
-                    ?: throw GeminiResponseFormatException("Gemini 응답에 text가 없음")
+                val text =
+                    genAiClient.models
+                        .generateContent(geminiProperties.model, userContent, config)
+                        .text()
+                        ?: throw GeminiResponseFormatException("Gemini 응답에 text가 없음")
+
+                logger.info {
+                    "[Gemini] call #$callNo 응답 — ${System.currentTimeMillis() - startedAt}ms\n" +
+                        "--- output ---\n$text"
+                }
+                text
             } catch (e: ApiException) {
+                logger.warn(e) { "[Gemini] call #$callNo 실패(ApiException) — ${System.currentTimeMillis() - startedAt}ms" }
                 throw GeminiRequestException(e)
             } catch (e: GenAiIOException) {
+                logger.warn(e) { "[Gemini] call #$callNo 실패(GenAiIOException) — ${System.currentTimeMillis() - startedAt}ms" }
                 throw GeminiRequestException(e)
             }
         }
