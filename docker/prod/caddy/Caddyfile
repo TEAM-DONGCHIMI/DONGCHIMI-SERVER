@@ -5,5 +5,7 @@
 }
 
 {$DOMAIN} {
-	reverse_proxy app:8080
+	# 활성 색(app-blue 또는 app-green)을 가리키는 한 줄만 분리한다.
+	# 배포 스크립트가 upstream.conf를 갈아끼운 뒤 `caddy reload`로 무중단 전환한다.
+	import /etc/caddy/upstream.conf
 }

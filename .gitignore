@@ -54,6 +54,10 @@ docs/api
 ### Secrets (서버에만 존재, CI가 배포 때 생성) ###
 docker/prod/secrets/
 
+### 블루그린 런타임 상태 (서버에서 deploy.sh가 관리) ###
+docker/prod/caddy/upstream.conf
+docker/prod/active_color
+
 ### k6 ###
 k6/.env.perf
 k6/results/*
