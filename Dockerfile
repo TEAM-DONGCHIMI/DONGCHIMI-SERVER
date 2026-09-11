@@ -1,20 +1,7 @@
 # syntax=docker/dockerfile:1
 
-# --- build stage ---
-FROM eclipse-temurin:21-jdk AS build
-WORKDIR /app
-
-# 의존성 레이어 캐싱: 빌드 스크립트/래퍼를 먼저 복사
-COPY gradlew settings.gradle.kts build.gradle.kts ./
-COPY gradle gradle
-COPY buildSrc buildSrc
-RUN chmod +x gradlew
-
-# 전체 소스 복사 후 bootJar 빌드 (테스트는 CI 별도 스텝에서 실행)
-COPY . .
-RUN ./gradlew :bootstrap:bootJar -x test --no-daemon
-
-# --- runtime stage ---
+# CI 러너에서 이미 './gradlew build -x test'로 bootJar를 빌드해두므로
+# 이미지 안에서 Gradle을 다시 실행하지 않고 산출물만 담는다.
 FROM eclipse-temurin:21-jre AS runtime
 WORKDIR /app
 
@@ -23,7 +10,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=build /app/bootstrap/build/libs/*.jar app.jar
+COPY bootstrap/build/libs/*.jar app.jar
 
 # 힙 덤프(OOM)/GC 로그 출력 디렉터리 (compose에서 볼륨 마운트해 영속)
 RUN mkdir -p /app/dumps /app/logs

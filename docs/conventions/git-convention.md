@@ -132,16 +132,32 @@ Squash Merge 시 커밋 메시지에 `- #PR번호`를 추가한다.
 
 ---
 
-## 4. 이슈 규칙
+## 4. 배포 규칙
 
-### 4-1. 이슈 생성
+- `main` push → `deploy-dev.yml` 자동 실행 → **dev 서버**에 배포된다
+- **prod 배포는 GitHub Release 발행(published)으로 트리거**한다 (`deploy-prod.yml`)
+  - 릴리스 태그: `vX.Y.Z` (Semantic Versioning)
+  - 릴리스 대상 커밋은 반드시 dev에 먼저 배포되어 검증이 끝난 `main`의 커밋이어야 한다 (Flyway 마이그레이션 순서 보장)
+  - 릴리스 노트에는 포함된 주요 변경사항(머지된 PR 목록)을 간단히 기술한다
+
+```
+PR 머지 → main push → deploy-dev.yml → dev 배포·검증
+                                          ↓
+                    GitHub Release 발행(vX.Y.Z) → deploy-prod.yml → prod 배포
+```
+
+---
+
+## 5. 이슈 규칙
+
+### 5-1. 이슈 생성
 
 `.github/ISSUE_TEMPLATE/-issue-template.md` 템플릿을 사용한다.
 
 - 구현할 내용을 체크리스트로 작성한다
 - 참고 자료가 있으면 함께 첨부한다
 
-### 4-2. 이슈-브랜치-PR 흐름
+### 5-2. 이슈-브랜치-PR 흐름
 
 ```
 이슈 생성 → 브랜치 생성 (이슈번호 포함) → 작업 및 커밋 → PR 생성 (이슈 연결) → 리뷰 → Merge → 브랜치 삭제

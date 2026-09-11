@@ -11,10 +11,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
+import kr.dongchimi.core.admin.DefaultProductThumbnailRepository
+import kr.dongchimi.core.monitoring.ErrorNotificationDispatcher
 import kr.dongchimi.core.product.DraftFailReasonResolver
 import kr.dongchimi.core.product.DraftStatus
 import kr.dongchimi.core.product.PreparedProduct
 import kr.dongchimi.core.product.ProductCategory
+import kr.dongchimi.core.product.importjob.ExactThumbnailMatcher
 import kr.dongchimi.core.product.importjob.ExcelProductParser
 import kr.dongchimi.core.product.importjob.ImportCanceledException
 import kr.dongchimi.core.product.importjob.ImportJob
@@ -50,11 +53,14 @@ class ImportJobProcessor(
     private val excelProductParser: ExcelProductParser,
     private val productCategoryClassifier: ProductCategoryClassifier,
     private val productImageMatcher: ProductImageMatcher,
+    private val exactThumbnailMatcher: ExactThumbnailMatcher,
+    private val defaultProductThumbnailRepository: DefaultProductThumbnailRepository,
     private val importJobProgressStore: ImportJobProgressStore,
     private val importJobEventChannel: ImportJobEventChannel,
     private val importJobCancelSignal: ImportJobCancelSignal,
     private val importJobFinisher: ImportJobFinisher,
     private val draftFailReasonResolver: DraftFailReasonResolver,
+    private val errorNotificationDispatcher: ErrorNotificationDispatcher,
     private val properties: ImportJobProperties,
 ) : ImportJobRunner {
     override suspend fun run(
@@ -86,6 +92,7 @@ class ImportJobProcessor(
                     ),
                 )
             }
+            errorNotificationDispatcher.dispatchJob(e, job.jobId)
         } finally {
             leaseRenewal.cancel()
         }
@@ -152,7 +159,11 @@ class ImportJobProcessor(
         return rows.indices.map { results[it] }
     }
 
-    /** 분류 성공(category != null)한 행만, category와 무관하게 batch-size로 청크를 나눠 배치 호출한다. */
+    /**
+     * 분류 성공(category != null)한 행만 대상으로 한다. 먼저 이름이 후보 썸네일과 정규화 후 정확히
+     * 일치하는 행을 [ExactThumbnailMatcher]로 확정하고, 나머지만 category와 무관하게 batch-size로
+     * 청크를 나눠 AI에 배치 호출한다.
+     */
     private suspend fun matchAll(
         rows: List<ParsedProductRow>,
         categories: List<ProductCategory?>,
@@ -164,10 +175,22 @@ class ImportJobProcessor(
                 ProductImageMatchItem(i, name, category)
             }
 
+        val presentCategories = items.map { it.category }.toSet()
+        val candidates =
+            if (presentCategories.isEmpty()) {
+                emptyList()
+            } else {
+                withContext(Dispatchers.IO) { defaultProductThumbnailRepository.findAllByCategoryIn(presentCategories) }
+            }
+
+        val exactMatched = exactThumbnailMatcher.match(items, candidates)
+        val remaining = items.filter { it.id !in exactMatched }
+
         val results = mutableMapOf<Int, String?>()
+        results += exactMatched
         coroutineScope {
             val semaphore = Semaphore(properties.aiConcurrency)
-            items
+            remaining
                 .chunked(properties.aiBatchSize)
                 .map { chunk -> async { semaphore.withPermit { productImageMatcher.match(chunk) } } }
                 .awaitAll()

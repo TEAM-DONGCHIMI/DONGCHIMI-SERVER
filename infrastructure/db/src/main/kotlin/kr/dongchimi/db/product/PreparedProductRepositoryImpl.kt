@@ -42,6 +42,9 @@ class PreparedProductRepositoryImpl(
     override fun findAllByMarketId(marketId: Long): List<PreparedProduct> =
         preparedProductJpaRepository.findAllByMarketIdAndDeletedAtIsNull(marketId).map { it.toDomain() }
 
+    override fun findAllIdsByMarketId(marketId: Long): List<Long> =
+        preparedProductJpaRepository.findAllIdsByMarketIdAndDeletedAtIsNull(marketId)
+
     override fun findAllByMarketIdAndDraftStatus(
         marketId: Long,
         draftStatus: DraftStatus,

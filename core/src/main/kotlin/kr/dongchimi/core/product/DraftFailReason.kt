@@ -11,4 +11,6 @@ enum class DraftFailReason(
     NAME_MISSING("상품명 미입력"),
     PRICE_MISSING("판매가격 미입력"),
     DISCOUNT_PERIOD_MISSING("할인기간 미설정"),
+    NAME_INVALID("상품명 확인 필요"),
+    PHRASE_INVALID("홍보문구 확인 필요"),
 }

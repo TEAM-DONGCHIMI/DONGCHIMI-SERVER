@@ -29,6 +29,10 @@ class S3StorageClient(
     private val storageProperties: StorageProperties,
     private val s3Properties: S3Properties,
 ) : StorageClient {
+    private val keyPrefix: String? = s3Properties.keyPrefix?.trim('/')?.takeIf { it.isNotBlank() }
+
+    private fun physicalKey(objectKey: String): String = keyPrefix?.let { "$it/$objectKey" } ?: objectKey
+
     override fun createUploadUrl(
         objectKey: String,
         contentType: String,
@@ -38,7 +42,7 @@ class S3StorageClient(
             PutObjectRequest
                 .builder()
                 .bucket(s3Properties.bucket)
-                .key(objectKey)
+                .key(physicalKey(objectKey))
                 .contentType(contentType)
                 .contentLength(contentLength)
                 .build()
@@ -65,7 +69,7 @@ class S3StorageClient(
                     HeadObjectRequest
                         .builder()
                         .bucket(s3Properties.bucket)
-                        .key(objectKey)
+                        .key(physicalKey(objectKey))
                         .build(),
                 )
             StoredObjectMetadata(head.contentType(), head.contentLength())
@@ -81,9 +85,9 @@ class S3StorageClient(
             CopyObjectRequest
                 .builder()
                 .sourceBucket(s3Properties.bucket)
-                .sourceKey(sourceKey)
+                .sourceKey(physicalKey(sourceKey))
                 .destinationBucket(s3Properties.bucket)
-                .destinationKey(destinationKey)
+                .destinationKey(physicalKey(destinationKey))
                 .build(),
         )
         try {
@@ -98,19 +102,25 @@ class S3StorageClient(
             DeleteObjectRequest
                 .builder()
                 .bucket(s3Properties.bucket)
-                .key(objectKey)
+                .key(physicalKey(objectKey))
                 .build(),
         )
     }
 
-    override fun resolveAccessUrl(objectKey: String): String = "${storageProperties.cdnBaseUrl.trimEnd('/')}/$objectKey"
+    override fun resolveAccessUrl(objectKey: String): String = "${storageProperties.cdnBaseUrl.trimEnd('/')}/${physicalKey(objectKey)}"
 
     override fun resolveObjectKey(accessUrl: String): String? {
         val prefix = "${storageProperties.cdnBaseUrl.trimEnd('/')}/"
-        return accessUrl
-            .takeIf { it.startsWith(prefix) }
-            ?.removePrefix(prefix)
-            ?.let { URLDecoder.decode(it, Charsets.UTF_8) }
+        val storedKey =
+            accessUrl
+                .takeIf { it.startsWith(prefix) }
+                ?.removePrefix(prefix)
+                ?.let { URLDecoder.decode(it, Charsets.UTF_8) }
+                ?: return null
+
+        return keyPrefix
+            ?.let { p -> storedKey.takeIf { it.startsWith("$p/") }?.removePrefix("$p/") }
+            ?: storedKey
     }
 
     override fun download(objectKey: String): ByteArray =
@@ -119,7 +129,7 @@ class S3StorageClient(
                 GetObjectRequest
                     .builder()
                     .bucket(s3Properties.bucket)
-                    .key(objectKey)
+                    .key(physicalKey(objectKey))
                     .build(),
             ).use { it.readAllBytes() }
 }

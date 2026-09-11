@@ -2,6 +2,7 @@ package kr.dongchimi.core.product
 
 import kr.dongchimi.core.common.PageOffset
 import kr.dongchimi.core.market.MarketValidator
+import kr.dongchimi.core.upload.UploadService
 import org.springframework.stereotype.Service
 
 @Service
@@ -11,6 +12,7 @@ class PreparedProductService(
     private val preparedProductValidator: PreparedProductValidator,
     private val preparedProductUpdater: PreparedProductUpdater,
     private val preparedProductConfirmer: PreparedProductConfirmer,
+    private val uploadService: UploadService,
 ) {
     fun getDrafts(
         ownerId: Long,
@@ -20,7 +22,9 @@ class PreparedProductService(
     ): List<PreparedProduct> {
         marketValidator.validateOwnership(marketId, ownerId)
 
-        return preparedProductFinder.findDrafts(marketId, condition, pageOffset)
+        return preparedProductFinder
+            .findDrafts(marketId, condition, pageOffset)
+            .map { it.copy(thumbnailUrl = uploadService.resolvePreviewUrl(it.thumbnailUrl)) }
     }
 
     fun getDraftCounts(
@@ -40,7 +44,7 @@ class PreparedProductService(
         marketValidator.validateOwnership(marketId, ownerId)
         preparedProductValidator.validateAllInMarket(commands.map { it.id }, marketId)
 
-        preparedProductUpdater.updateDrafts(commands)
+        preparedProductUpdater.syncDrafts(marketId, commands)
     }
 
     fun confirmDrafts(
@@ -50,7 +54,10 @@ class PreparedProductService(
         marketValidator.validateOwnership(marketId, ownerId)
 
         val drafts = preparedProductFinder.findAllByMarketId(marketId)
-        preparedProductConfirmer.confirm(drafts)
+        uploadService.withConfirmRollback { confirm ->
+            val confirmedDrafts = drafts.map { it.copy(thumbnailUrl = it.thumbnailUrl?.let(confirm)) }
+            preparedProductConfirmer.confirm(confirmedDrafts)
+        }
     }
 
     fun getPreviewDrafts(
@@ -58,6 +65,8 @@ class PreparedProductService(
         marketId: Long,
     ): List<PreparedProduct> {
         marketValidator.validateOwnership(marketId, ownerId)
-        return preparedProductFinder.findAllByMarketIdAndDraftStatus(marketId, DraftStatus.SUCCESS)
+        return preparedProductFinder
+            .findAllByMarketIdAndDraftStatus(marketId, DraftStatus.SUCCESS)
+            .map { it.copy(thumbnailUrl = uploadService.resolvePreviewUrl(it.thumbnailUrl)) }
     }
 }

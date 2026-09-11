@@ -27,6 +27,14 @@ class UploadService(
         }
 
     /**
+     * 아직 confirm되지 않은 tmp 키를 미리보기용 접근 URL로 변환한다. tmp 키가 아니면(이미 URL이면) 그대로 반환한다.
+     */
+    fun resolvePreviewUrl(url: String?): String? =
+        url?.let {
+            if (it.startsWith("${ObjectKeyGenerator.TEMP_PREFIX}/")) uploadManager.resolveAccessUrl(it) else it
+        }
+
+    /**
      * tmp 키가 섞인 URL을 confirm하면서 도메인 저장 로직(action)을 실행한다.
      * action 도중 예외가 나면 그 사이 permanent로 이동된 객체를 전부 롤백한다.
      */

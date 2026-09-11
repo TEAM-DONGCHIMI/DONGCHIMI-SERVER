@@ -3,6 +3,7 @@ package kr.dongchimi.api.owner.flyer.response
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.dongchimi.core.market.Market
 import kr.dongchimi.core.product.Product
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class FlyerDailyPreviewResponse(
@@ -18,6 +19,8 @@ data class FlyerDailyPreviewResponse(
     val isOpenNow: Boolean,
     @Schema(description = "영업시간 (요일 묶음 배열)")
     val businessHours: List<FlyerPreviewBusinessHourResponse>,
+    @Schema(description = "공휴일 휴무 여부")
+    val isHolidayClosed: Boolean,
     @Schema(description = "마트 대표 전화번호 1")
     val marketPhone1: String,
     @Schema(description = "마트 전화번호 2 (없으면 null)")
@@ -32,6 +35,7 @@ data class FlyerDailyPreviewResponse(
     constructor(
         market: Market,
         now: LocalDateTime,
+        holidays: Set<LocalDate>,
         top3: List<Product>,
         dailyProducts: List<Product>,
     ) : this(
@@ -39,8 +43,9 @@ data class FlyerDailyPreviewResponse(
         name = market.info.name,
         thumbnailUrl = market.info.thumbnailUrl,
         address = market.info.address.substringBefore("|"),
-        isOpenNow = market.businessHours.isOpenAt(now),
+        isOpenNow = market.businessHours.isOpenAt(now, holidays),
         businessHours = market.businessHours.slots.map { FlyerPreviewBusinessHourResponse(it) },
+        isHolidayClosed = market.businessHours.isHolidayClosed,
         marketPhone1 = market.phoneNumber.marketPhone1,
         marketPhone2 = market.phoneNumber.marketPhone2,
         ownerPhone = market.phoneNumber.ownerPhone,

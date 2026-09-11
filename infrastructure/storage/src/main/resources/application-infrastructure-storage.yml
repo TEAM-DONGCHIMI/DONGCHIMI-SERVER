@@ -7,3 +7,4 @@ storage:
     bucket: ${S3_BUCKET}
     endpoint: ${S3_ENDPOINT:}
     path-style-access: ${S3_PATH_STYLE:false}
+    key-prefix: ${S3_KEY_PREFIX:}

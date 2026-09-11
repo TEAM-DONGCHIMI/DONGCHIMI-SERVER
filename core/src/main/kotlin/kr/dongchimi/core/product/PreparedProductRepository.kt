@@ -13,6 +13,8 @@ interface PreparedProductRepository {
 
     fun findAllByMarketId(marketId: Long): List<PreparedProduct>
 
+    fun findAllIdsByMarketId(marketId: Long): List<Long>
+
     fun findAllByMarketIdAndDraftStatus(
         marketId: Long,
         draftStatus: DraftStatus,

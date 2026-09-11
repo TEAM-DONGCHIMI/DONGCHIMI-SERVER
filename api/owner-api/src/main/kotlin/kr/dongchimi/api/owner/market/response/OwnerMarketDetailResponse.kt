@@ -18,6 +18,8 @@ data class OwnerMarketDetailResponse(
     val longitude: Double,
     @Schema(description = "영업시간 (요일 묶음 배열)")
     val businessHours: List<OwnerMarketBusinessHourResponse>,
+    @Schema(description = "공휴일 휴무 여부")
+    val isHolidayClosed: Boolean,
     @Schema(description = "마트 대표 전화번호 1")
     val marketPhone1: String,
     @Schema(description = "마트 전화번호 2 (없으면 null)")
@@ -37,6 +39,7 @@ data class OwnerMarketDetailResponse(
         latitude = market.location.latitude,
         longitude = market.location.longitude,
         businessHours = market.businessHours.slots.map { OwnerMarketBusinessHourResponse(it) },
+        isHolidayClosed = market.businessHours.isHolidayClosed,
         marketPhone1 = market.phoneNumber.marketPhone1,
         marketPhone2 = market.phoneNumber.marketPhone2,
         marketPhonePrimary = market.phoneNumber.marketPhonePrimary,

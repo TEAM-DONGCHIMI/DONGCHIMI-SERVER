@@ -18,7 +18,6 @@ import kr.dongchimi.api.owner.product.request.ProductDiscountPeriodUpdateRequest
 import kr.dongchimi.api.owner.product.request.ProductResetRequest
 import kr.dongchimi.api.owner.product.request.ProductSearchRequest
 import kr.dongchimi.api.owner.product.request.ProductUpdateRequest
-import kr.dongchimi.api.owner.product.response.DailyProductRegisterResponse
 import kr.dongchimi.api.owner.product.response.OwnerPreparedProductDraftListResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductDetailResponse
 import kr.dongchimi.api.owner.product.response.OwnerProductListItemResponse
@@ -74,7 +73,7 @@ interface OwnerProductApi {
 
     @Operation(
         summary = "오늘의 특가 등록",
-        description = "점주가 오늘의 특가(DAILY) 상품을 단건 등록한다. 기간은 오늘을 포함해야 하며, 썸네일 미입력 시 null로 저장한다.",
+        description = "점주가 오늘의 특가(DAILY) 상품을 단건 등록하고, 등록된 상품 상세를 반환한다. 기간은 오늘을 포함해야 하며, 썸네일 미입력 시 null로 저장한다.",
     )
     @ApiErrorCode(CommonErrorCode::class, "INVALID_INPUT")
     @ApiErrorCode(MarketErrorCode::class, "MARKET_NOT_FOUND", "MARKET_ACCESS_DENIED")
@@ -83,7 +82,7 @@ interface OwnerProductApi {
         @Parameter(hidden = true) apiUser: OwnerApiUser,
         @Parameter(description = "마트 ID") @PathVariable marketId: Long,
         request: DailyProductRegisterRequest,
-    ): ApiResponse<DailyProductRegisterResponse>
+    ): ApiResponse<OwnerProductDetailResponse>
 
     @Operation(
         summary = "상품 목록 조회",

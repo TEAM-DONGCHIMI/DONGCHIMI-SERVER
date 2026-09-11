@@ -1,0 +1,9 @@
+{
+	email {$ACME_EMAIL}
+	# 최초/테스트 발급 검증 시에만 활성화 (Let's Encrypt rate limit 회피). 검증 후 제거하고 재기동:
+	# acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+{$DOMAIN} {
+	reverse_proxy app:8080
+}

@@ -8,4 +8,5 @@ data class S3Properties(
     val bucket: String,
     val endpoint: String? = null,
     val pathStyleAccess: Boolean = false,
+    val keyPrefix: String? = null,
 )

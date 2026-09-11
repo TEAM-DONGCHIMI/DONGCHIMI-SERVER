@@ -1,0 +1,76 @@
+services:
+  app:
+    image: ${IMAGE_REPO}/dongchimi:${IMAGE_TAG:-dev}      # main push 시 CI가 push하는 dev 태그. 롤백 시 .env에서 dev-<sha>로 변경
+    env_file:
+      - path: .env
+        required: false # 서버에만 존재, git 미포함 (DB_URL은 RDS의 dev 전용 database를 가리킨다)
+    environment:
+      # Vertex AI(ADC) 인증용 서비스 계정 키 경로 — CI가 배포 때 ./secrets/gcp-sa.json에 파일화한 것을 마운트한다(volumes 참고)
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp-sa.json
+      # 메모리/GC 튜닝 — prod와 동일 사이징(t3.small 기준) 유지로 dev에서 prod와 같은 메모리 거동을 재현
+      # dev 인스턴스 스펙이 다르면 여기서만 조정 (이미지 리빌드 불필요)
+      JAVA_OPTS: >-
+        -Xms640m -Xmx640m
+        -XX:MaxMetaspaceSize=224m -XX:ReservedCodeCacheSize=96m -XX:MaxDirectMemorySize=64m
+        -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:+UseStringDeduplication -XX:+UseContainerSupport
+        -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/app/dumps/ -XX:+ExitOnOutOfMemoryError
+        -Xlog:gc*:file=/app/logs/gc.log:time,uptime,level,tags:filecount=5,filesize=10m
+    expose:
+      - "8080"                                            # 내부 네트워크 전용, 호스트 미공개
+    healthcheck:                                          # DB가 아닌 app 자체 헬스체크 (actuator)
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s                                   # Flyway 마이그레이션 포함 기동 시간 여유
+    restart: unless-stopped
+    mem_limit: 1150m                                      # prod와 동일 예산 (docker/prod/docker-compose.yml 주석 참고)
+    memswap_limit: 1150m                                  # = mem_limit → 스왑 차단
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./secrets/gcp-sa.json:/run/secrets/gcp-sa.json:ro # Vertex 서비스 계정 키 (서버에만 존재, CI가 배포 때 생성). up 전에 파일이 있어야 함
+      - app-dumps:/app/dumps                              # OOM 힙 덤프 영속
+      - app-logs:/app/logs                                # GC 로그(gc.log.*) 영속
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --maxmemory 300mb --maxmemory-policy volatile-lru
+    expose:
+      - "6379"                                            # 내부 네트워크 전용, 호스트 미공개
+    mem_limit: 350m
+    memswap_limit: 350m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}                                   # dev 도메인 (예: dev-api.example.com), .env에서 주입
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data                                  # 인증서/ACME 계정 상태 영속 (필수)
+      - caddy-config:/config
+    depends_on:
+      - app
+    restart: unless-stopped
+    mem_limit: 96m
+    memswap_limit: 96m
+
+volumes:
+  caddy-data:
+  caddy-config:
+  redis-data:
+  app-dumps:
+  app-logs:

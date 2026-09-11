@@ -66,23 +66,29 @@ class GeminiProductImageMatcher(
         }
     }
 
-    private fun systemInstruction(candidatesByCategory: Map<ProductCategory, List<DefaultProductThumbnail>>) =
-        """
-        당신은 마트 상품명에 가장 잘 어울리는 대표 이미지를 후보 목록에서 골라주는 도우미입니다.
-        각 상품에는 category가 붙어 있습니다. 반드시 그 상품의 category에 해당하는 후보 목록 안에서만 고르세요.
+    private fun systemInstruction(candidatesByCategory: Map<ProductCategory, List<DefaultProductThumbnail>>): String {
+        val candidatesJson =
+            objectMapper.writeValueAsString(
+                candidatesByCategory.mapKeys { it.key.name }.mapValues { (_, candidates) ->
+                    candidates.map { mapOf("candidateId" to it.id, "name" to it.name) }
+                },
+            )
 
-        카테고리별 이미지 후보 목록:
-        ${candidatesByCategory.entries.joinToString("\n") { (category, candidates) ->
-            "[${category.name}] " + candidates.joinToString(", ") { "id ${it.id}=${it.name}" }
-        }}
+        return """
+            당신은 마트 상품명에 가장 잘 어울리는 대표 이미지를 후보 목록에서 골라주는 도우미입니다.
+            각 상품에는 category가 붙어 있습니다. 반드시 그 상품의 category에 해당하는 후보 목록 안에서만 고르세요.
 
-        규칙:
-        1. 각 상품(id, name, category)에 대해, 그 category 후보 중 상품명과 의미적으로 가장 가까운 후보의 id를 candidateId로 반환하세요.
-        2. 상품의 category 후보 중 적절한 것이 없으면 candidateId를 -1로 반환하세요(스키마에 null이 없어 -1을 "매칭 없음"으로 씁니다).
-        3. candidateId는 반드시 그 상품 category의 후보 목록에 실제로 있는 id이거나 -1이어야 합니다. 다른 category 후보나 목록에 없는 id를 쓰지 마세요.
-        4. 입력받은 모든 상품 id에 대해 정확히 하나의 결과를 반환하세요.
-        5. 지정된 JSON 스키마만 출력하고, 설명이나 다른 텍스트를 추가하지 마세요.
-        """.trimIndent()
+            카테고리별 이미지 후보 목록(JSON, category → [{candidateId, name}]):
+            $candidatesJson
+
+            규칙:
+            1. 각 상품(id, name, category)에 대해, 그 category 후보 중 상품명과 의미적으로 가장 가까운 후보의 candidateId를 반환하세요.
+            2. 상품의 category 후보 중 적절한 것이 없으면 candidateId를 -1로 반환하세요(스키마에 null이 없어 -1을 "매칭 없음"으로 씁니다).
+            3. candidateId는 반드시 그 상품 category의 후보 목록에 실제로 있는 candidateId이거나 -1이어야 합니다. 다른 category 후보나 목록에 없는 candidateId를 쓰지 마세요.
+            4. 입력받은 모든 상품 id에 대해 정확히 하나의 결과를 반환하세요.
+            5. 지정된 JSON 스키마만 출력하고, 설명이나 다른 텍스트를 추가하지 마세요.
+            """.trimIndent()
+    }
 
     companion object {
         private val RESPONSE_SCHEMA: Schema =

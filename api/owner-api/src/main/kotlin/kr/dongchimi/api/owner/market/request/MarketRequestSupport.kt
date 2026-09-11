@@ -48,7 +48,7 @@ internal fun mergeAddress(
     detailAddress: String?,
 ): String = if (detailAddress.isNullOrBlank()) address else "$address|$detailAddress"
 
-internal fun List<BusinessHourSlotRequest>?.toBusinessHours(): BusinessHours {
+internal fun List<BusinessHourSlotRequest>?.toBusinessHours(isHolidayClosed: Boolean?): BusinessHours {
     validate(!this.isNullOrEmpty()) { "영업시간을 입력해 주세요." }
 
     val slots = this!!.map { it.toSlot() }
@@ -57,7 +57,7 @@ internal fun List<BusinessHourSlotRequest>?.toBusinessHours(): BusinessHours {
     validate(allDays.isNotEmpty()) { "영업 요일을 하나 이상 선택해 주세요." }
     validate(allDays.size == allDays.toSet().size) { "같은 요일을 여러 번 지정할 수 없습니다." }
 
-    return BusinessHours(slots)
+    return BusinessHours(slots = slots, isHolidayClosed = isHolidayClosed ?: false)
 }
 
 private fun BusinessHourSlotRequest.toSlot(): BusinessHourSlot {
